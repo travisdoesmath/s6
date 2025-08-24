@@ -91,7 +91,6 @@ let pentagramData = [
     }
 ]
 
-
 let pentagramLocations = {
     'center': { cx: cx, cy: cy },
     'top':  {cx: cx + R * Math.sin(10 * Math.PI / 5), cy: cy - R * Math.cos(10 * Math.PI / 5)},
@@ -103,13 +102,21 @@ let pentagramLocations = {
 
 function drawPentagram(cx, cy, r, data) {
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    
-
-    
-
 
     let location = pentagramLocations[data.location];
     g.setAttribute('transform', `translate(${location.cx}, ${location.cy})`);
+
+    const bgPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    let pathString = 'M';
+    for (let i = 1; i <= 5; i++) {
+        pathString += ` ${r * pentagramCoords[`${i}`].x} ${-r * pentagramCoords[`${i}`].y}`;
+    }
+    pathString += ' Z';
+    bgPath.setAttribute('d', pathString);
+    bgPath.setAttribute('fill', '#444');
+    bgPath.setAttribute('stroke', 'none');
+    g.appendChild(bgPath);
+
     colors.forEach((color, i) => {
         const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
         line.setAttribute('x1', `${r * pentagramCoords['0'].x}`);
@@ -216,6 +223,146 @@ function drawPentagram(cx, cy, r, data) {
 
     mainSvg.appendChild(g);
 }
+
+let g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+g.setAttribute('transform', `translate(${cx}, ${cy})`);
+
+function drawArc(data) {
+    if (data.middle == undefined) {
+        if (data.start === '0') {
+            let line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', `${R * pentagramCoords[data.start].x}`);
+            line.setAttribute('y1', `${-R * pentagramCoords[data.start].y}`);
+            line.setAttribute('x2', `${R * pentagramCoords[data.end].x}`);
+            line.setAttribute('y2', `${-R * pentagramCoords[data.end].y}`);
+            line.setAttribute('stroke', 'black');
+            line.setAttribute('stroke-width', '16');
+            g.appendChild(line);
+            line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', `${R * pentagramCoords[data.start].x}`);
+            line.setAttribute('y1', `${-R * pentagramCoords[data.start].y}`);
+            line.setAttribute('x2', `${R * pentagramCoords[data.end].x}`);
+            line.setAttribute('y2', `${-R * pentagramCoords[data.end].y}`);
+            line.setAttribute('stroke', data.color);
+            line.setAttribute('stroke-width', '8');
+            g.appendChild(line);
+        }
+        else {
+            let arc = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            arc.setAttribute('d', `M ${R * pentagramCoords[data.start].x} ${-R * pentagramCoords[data.start].y} A ${R} ${R} 0 0 1 ${R * pentagramCoords[data.end].x} ${-R * pentagramCoords[data.end].y}`);
+            arc.setAttribute('fill', 'none');
+            arc.setAttribute('stroke', 'black');
+            arc.setAttribute('stroke-width', '16');
+            g.appendChild(arc);
+            arc = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            arc.setAttribute('d', `M ${R * pentagramCoords[data.start].x} ${-R * pentagramCoords[data.start].y} A ${R} ${R} 0 0 1 ${R * pentagramCoords[data.end].x} ${-R * pentagramCoords[data.end].y}`);
+            arc.setAttribute('fill', 'none');
+            arc.setAttribute('stroke', data.color);
+            arc.setAttribute('stroke-width', '8');
+            arc.setAttribute('stroke-linecap', 'round');
+            arc.setAttribute('stroke-dasharray', '1,12');
+            g.appendChild(arc);
+        }
+    } else {
+        [start, end, middle, left, right, color] = [data.start, data.end, data.middle, data.left, data.right, data.color];
+        let pathString = 'M ';
+        let p = 0.45;
+        let startX = R * pentagramCoords[start].x + r * pentagramCoords[end].x;
+        let startY = -R * pentagramCoords[start].y - r * pentagramCoords[end].y;
+        let endX = R * pentagramCoords[end].x + r * pentagramCoords[start].x;
+        let endY = -R * pentagramCoords[end].y - r * pentagramCoords[start].y;
+
+        let c1x = startX + p * (R * pentagramCoords[middle].x + r * pentagramCoords[left].x - startX);
+        let c1y = startY + p * (-R * pentagramCoords[middle].y - r * pentagramCoords[left].y - startY);
+        let c2x = endX + p * (R * pentagramCoords[middle].x + r * pentagramCoords[right].x - endX);
+        let c2y = endY + p * (-R * pentagramCoords[middle].y - r * pentagramCoords[right].y - endY);
+
+        pathString += `${startX} ${-R * pentagramCoords[start].y - r * pentagramCoords[end].y} `;
+
+        pathString += `C ${c1x} ${c1y}, `;
+        pathString += `${c2x} ${c2y}, `;
+        pathString += `${endX} ${endY} `;
+        // pathString += 'S';
+
+        let arc = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        arc.setAttribute('d', pathString);
+        arc.setAttribute('fill', 'none');
+        arc.setAttribute('stroke', 'black');
+        arc.setAttribute('stroke-width', '16');
+        g.appendChild(arc);
+
+        arc = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        arc.setAttribute('d', pathString);
+        arc.setAttribute('fill', 'none');
+        arc.setAttribute('stroke', color);
+        arc.setAttribute('stroke-width', '8');
+        g.appendChild(arc);
+
+    }
+}
+
+let arcData = [
+    {
+        start: '2',
+        end: '5',
+        middle: '1',
+        left: '4',
+        right: '3',
+        color: colors[0]
+    },
+    {
+        start: '1',
+        end: '3',
+        middle: '2',
+        left: '5',
+        right: '4',
+        color: colors[1]
+    },
+    {
+        start: '2',
+        end: '4',
+        middle: '3',
+        left: '1',
+        right: '5',
+        color: colors[2]
+    },
+    {
+        start: '3',
+        end: '5',
+        middle: '4',
+        left: '2',
+        right: '1',
+        color: colors[3]
+    },
+    {
+        start: '1',
+        end: '4',
+        middle: '5',
+        left: '3',
+        right: '2',
+        color: colors[4]
+    }
+]
+
+'12345'.split('').forEach(i => {
+    drawArc({
+        start: '0',
+        end: i,
+        color: colors[i - 1]
+    });
+});
+
+arcData.forEach(arc => {
+    drawArc(arc);
+});
+
+drawArc({ start: '1', end: '2', color: colors[3]});
+drawArc({ start: '2', end: '3', color: colors[4]});
+drawArc({ start: '3', end: '4', color: colors[0]});
+drawArc({ start: '4', end: '5', color: colors[1]});
+drawArc({ start: '5', end: '1', color: colors[2]});
+
+mainSvg.appendChild(g);
 
 pentagramData.forEach(pentagram => {
     const cx = pentagramLocations[pentagram.location].cx;
