@@ -105,6 +105,7 @@ function drawPentagram(cx, cy, r, data) {
 
     let location = pentagramLocations[data.location];
     g.setAttribute('transform', `translate(${location.cx}, ${location.cy})`);
+    g.setAttribute('id', data.location.replace(' ', '-'));
 
     const bgPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     let pathString = 'M';
@@ -266,23 +267,31 @@ function drawArc(data) {
     } else {
         [start, end, middle, left, right, color] = [data.start, data.end, data.middle, data.left, data.right, data.color];
         let pathString = 'M ';
-        let p = 0.45;
-        let startX = R * pentagramCoords[start].x + r * pentagramCoords[end].x;
-        let startY = -R * pentagramCoords[start].y - r * pentagramCoords[end].y;
-        let endX = R * pentagramCoords[end].x + r * pentagramCoords[start].x;
-        let endY = -R * pentagramCoords[end].y - r * pentagramCoords[start].y;
+        let p = 0.75;
 
-        let c1x = startX + p * (R * pentagramCoords[middle].x + r * pentagramCoords[left].x - startX);
-        let c1y = startY + p * (-R * pentagramCoords[middle].y - r * pentagramCoords[left].y - startY);
-        let c2x = endX + p * (R * pentagramCoords[middle].x + r * pentagramCoords[right].x - endX);
-        let c2y = endY + p * (-R * pentagramCoords[middle].y - r * pentagramCoords[right].y - endY);
+        let p0x = R * pentagramCoords[start].x;
+        let p0y = -R * pentagramCoords[start].y;
 
-        pathString += `${startX} ${-R * pentagramCoords[start].y - r * pentagramCoords[end].y} `;
+        let p1x = p * R * pentagramCoords[middle].x;
+        let p1y = -p * R * pentagramCoords[middle].y;
 
-        pathString += `C ${c1x} ${c1y}, `;
-        pathString += `${c2x} ${c2y}, `;
-        pathString += `${endX} ${endY} `;
-        // pathString += 'S';
+        let p2x = R * pentagramCoords[end].x;
+        let p2y = -R * pentagramCoords[end].y;
+
+
+        //pathString += `${p0x} ${p0y} C ${c0x} ${c0y}, ${c1x} ${c1y}, ${p1x} ${p1y} C ${c2x} ${c2y}, ${c3x} ${c3y} ${p2x} ${p2y} C ${c4x} ${c4y} ${c5x} ${c5y} ${p3x} ${p3y}`;
+        //pathString += `${p0x} ${p0y} C ${c0x} ${c0y} ${c1x} ${c1y} ${p1x} ${p1y} S ${c2x} ${c2y} ${p2x} ${p2y}`;
+        pathString += `${p0x} ${p0y} Q ${p1x} ${p1y} ${p2x} ${p2y}`;
+
+        //pathString += `${p0x} ${p0y} L ${c0x} ${c0y} L ${p1x} ${p1y} L ${c2x} ${c2y}, ${p3x} ${p3y}`;
+        //pathString += `${p0x} ${p0y} L ${c0x} ${c0y}`;
+
+        // pathString += `${startX} ${-R * pentagramCoords[start].y - r * pentagramCoords[end].y} `;
+
+        // pathString += `C ${c1x} ${c1y}, `;
+        // pathString += `${c2x} ${c2y}, `;
+        // pathString += `${endX} ${endY} `;
+        // // pathString += 'S';
 
         let arc = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         arc.setAttribute('d', pathString);
@@ -311,24 +320,24 @@ let arcData = [
         color: colors[0]
     },
     {
-        start: '1',
-        end: '3',
+        start: '3',
+        end: '1',
         middle: '2',
         left: '5',
         right: '4',
         color: colors[1]
     },
     {
-        start: '2',
-        end: '4',
+        start: '4',
+        end: '2',
         middle: '3',
         left: '1',
         right: '5',
         color: colors[2]
     },
     {
-        start: '3',
-        end: '5',
+        start: '5',
+        end: '3',
         middle: '4',
         left: '2',
         right: '1',
@@ -371,3 +380,13 @@ pentagramData.forEach(pentagram => {
     drawPentagram(cx, cy, r, pentagram);
 });
 
+function movePentagram([pentagram, start, end, t]) {
+    pentagram.setAttribute('transform', `translate(${start.cx + t * (end.cx - start.cx)}, ${start.cy + t * (end.cy - start.cy)})`);
+
+}
+
+function swapPentagrams(P1, P2) {
+
+}
+
+// document.getElementById('top').setAttribute('style', 'display: none;');
