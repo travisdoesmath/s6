@@ -9,8 +9,8 @@ mainSvg = document.getElementById('main');
 const svgWidth = mainSvg.clientWidth;
 const svgHeight = mainSvg.clientHeight;
 const svgSize = Math.min(svgWidth, svgHeight);
-mainSvg.setAttribute('width', svgSize);
-mainSvg.setAttribute('height', svgSize);
+// mainSvg.setAttribute('width', svgSize);
+// mainSvg.setAttribute('height', svgSize);
 
 const pentagramCoords = {
     'center': {x: 0, y: 0},
