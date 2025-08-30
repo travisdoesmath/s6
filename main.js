@@ -23,10 +23,10 @@ const pentagramCoords = {
 
 let cx = svgSize/2;
 let cy = svgSize/2;
-let R = svgSize * 250/800;
 const r = svgSize / 10;
-const nodeR = r / 4;
-const nodePadding = svgSize / 100;
+let R = svgSize / 2.2 - r;
+const nodeR = Math.max(r / 4, 16);
+const nodePadding = nodeR / 3;
 
 let colors = ['#cc1515', '#e5b900', '#00ad00', '#00a0d8', '#9417e5'];
 
@@ -221,7 +221,7 @@ function createPentagram(pentagram) {
                 line.setAttribute('data-id', duad);
                 let cycle = pentagram['5-cycle'].map((v, i, arr) => {let [a, b] = [v, arr[(i+1) % arr.length]].sort(); return a + b;})
                 if (cycle.includes(duad) && config.showCycle) {
-                    line.setAttribute('stroke-dasharray', '1,12');
+                    line.setAttribute('stroke-dasharray', `1,${r/8}`);
                 }
                 line.setAttribute('stroke-linecap', 'round');
                 synthemeLinesGroup.appendChild(line);
@@ -261,12 +261,12 @@ function createPentagram(pentagram) {
             line.setAttribute('x2', `${(nodeR - nodePadding) * pentagramCoords[locationEnum[right]].x}`);
             line.setAttribute('y2', `${-(nodeR - nodePadding) * pentagramCoords[locationEnum[right]].y}`);
             line.setAttribute('stroke', colors[i - 1]);
-            line.setAttribute('stroke-width', `${r/32}`);
+            line.setAttribute('stroke-width', `${nodeR/10}`);
 
             const circle1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
             circle1.setAttribute('cx', `${(nodeR - nodePadding) * pentagramCoords[locationEnum[left]].x}`);
             circle1.setAttribute('cy', `${-(nodeR - nodePadding) * pentagramCoords[locationEnum[left]].y}`);
-            circle1.setAttribute('r', `${r/32}`);
+            circle1.setAttribute('r', `${nodeR/10}`);
             circle1.setAttribute('fill', colors[i - 1]);
             circle1.setAttribute('stroke', 'none');
             duadGroup.appendChild(circle1);
@@ -274,7 +274,7 @@ function createPentagram(pentagram) {
             const circle2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
             circle2.setAttribute('cx', `${(nodeR - nodePadding) * pentagramCoords[locationEnum[right]].x}`);
             circle2.setAttribute('cy', `${-(nodeR - nodePadding) * pentagramCoords[locationEnum[right]].y}`);
-            circle2.setAttribute('r', `${r/32}`);
+            circle2.setAttribute('r', `${nodeR/10}`);
             circle2.setAttribute('fill', colors[i - 1]);
             circle2.setAttribute('stroke', 'none');
             duadGroup.appendChild(circle2);
