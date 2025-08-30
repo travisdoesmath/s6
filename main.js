@@ -5,10 +5,12 @@ const config = {
 let epsilon = 1/1200
 
 mainSvg = document.getElementById('main');
-
-// Set the width and height of the SVG
-mainSvg.setAttribute('width', '800');
-mainSvg.setAttribute('height', '800');
+// Set the SVG to a square using the smaller of width and height
+const svgWidth = mainSvg.clientWidth;
+const svgHeight = mainSvg.clientHeight;
+const svgSize = Math.min(svgWidth, svgHeight);
+mainSvg.setAttribute('width', svgSize);
+mainSvg.setAttribute('height', svgSize);
 
 const pentagramCoords = {
     'center': {x: 0, y: 0},
@@ -19,12 +21,12 @@ const pentagramCoords = {
     'top left': {x: Math.sin(8 * Math.PI / 5), y: Math.cos(8 * Math.PI / 5)}
 }
 
-let cx = 400;
-let cy = 400;
-let R = 250;
-const r = 80;
-const nodeR = 20;
-const nodePadding = 7.5;
+let cx = svgSize/2;
+let cy = svgSize/2;
+let R = svgSize * 250/800;
+const r = svgSize / 10;
+const nodeR = r / 4;
+const nodePadding = svgSize / 100;
 
 let colors = ['#cc1515', '#e5b900', '#00ad00', '#00a0d8', '#9417e5'];
 
@@ -178,7 +180,7 @@ function createPentagram(pentagram) {
         line.setAttribute('y2', `${-r * pentagramCoords[locationEnum[v]].y}`);
         line.setAttribute('data-id', `${v}`);
         line.setAttribute('stroke', colors[i]);
-        line.setAttribute('stroke-width', '5');
+        line.setAttribute('stroke-width', `${r/16}`);
         line.setAttribute('stroke-linecap', 'round');
         centerLinesGroup.appendChild(line);
     })
@@ -196,7 +198,7 @@ function createPentagram(pentagram) {
         line.setAttribute('x2', `${r * pentagramCoords[locationEnum[right]].x}`);
         line.setAttribute('y2', `${-r * pentagramCoords[locationEnum[right]].y}`);
         line.setAttribute('stroke', 'black');
-        line.setAttribute('stroke-width', '16');
+        line.setAttribute('stroke-width', `${r/5}`);
         line.setAttribute('stroke-linecap', 'round');
         backgroundLinesGroup.appendChild(line);
     })
@@ -215,7 +217,7 @@ function createPentagram(pentagram) {
                 line.setAttribute('x2', `${r * pentagramCoords[locationEnum[right]].x}`);
                 line.setAttribute('y2', `${-r * pentagramCoords[locationEnum[right]].y}`);
                 line.setAttribute('stroke', colors[i]);
-                line.setAttribute('stroke-width', '8');
+                line.setAttribute('stroke-width', `${r/12}`);
                 line.setAttribute('data-id', duad);
                 let cycle = pentagram['5-cycle'].map((v, i, arr) => {let [a, b] = [v, arr[(i+1) % arr.length]].sort(); return a + b;})
                 if (cycle.includes(duad) && config.showCycle) {
@@ -259,12 +261,12 @@ function createPentagram(pentagram) {
             line.setAttribute('x2', `${(nodeR - nodePadding) * pentagramCoords[locationEnum[right]].x}`);
             line.setAttribute('y2', `${-(nodeR - nodePadding) * pentagramCoords[locationEnum[right]].y}`);
             line.setAttribute('stroke', colors[i - 1]);
-            line.setAttribute('stroke-width', '2');
+            line.setAttribute('stroke-width', `${r/32}`);
 
             const circle1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
             circle1.setAttribute('cx', `${(nodeR - nodePadding) * pentagramCoords[locationEnum[left]].x}`);
             circle1.setAttribute('cy', `${-(nodeR - nodePadding) * pentagramCoords[locationEnum[left]].y}`);
-            circle1.setAttribute('r', '2');
+            circle1.setAttribute('r', `${r/32}`);
             circle1.setAttribute('fill', colors[i - 1]);
             circle1.setAttribute('stroke', 'none');
             duadGroup.appendChild(circle1);
@@ -272,7 +274,7 @@ function createPentagram(pentagram) {
             const circle2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
             circle2.setAttribute('cx', `${(nodeR - nodePadding) * pentagramCoords[locationEnum[right]].x}`);
             circle2.setAttribute('cy', `${-(nodeR - nodePadding) * pentagramCoords[locationEnum[right]].y}`);
-            circle2.setAttribute('r', '2');
+            circle2.setAttribute('r', `${r/32}`);
             circle2.setAttribute('fill', colors[i - 1]);
             circle2.setAttribute('stroke', 'none');
             duadGroup.appendChild(circle2);
