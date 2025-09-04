@@ -1,27 +1,47 @@
 drawBackground();
 
 pentagramData.forEach(pentagram => {
-    createPentagram(pentagram);
+    let mainSvg = document.getElementById('main');
+    createPentagram(pentagram, mainSvg);
 });
 
 document.querySelectorAll('.node').forEach(node => {
     node.addEventListener('click', () => {
         let nodeIdx = node.getAttribute('id').split('-')[2];
-        let nodes = document.querySelectorAll(`.node-${nodeIdx}`);
-        nodes.forEach(n => n.classList.toggle('selected'));
+        if (selectedNodeIndices.includes(nodeIdx) || selectedNodeIndices.length < 2)
+        {
+            let nodes = document.querySelectorAll(`.node-${nodeIdx}`);
+            nodes.forEach(n => n.classList.toggle('selected'));
+        }
         if (node.classList.contains('selected') && selectedNodeIndices.length < 2) {
             selectedNodeIndices.push(nodeIdx);
         } else {
             selectedNodeIndices = selectedNodeIndices.filter(n => n !== nodeIdx);
         }
         if (selectedNodeIndices.length === 2) {
+            let duad = selectedNodeIndices.sort().join('');
+            let [a, b] = duad.split('');
             cycle = ['1', '2', '3', '4', '5']
-            let [a, b] = selectedNodeIndices;
             cycle[a - 1] = b;
             cycle[b - 1] = a;
 
-            requestAnimationFrame(animate);
+            let leftPentagram = document.getElementById(`${a}`);
+            let rightPentagram = document.getElementById(`${b}`);
+            let centerPentagram = document.getElementById('0');
+            let highlightDuad = centerPentagram.querySelector(`.background-lines>line[data-id="${duad}"]`)
+            let highlightBgDuad = background.querySelector(`path[data-id="${duad}"]`)
+            let highlightLeftNode = leftPentagram.querySelector(`.nodes>g.node-${testMap[duad]}`)
+            let highlightRightNode = rightPentagram.querySelector(`.nodes>g.node-${testMap[duad]}`)
+            highlightDuad.classList.add('highlight');
+            highlightBgDuad.classList.add('highlight');
+            highlightLeftNode.classList.add('highlight');
+            highlightRightNode.classList.add('highlight');
+
+            // requestAnimationFrame(animate);
+        } else {
+            document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
         }
+
         //requestAnimationFrame(animate);
     });
 });
@@ -43,7 +63,7 @@ function selectNodes(a, b) {
         console.log(currentPhi);
         console.log(currentPhiInverse);
 
-        requestAnimationFrame(animate);
+        // requestAnimationFrame(animate);
     }, 750);
 }
 
@@ -56,4 +76,4 @@ function animationLoop() {
     // requestAnimationFrame(animationLoop);
 }
 
-requestAnimationFrame(animationLoop);
+// requestAnimationFrame(animationLoop);

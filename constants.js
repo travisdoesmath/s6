@@ -1,3 +1,5 @@
+const arcRatio = 1.25;
+
 const config = {
     showCycle: true
 }
@@ -7,13 +9,24 @@ const svgWidth = mainSvg.clientWidth;
 const svgHeight = mainSvg.clientHeight;
 const svgSize = Math.min(svgWidth, svgHeight);
 
-
-const cx = svgSize/2;
-const cy = svgSize/2;
-const r = svgSize / 10;
-const R = svgSize / 2.2 - r;
-const nodeR = Math.max(r / 4, 16);
-const nodePadding = nodeR / 3;
+const middles = {
+    '12': -4,
+    '23': -5,
+    '34': -1,
+    '45': -2,
+    '15': -3,
+    '13': 2,
+    '14': 5,
+    '24': 3,
+    '25': 1,
+    '35': 4
+}
+const cx = 0;
+const cy = 0;
+const r = 10;
+const R = 35;
+const nodeR = 3;
+const nodePadding = 1.25;
 const pentagramCoords = {
     'center': {x: 0, y: 0},
     'top': {x: Math.sin(10 * Math.PI / 5), y: Math.cos(10 * Math.PI / 5)},
@@ -119,4 +132,17 @@ const phi = {
     '34': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4},
     '35': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2},
     '45': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1}
+}
+
+const testMap = {
+    '12': 4,
+    '13': 2,
+    '14': 5,
+    '15': 3,
+    '23': 5,
+    '24': 3,
+    '25': 1,
+    '34': 1,
+    '35': 4,
+    '45': 2
 }

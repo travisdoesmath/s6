@@ -2,93 +2,97 @@ function drawPentagram(p1) {
     drawPentagramInterpolation(p1, p1, 0);
 }
 
-function createPentagram(pentagram) {
-    let pentagramGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    pentagramGroup.setAttribute('id', pentagram.id);
-    pentagramGroups.push(pentagramGroup);
-
-    let backgroundGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    backgroundGroup.setAttribute('class', 'background');
-    pentagramGroup.appendChild(backgroundGroup);
-
-    let linesGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    linesGroup.setAttribute('class', 'lines');
-    pentagramGroup.appendChild(linesGroup);
-
-    let nodesGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    nodesGroup.setAttribute('class', 'nodes');
-    pentagramGroup.appendChild(nodesGroup);
+function createPentagram(pentagram, target) {
+    function createElement(tagName, attributes = {}) {
+        const element = document.createElementNS('http://www.w3.org/2000/svg', tagName);
+        Object.entries(attributes).forEach(([key, value]) => {
+            if (key === 'parent') {
+                value.appendChild(element);
+            } else {
+                element.setAttribute(key, value);
+            }
+        });
+        
+        return element;
+    }
 
     let location = pentagramLocationCoords[locationEnum[pentagramLocations[pentagram.id]]];
-    pentagramGroup.setAttribute('transform', `translate(${location.cx}, ${location.cy})`);
-    pentagramGroup.setAttribute('id', pentagram.id);
 
-    
+    let pentagramGroup = createElement('g', {
+        id: pentagram.id,
+        transform: `translate(${location.cx}, ${location.cy})`,
+        parent: target
+    });
+    pentagramGroups.push(pentagramGroup);
 
-    let bgPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    bgPath.setAttribute('d', createPentagramPath(pentagram));
-    bgPath.setAttribute('fill', '#444');
-    bgPath.setAttribute('stroke', 'none');
-    bgPath.setAttribute('class', 'background')
-    backgroundGroup.appendChild(bgPath);
+    let backgroundGroup = createElement('g', {class: 'background', parent: pentagramGroup});
+    let linesGroup = createElement('g', {class: 'lines', parent: pentagramGroup});
+    let nodesGroup = createElement('g', {class: 'nodes', parent: pentagramGroup});
 
-    let centerLinesGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    centerLinesGroup.setAttribute('class', 'center-lines');
-    linesGroup.appendChild(centerLinesGroup);
+    let bgPath = createElement('path', {d: createPentagramPath(pentagram), class: 'background-path', parent: backgroundGroup});
+
+    let outlinesGroup = createElement('g', {class: 'outlines', parent: linesGroup});
+    let centerLinesGroup = createElement('g', {class: 'center-lines', parent: linesGroup});
 
     [1, 2, 3, 4, 5].forEach((v, i) => {
-        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', 0);
-        line.setAttribute('y1', 0);
-        line.setAttribute('x2', `${r * pentagramCoords[locationEnum[v]].x}`);
-        line.setAttribute('y2', `${-r * pentagramCoords[locationEnum[v]].y}`);
-        line.setAttribute('data-id', `${v}`);
-        line.setAttribute('stroke', colors[i]);
-        line.setAttribute('stroke-width', `${r/16}`);
-        line.setAttribute('stroke-linecap', 'round');
-        centerLinesGroup.appendChild(line);
+        const line = createElement('line', {
+            x1: 0,
+            y1: 0,
+            x2: `${r * pentagramCoords[locationEnum[v]].x}`,
+            y2: `${-r * pentagramCoords[locationEnum[v]].y}`,
+            'data-id': `${v}`,
+            parent: centerLinesGroup
+        });
     })
 
-    let backgroundLinesGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    backgroundLinesGroup.setAttribute('class', 'background-lines');
-    linesGroup.appendChild(backgroundLinesGroup);
+    // let bgDuads = ['12', '23', '34', '45', '15', '13', '24', '35', '14', '25'];
+    // bgDuads.forEach(duad => {
+    //     let [left, right] = duad.split('');
+    //     const line = createElement('line', {
+    //         x1: `${r * pentagramCoords[locationEnum[left]].x}`,
+    //         y1: `${-r * pentagramCoords[locationEnum[left]].y}`,
+    //         x2: `${r * pentagramCoords[locationEnum[right]].x}`,
+    //         y2: `${-r * pentagramCoords[locationEnum[right]].y}`,
+    //         'class': 'background-line',
+    //         'duad': duad,
+    //         parent: backgroundLinesGroup
+    //     });
+    // })
 
-    let bgDuads = ['12', '23', '34', '45', '15', '13', '24', '35', '14', '25'];
-    bgDuads.forEach(duad => {
-        let [left, right] = duad.split('');
-        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', `${r * pentagramCoords[locationEnum[left]].x}`);
-        line.setAttribute('y1', `${-r * pentagramCoords[locationEnum[left]].y}`);
-        line.setAttribute('x2', `${r * pentagramCoords[locationEnum[right]].x}`);
-        line.setAttribute('y2', `${-r * pentagramCoords[locationEnum[right]].y}`);
-        line.setAttribute('stroke', 'black');
-        line.setAttribute('stroke-width', `${r/5}`);
-        line.setAttribute('stroke-linecap', 'round');
-        backgroundLinesGroup.appendChild(line);
-    })
-
-    let synthemeLinesGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    synthemeLinesGroup.setAttribute('class', 'syntheme-lines');
-    linesGroup.appendChild(synthemeLinesGroup);
-
+    let synthemeLinesGroup = createElement('g', {class: 'syntheme-lines', parent: linesGroup});
     pentagram.synthemes.forEach((syntheme, i) => {
         syntheme.forEach(duad => {
             let [left, right] = duad.split('');
             if (left !== '0') {
-                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                line.setAttribute('x1', `${r * pentagramCoords[locationEnum[left]].x}`);
-                line.setAttribute('y1', `${-r * pentagramCoords[locationEnum[left]].y}`);
-                line.setAttribute('x2', `${r * pentagramCoords[locationEnum[right]].x}`);
-                line.setAttribute('y2', `${-r * pentagramCoords[locationEnum[right]].y}`);
-                line.setAttribute('stroke', colors[i]);
-                line.setAttribute('stroke-width', `${r/12}`);
-                line.setAttribute('data-id', duad);
                 let cycle = pentagram['5-cycle'].map((v, i, arr) => {let [a, b] = [v, arr[(i+1) % arr.length]].sort(); return a + b;})
+                let inCycle = false;
                 if (cycle.includes(duad) && config.showCycle) {
-                    line.setAttribute('stroke-dasharray', `1,${r/8}`);
+                    inCycle = true;
                 }
-                line.setAttribute('stroke-linecap', 'round');
-                synthemeLinesGroup.appendChild(line);
+
+
+                const path = arcPath({
+                    start: left,
+                    end: right,
+                    middle: middles[duad],
+                    left: left,
+                    right: right,
+                    color: colors[i - 1]
+                }, r);
+                const outline = createElement('path', {
+                    d: path,
+                    'duad': duad,
+                    'data-id': i + 1,
+                    'class': 'outline',
+                    parent: synthemeLinesGroup
+                });
+                const line = createElement('path', {
+                    d: path,
+                    'duad': duad,
+                    'data-id': i + 1,
+                    'class': inCycle ? 'syntheme-line in-cycle' : 'syntheme-line',
+                    parent: synthemeLinesGroup
+                });
             }
         })
         
@@ -104,7 +108,7 @@ function createPentagram(pentagram) {
         circle.setAttribute('cx', '0');
         circle.setAttribute('cy', '0');
         circle.setAttribute('r', `${nodeR}`);
-        circle.setAttribute('fill', 'black');
+        circle.setAttribute('fill', `var(--color${i}-dark)`);
         node.appendChild(circle);
 
         const synthemeGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
@@ -119,19 +123,22 @@ function createPentagram(pentagram) {
             synthemeGroup.appendChild(duadGroup);
 
             let [left, right] = duad.split('');
-            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            line.setAttribute('x1', `${(nodeR - nodePadding) * pentagramCoords[locationEnum[left]].x}`);
-            line.setAttribute('y1', `${-(nodeR - nodePadding) * pentagramCoords[locationEnum[left]].y}`);
-            line.setAttribute('x2', `${(nodeR - nodePadding) * pentagramCoords[locationEnum[right]].x}`);
-            line.setAttribute('y2', `${-(nodeR - nodePadding) * pentagramCoords[locationEnum[right]].y}`);
-            line.setAttribute('stroke', colors[i - 1]);
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            let path = arcPath({
+                start: left,
+                middle: middles[duad],
+                end: right
+            }, nodeR - nodePadding);
+            line.setAttribute('d', path);
+            line.setAttribute('stroke', `var(--color${i}-light)`);
+            // line.setAttribute('data-id', i)
             line.setAttribute('stroke-width', `${nodeR/10}`);
 
             const circle1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
             circle1.setAttribute('cx', `${(nodeR - nodePadding) * pentagramCoords[locationEnum[left]].x}`);
             circle1.setAttribute('cy', `${-(nodeR - nodePadding) * pentagramCoords[locationEnum[left]].y}`);
             circle1.setAttribute('r', `${nodeR/10}`);
-            circle1.setAttribute('fill', colors[i - 1]);
+            circle1.setAttribute('fill', `var(--color${i}-light)`);
             circle1.setAttribute('stroke', 'none');
             duadGroup.appendChild(circle1);
 
@@ -139,7 +146,7 @@ function createPentagram(pentagram) {
             circle2.setAttribute('cx', `${(nodeR - nodePadding) * pentagramCoords[locationEnum[right]].x}`);
             circle2.setAttribute('cy', `${-(nodeR - nodePadding) * pentagramCoords[locationEnum[right]].y}`);
             circle2.setAttribute('r', `${nodeR/10}`);
-            circle2.setAttribute('fill', colors[i - 1]);
+            circle2.setAttribute('fill', `var(--color${i}-light)`);
             circle2.setAttribute('stroke', 'none');
             duadGroup.appendChild(circle2);
 
@@ -148,8 +155,6 @@ function createPentagram(pentagram) {
 
         nodesGroup.appendChild(node);
     })
-
-    mainSvg.appendChild(pentagramGroup);
 
 }
 
@@ -293,7 +298,55 @@ function interpolatePentagrams(p1, p2, t) {
 
 }
 
-function drawArc(data) {
+function arcPath(data, R, t = 1) {
+        [start, middle, end] = [data.start, data.middle, data.end];
+        if (middle === undefined) {
+            return `M 0 0 L ${R * pentagramCoords[locationEnum[end]].x} ${-R * pentagramCoords[locationEnum[end]].y}`
+        }
+        console.log(data)
+        let inCycle = false;
+        let pathString = 'M ';
+        //let p = 0.75;
+        let p1 = 0.69;
+        let p2 = 1;
+
+        let p0x = R * pentagramCoords[locationEnum[start]].x;
+        let p0y = -R * pentagramCoords[locationEnum[start]].y;
+
+        let p1x;
+        let p1y;
+
+        if (middle < 0) {
+            middle = -middle;
+            p1x = -p2 * R * pentagramCoords[locationEnum[middle]].x;
+            p1y = p2 * R * pentagramCoords[locationEnum[middle]].y;
+            inCycle = true;
+        } else {
+
+            p1x = p1 * R * pentagramCoords[locationEnum[middle]].x;
+            p1y = -p1 * R * pentagramCoords[locationEnum[middle]].y;
+
+        }
+
+        let p2x = R * pentagramCoords[locationEnum[end]].x;
+        let p2y = -R * pentagramCoords[locationEnum[end]].y;
+
+        let q0x = t * p1x + (1 - t) * p0x;
+        let q0y = t * p1y + (1 - t) * p0y;
+
+        let q1x = t * p2x + (1 - t) * p1x;
+        let q1y = t * p2y + (1 - t) * p1y;
+
+        let q2x = t * q1x + (1 - t) * q0x;
+        let q2y = t * q1y + (1 - t) * q0y;
+
+        pathString += `${p0x} ${p0y} Q ${q0x} ${q0y} ${q2x} ${q2y}`;
+        return pathString
+}
+
+function drawArc(data, R, t) {
+    let duad = [data.start, data.end].sort().join('');
+
     if (data.middle == undefined) {
         if (data.start === '0') {
             let line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -301,8 +354,7 @@ function drawArc(data) {
             line.setAttribute('y1', `${-R * pentagramCoords[locationEnum[data.start]].y}`);
             line.setAttribute('x2', `${R * pentagramCoords[locationEnum[data.end]].x}`);
             line.setAttribute('y2', `${-R * pentagramCoords[locationEnum[data.end]].y}`);
-            line.setAttribute('stroke', 'black');
-            line.setAttribute('stroke-width', '16');
+            line.setAttribute('data-id', duad);
             background.appendChild(line);
             line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
             line.setAttribute('x1', `${R * pentagramCoords[locationEnum[data.start]].x}`);
@@ -310,71 +362,52 @@ function drawArc(data) {
             line.setAttribute('x2', `${R * pentagramCoords[locationEnum[data.end]].x}`);
             line.setAttribute('y2', `${-R * pentagramCoords[locationEnum[data.end]].y}`);
             line.setAttribute('class', `bgLine`)
-            line.setAttribute('data-color-idx', data.colorIdx);
-            line.setAttribute('stroke', colors[[data.colorIdx]]);
-            line.setAttribute('stroke-width', '8');
             background.appendChild(line);
         }
         else {
             let arc = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            arc.setAttribute('d', `M ${R * pentagramCoords[locationEnum[data.start]].x} ${-R * pentagramCoords[locationEnum[data.start]].y} A ${R} ${R} 0 0 1 ${R * pentagramCoords[locationEnum[data.end]].x} ${-R * pentagramCoords[locationEnum[data.end]].y}`);
+            arc.setAttribute('d', `
+                M ${R * pentagramCoords[locationEnum[data.start]].x} ${-R * pentagramCoords[locationEnum[data.start]].y} 
+                A ${R} ${R} 0 0 1 ${R * pentagramCoords[locationEnum[data.end]].x} ${-R * pentagramCoords[locationEnum[data.end]].y}
+            `);
             arc.setAttribute('fill', 'none');
-            arc.setAttribute('stroke', 'black');
-            arc.setAttribute('stroke-width', '16');
+            arc.setAttribute('data-id', duad);
             background.appendChild(arc);
             arc = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            arc.setAttribute('d', `M ${R * pentagramCoords[locationEnum[data.start]].x} ${-R * pentagramCoords[locationEnum[data.start]].y} A ${R} ${R} 0 0 1 ${R * pentagramCoords[locationEnum[data.end]].x} ${-R * pentagramCoords[locationEnum[data.end]].y}`);
+            arc.setAttribute('d', `
+                M ${R * pentagramCoords[locationEnum[data.start]].x} ${-R * pentagramCoords[locationEnum[data.start]].y} 
+                A ${R} ${R} 0 0 1 ${R * pentagramCoords[locationEnum[data.end]].x} ${-R * pentagramCoords[locationEnum[data.end]].y}
+            `);
             arc.setAttribute('fill', 'none');
             arc.setAttribute('class', 'bgLine')
             arc.setAttribute('data-color-idx', data.colorIdx);
             arc.setAttribute('stroke', colors[data.colorIdx]);
-            arc.setAttribute('stroke-width', '8');
             arc.setAttribute('stroke-linecap', 'round');
-            arc.setAttribute('stroke-dasharray', '1,12');
+            arc.setAttribute('stroke-dasharray', '1,1');
             background.appendChild(arc);
         }
     } else {
-        [start, end, middle, left, right, color] = [data.start, data.end, data.middle, data.left, data.right, data.color];
-        let pathString = 'M ';
-        let p = 0.75;
-
-        let p0x = R * pentagramCoords[locationEnum[start]].x;
-        let p0y = -R * pentagramCoords[locationEnum[start]].y;
-
-        let p1x = p * R * pentagramCoords[locationEnum[middle]].x;
-        let p1y = -p * R * pentagramCoords[locationEnum[middle]].y;
-
-        let p2x = R * pentagramCoords[locationEnum[end]].x;
-        let p2y = -R * pentagramCoords[locationEnum[end]].y;
-
-
-        //pathString += `${p0x} ${p0y} C ${c0x} ${c0y}, ${c1x} ${c1y}, ${p1x} ${p1y} C ${c2x} ${c2y}, ${c3x} ${c3y} ${p2x} ${p2y} C ${c4x} ${c4y} ${c5x} ${c5y} ${p3x} ${p3y}`;
-        //pathString += `${p0x} ${p0y} C ${c0x} ${c0y} ${c1x} ${c1y} ${p1x} ${p1y} S ${c2x} ${c2y} ${p2x} ${p2y}`;
-        pathString += `${p0x} ${p0y} Q ${p1x} ${p1y} ${p2x} ${p2y}`;
-
-        //pathString += `${p0x} ${p0y} L ${c0x} ${c0y} L ${p1x} ${p1y} L ${c2x} ${c2y}, ${p3x} ${p3y}`;
-        //pathString += `${p0x} ${p0y} L ${c0x} ${c0y}`;
-
-        // pathString += `${startX} ${-R * pentagramCoords[start].y - r * pentagramCoords[end].y} `;
-
-        // pathString += `C ${c1x} ${c1y}, `;
-        // pathString += `${c2x} ${c2y}, `;
-        // pathString += `${endX} ${endY} `;
-        // // pathString += 'S';
+        // [start, end, middle, left, right, color] = [data.start, data.end, data.middle, data.left, data.right, data.color];
+        let inCycle = data.middle < 0;
+        pathString = arcPath(data, R, t);
 
         let arc = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         arc.setAttribute('d', pathString);
-        arc.setAttribute('fill', 'none');
-        arc.setAttribute('stroke', 'black');
-        arc.setAttribute('stroke-width', '16');
+        arc.setAttribute('class', 'outline');
+        arc.setAttribute('data-id', data.colorIdx + 1);
         background.appendChild(arc);
 
         arc = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         arc.setAttribute('d', pathString);
-        arc.setAttribute('fill', 'none');
-        arc.setAttribute('data-color-idx', data.colorIdx);
-        arc.setAttribute('stroke', colors[data.colorIdx]);
-        arc.setAttribute('stroke-width', '8');
+        arc.setAttribute('class', 'bgLine');
+        arc.setAttribute('data-id', data.colorIdx + 1);
+        if (inCycle) {
+            arc.setAttribute('stroke-linecap', 'round');
+            arc.setAttribute('stroke-dasharray', '0,2');
+        } else {
+            arc.setAttribute('stroke-linecap', 'round');
+            // arc.setAttribute('stroke-dasharray', `0,1,${data.colorIdx+1},1`);
+        }
         arc.setAttribute('class', 'bgLine')
         background.appendChild(arc);
 
@@ -431,9 +464,9 @@ function updatePentagrams() {
             });
         });
     });
-    setTimeout(() => {
-        requestAnimationFrame(animationLoop);
-    }, 1000);
+    // setTimeout(() => {
+    //     requestAnimationFrame(animationLoop);
+    // }, 1000);
 
 }
 function animate(t) {
@@ -481,24 +514,32 @@ function animate(t) {
 }
 function drawBackground() {
     background.setAttribute('transform', `translate(${cx}, ${cy})`);
+    background.setAttribute('id', 'background-layer');
 
     '12345'.split('').forEach(i => {
         drawArc({
             start: '0',
             end: i,
             colorIdx: i - 1
-        });
+        }, R);
     });
 
     arcData.forEach(arc => {
-        drawArc(arc);
+        drawArc(arc, R);
     });
 
-    drawArc({ start: '1', end: '2', colorIdx: 3 });
-    drawArc({ start: '2', end: '3', colorIdx: 4 });
-    drawArc({ start: '3', end: '4', colorIdx: 0 });
-    drawArc({ start: '4', end: '5', colorIdx: 1 });
-    drawArc({ start: '5', end: '1', colorIdx: 2 });
+    drawArc({ start: '1', middle: -4, end: '2', colorIdx: 3 }, R);
+    drawArc({ start: '2', middle: -5, end: '3', colorIdx: 4 }, R);
+    drawArc({ start: '3', middle: -1, end: '4', colorIdx: 0 }, R);
+    drawArc({ start: '4', middle: -2, end: '5', colorIdx: 1 }, R);
+    drawArc({ start: '5', middle: -3, end: '1', colorIdx: 2 }, R);
+
+    // drawArc({ start: '1', end: '2', colorIdx: 3 });
+    // drawArc({ start: '2', end: '3', colorIdx: 4 });
+    // drawArc({ start: '3', end: '4', colorIdx: 0 });
+    // drawArc({ start: '4', end: '5', colorIdx: 1 });
+    // drawArc({ start: '5', end: '1', colorIdx: 2 });
+
 
     mainSvg.appendChild(background);
 }
