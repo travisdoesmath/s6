@@ -1,7 +1,3 @@
-function drawPentagram(p1) {
-    drawPentagramInterpolation(p1, p1, 0);
-}
-
 function createElement(tagName, attributes = {}) {
     const element = document.createElementNS('http://www.w3.org/2000/svg', tagName);
     Object.entries(attributes).forEach(([key, value]) => {
@@ -16,11 +12,11 @@ function createElement(tagName, attributes = {}) {
 }
 
 function createPentagramLayers(pentagram, target) {
-    let location = pentagramLocationCoords[locationEnum[pentagramLocations[pentagram.id]]];
+    let location = pentagramCoords[pentagramLocations[pentagram.id]];
 
     let pentagramGroup = createElement('g', {
         id: pentagram.id,
-        transform: `translate(${location.cx}, ${location.cy})`,
+        transform: `translate(${R * location.x}, ${-R * location.y})`,
         parent: target
     });
     pentagramGroups.push(pentagramGroup);
@@ -31,57 +27,34 @@ function createPentagramLayers(pentagram, target) {
     return [pentagramGroup, backgroundGroup, linesGroup, nodesGroup];
 }
 
-function createPentagramPaths(pentagram, backgroundGroup, linesGroup) {
+function createPentagramEdges(pentagram, backgroundGroup, linesGroup) {
     let bgPath = createElement('path', {d: createPentagramPath(pentagram), class: 'background-path', parent: backgroundGroup});
-    let centerLinesGroup = createElement('g', {class: 'center-lines', parent: linesGroup});
-    let outlinesGroup = createElement('g', {class: 'outlines', parent: linesGroup});
 
-    [1, 2, 3, 4, 5].forEach((v, i) => {
-        const line = createElement('line', {
-            x1: 0,
-            y1: 0,
-            x2: `${r * pentagramCoords[locationEnum[v]].x}`,
-            y2: `${-r * pentagramCoords[locationEnum[v]].y}`,
-            'data-id': `${v}`,
-            parent: centerLinesGroup
-        });
+    duadList.forEach(duad => {
+        const outline = createElement('path', {duad: duad, class: 'outline', parent: linesGroup})
+        const path = createElement('path', {duad: duad, class: 'syntheme-line', parent: linesGroup})
     })
 
-        let synthemeLinesGroup = createElement('g', {class: 'syntheme-lines', parent: linesGroup});
     pentagram.synthemes.forEach((syntheme, i) => {
         syntheme.forEach(duad => {
             let [left, right] = duad.split('');
-            if (left !== '0') {
-                let cycle = pentagram['5-cycle'].map((v, i, arr) => {let [a, b] = [v, arr[(i+1) % arr.length]].sort(); return a + b;})
+
+                let pentagramCycle = pentagram['5-cycle'].map((v, i, arr) => {let [a, b] = [v, arr[(i+1) % arr.length]].sort(); return a + b;})
                 let inCycle = false;
-                if (cycle.includes(duad) && config.showCycle) {
+                if (pentagramCycle.includes(duad) && config.showCycle) {
                     inCycle = true;
                 }
 
+                const path = arcPath(duad, r);
 
-                const path = arcPath({
-                    start: left,
-                    end: right,
-                    middle: middles[duad],
-                    left: left,
-                    right: right,
-                    color: colors[i - 1]
-                }, r);
-                const outline = createElement('path', {
-                    d: path,
-                    'duad': duad,
-                    'data-id': i + 1,
-                    'class': 'outline',
-                    parent: outlinesGroup
-                });
-                const line = createElement('path', {
-                    d: path,
-                    'duad': duad,
-                    'data-id': i + 1,
-                    'class': inCycle ? 'syntheme-line in-cycle' : 'syntheme-line',
-                    parent: synthemeLinesGroup
-                });
-            }
+                const duadLines = linesGroup.querySelectorAll(`path[duad="${duad}"]`);
+                duadLines.forEach(line => {
+                    line.setAttribute('d', path)
+                    line.setAttribute('data-id', i + 1)
+                    if (!line.classList.contains('outline') && inCycle) {
+                        line.classList.add('in-cycle')
+                    }
+                })
         })
         
     });
@@ -117,11 +90,7 @@ function createPentagramNodes(pentagram, nodesGroup) {
             });
 
             let [left, right] = duad.split('');
-            const path = arcPath({
-                start: left,
-                middle: middles[duad],
-                end: right
-            }, nodeR - nodePadding);
+            const path = arcPath(duad, nodeR - nodePadding);
 
             const line = createElement('path', {
                 d: path,
@@ -169,19 +138,24 @@ function createPentagramNodes(pentagram, nodesGroup) {
 function createPentagram(pentagram, target) {
 
     let [pentagramGroup, backgroundGroup, linesGroup, nodesGroup] = createPentagramLayers(pentagram, target);
-    createPentagramPaths(pentagram, backgroundGroup, linesGroup);
+    createPentagramEdges(pentagram, backgroundGroup, linesGroup);
     createPentagramNodes(pentagram, nodesGroup);
+    let text = createElement('text', {
+        class: 'pentagram-name',
+        parent: pentagramGroup
+    });
+    text.innerHTML = pentagram.id;
 }
 
-function createPentagramPath(pentagram) {
-    return createInterpolatedPentagramPath(pentagram, pentagram, 0);
+function createPentagramPath() {
+    return createInterpolatedPentagramPath(0);
 }
 
-function interpolateCoordinates(p1, p2, t) {
-    let coords = [{x: 0, y: 0}];
-    for (let i = 0; i < 5; i++) {
-        let p1coords = pentagramCoords[locationEnum[i+1]];
-        let p2coords = pentagramCoords[locationEnum[cycle[i]]];
+function interpolateCoordinates(t) {
+    let coords = [];
+    for (let i = 0; i < 6; i++) {
+        let p1coords = pentagramCoords[locationEnum[i]];
+        let p2coords = pentagramCoords[locationEnum[currentPhi[i]]];
         let interpolatedCoords = {
             x: p1coords.x + (p2coords.x - p1coords.x) * t,
             y: p1coords.y + (p2coords.y - p1coords.y) * t
@@ -191,8 +165,8 @@ function interpolateCoordinates(p1, p2, t) {
     return coords;
 }
 
-function createInterpolatedPentagramPath(p1, p2, t) {
-    let coords = interpolateCoordinates(p1, p2, t);
+function createInterpolatedPentagramPath(t) {
+    let coords = interpolateCoordinates(t);
 
     let pathString = 'M';
 
@@ -204,211 +178,151 @@ function createInterpolatedPentagramPath(p1, p2, t) {
     return pathString;
 }
 
-function interpolatePentagrams(p1, p2, t) {
-    let coords = interpolateCoordinates(p1, p2, t);
+function morphPentagram(pentagram, t) {
+    let coords = interpolateCoordinates(t);
 
-    let pentagramGroup = document.getElementById(p1.id);
+    let pentagramGroup = document.getElementById(pentagram.id);
     let [backgroundGroup, linesGroup, nodesGroup] = Array.from(pentagramGroup.children);
-    let [centerLinesGroup, backgroundLinesGroup, synthemeLinesGroup] = Array.from(linesGroup.children);
-
-    let reverseLocationMap = Object.fromEntries(Object.entries(pentagramLocations).map(([key, value]) => [value, key]));
-
-    let location1 = pentagramLocationCoords[locationEnum[reverseLocationMap[p1.id]]];
-    let location2 = pentagramLocationCoords[locationEnum[reverseLocationMap[p2.id]]];
-    let location = {
-        cx: location1.cx + (location2.cx - location1.cx) * t,
-        cy: location1.cy + (location2.cy - location1.cy) * t
-    };
-    pentagramGroup.setAttribute('transform', `translate(${location.cx}, ${location.cy})`);
 
     const bgPath = backgroundGroup.querySelector('path');
     if (t < 0.5) {
-        bgPath.setAttribute('d', createInterpolatedPentagramPath(p1, p2, t));
-        // centerLinesGroup.setAttribute('opacity', 1 - t * 25);
+        bgPath.setAttribute('d', createInterpolatedPentagramPath(t));
     } else {
-        bgPath.setAttribute('d', createInterpolatedPentagramPath(p2, p1, 1 - t));
-        // centerLinesGroup.setAttribute('opacity', t * 25 - 24);
+        bgPath.setAttribute('d', createInterpolatedPentagramPath(1 - t));
     }
+    
+    const duads = ['01', '02', '03', '04', '05', '12','13','14','15','23','24','25','34','35','45'].map(duad => clockwiseForm[duad]);
 
-    Array.from(centerLinesGroup.children).forEach((line, i) => {
-        let idx = cycle[i];
-        let lineIdx = line.getAttribute('data-id');
-        line.setAttribute('x1', `${0}`);
-        line.setAttribute('y1', `${0}`);
-        line.setAttribute('x2', `${r * coords[lineIdx].x}`)
-        line.setAttribute('y2', `${-r * coords[lineIdx].y}`);
-        // line.setAttribute('x2', `${r * coords[p1['5-cycle'].indexOf(`${i+1}`)].x}`);
-        // line.setAttribute('y2', `${-r * coords[p1['5-cycle'].indexOf(`${i+1}`)].y}`);
-    });
-
-    // let bgDuads = ['12', '23', '34', '45', '15', '13', '24', '35', '14', '25'];
-    // Array.from(backgroundLinesGroup.children).forEach((line, i) => {
-    //     let bgDuad = bgDuads[i];
-    //     line.setAttribute('x1', `${r * coords[bgDuad[0]].x}`);
-    //     line.setAttribute('y1', `${-r * coords[bgDuad[0]].y}`);
-    //     line.setAttribute('x2', `${r * coords[bgDuad[1]].x}`);
-    //     line.setAttribute('y2', `${-r * coords[bgDuad[1]].y}`);
-    // });
-
-    // let duads = p1.synthemes.reduce((x, y) => x.concat(y)).filter(x => x.slice(0,1) != 0)
-    Array.from(synthemeLinesGroup.children).forEach((line, i) => {
-
-        let duad = line.getAttribute('duad');
-        let [left, right] = duad.split('');
-        if (right !== '0') {
-            // right = p1['5-cycle'][right-1];
-            // right = p1['5-cycle'].indexOf(right) + 1;
-        }
-        if (left !== '0') {
-            // left = p1['5-cycle'][left-1];
-            // left = p1['5-cycle'].indexOf(left) + 1;
-        }
-        let left2 = cycle[left - 1];
-        let right2 = cycle[right - 1];
-        let duad2 = clockwiseForm[[cycle[left - 1],  cycle[right - 1]].join('')];
-        
-        let path = interpolatedArcPath(
-            {start: left, middle: middles[duad], end: right}, 
-            {start: right2, middle: middles[duad2], end: left2}, 
+    duads.forEach(duad => {
+        let path = interpolateArcPath(
+            duad,
             r, t);
-        line.setAttribute('d', path);
-        // line.setAttribute('x1', `${r * coords[right].x}`);
-        // line.setAttribute('y1', `${-r * coords[right].y}`);
-        // line.setAttribute('x2', `${r * coords[left].x}`);
-        // line.setAttribute('y2', `${-r * coords[left].y}`);
+        let nodePath = interpolateArcPath(
+            duad, 
+            nodeR - nodePadding, t);
+
+        let synthemeLine = linesGroup.querySelectorAll(`path[duad="${duad}"]`);
+        synthemeLine.forEach(line => line.setAttribute('d', path));
+
+        let nodeSyntheme = nodesGroup.querySelector(`.node>.syntheme>.duad[data-id="${duad}"]`); 
+        nodeSyntheme.querySelector('path').setAttribute('d', nodePath);
     });
+    
 
-    Array.from(nodesGroup.children).forEach((node, i) => {
-        // let idx = p1['5-cycle'][i];
-        let nodeId = node.getAttribute('id');
-        let idx = nodeId.split('-')[2];
 
-        node.setAttribute('transform', `translate(${r * coords[idx].x}, ${-r * coords[idx].y})`);
-        let synthemeGroup = node.children[1];
-        let synthemes = p1.synthemes[i];
-        // if (i !== 0) {
-        //     synthemes = p1.synthemes[idx-1];
-        // }
-        Array.from(synthemeGroup.children).forEach((duadGroup, j) => {
-            let duad = duadGroup.getAttribute('data-id');
-            let [left, right] = duad.split('');
-            // if (left !== '0') {
-            //     left = p1['5-cycle'][left-1];
-            // }
-            // if (right !== '0') {
-            //     right = p1['5-cycle'][right-1];
-            // }
-            Array.from(duadGroup.children).forEach((element, k) => {
-                if (k === 2) { // element is a line
-                    let line = element;
-                    line.setAttribute('x1', `${(nodeR - nodePadding) * coords[left].x}`);
-                    line.setAttribute('y1', `${-(nodeR - nodePadding) * coords[left].y}`);
-                    line.setAttribute('x2', `${(nodeR - nodePadding) * coords[right].x}`);
-                    line.setAttribute('y2', `${-(nodeR - nodePadding) * coords[right].y}`);
-                } else { // element is a circle
-                    let circle = element;
-                    let coordIdx = k % 2 == 0 ? right : left;
-                    circle.setAttribute('cx', `${(nodeR - nodePadding) * coords[coordIdx].x}`);
-                    circle.setAttribute('cy', `${-(nodeR - nodePadding) * coords[coordIdx].y}`);
-                }
-                
-            })
+}
+
+function shiftNodes(t) {
+    [1, 2, 3, 4, 5].forEach(i => {
+        let location1 = pentagramCoords[nodeLocations[i]];
+        let location2 = pentagramCoords[locationEnum[cycleInverse[i-1]]];
+        if (t == 0) {
+            console.log(i, nodeLocations[i], cycle[i-1], locationEnum[cycleInverse[i-1]]);
+        }
+        let nodeLocation = {
+            x: r * (location1.x + (location2.x - location1.x) * t),
+            y: -r * (location1.y + (location2.y - location1.y) * t)
+        }   
+
+        document.querySelectorAll(`.node-${i}`).forEach(node => {
+
+
+            node.setAttribute('transform', `translate(${nodeLocation.x}, ${nodeLocation.y})`);
+
         })
 
-    });
+    })
+}
+
+function shiftPentagram(pentagram, t) {
+    let pentagramGroup = document.getElementById(pentagram.id);
+
+    let reverseLocationMap = Object.fromEntries(Object.entries(pentagramLocations).map(([key, value]) => [value, key]));
+
+    let location1 = pentagramCoords[pentagramLocations[pentagram.id]];
+    let location2 = pentagramCoords[locationEnum[currentPsi[pentagram.id]]];
+
+    let location = {
+        x: R * (location1.x + (location2.x - location1.x) * t),
+        y: -R * (location1.y + (location2.y - location1.y) * t)
+    };
+
+    pentagramGroup.setAttribute('transform', `translate(${location.x}, ${location.y})`);
 
 }
 
-function interpolatedArcPath(data1, data2, R, t) {
-    let [start1, middle1, end1] = [data1.start, data1.middle, data1.end];
-    let [start2, middle2, end2] = [data2.start, data2.middle, data2.end];
-    if (end2 == start1) {
-        [end2, start2] = [start2, end2];
+function interpolatePentagram(pentagram, t) {
+    shiftPentagram(pentagram, t);
+    morphPentagram(pentagram, t);
+}
+
+function interpolateArcPath(duad, R, t) {
+    let [start1, end1] = duad.split('');
+    let [start2, end2] = [start1, end1].map(x => x == 0 ? 0 : cycleInverse[x - 1]);
+
+    let middle1Duad = `${reverseLocationEnum[nodeLocations[start1]]}${reverseLocationEnum[nodeLocations[end1]]}`
+
+    let middle1 = middles[clockwiseForm[middle1Duad]];
+    let middle2 = middles[clockwiseForm[`${start2}${end2}`]];
+    // let middle1 = undefined;
+    // let middle2 = undefined;
+
+    let inCycle = false;
+    let pathString = 'M ';
+    let lambda1 = 0.69;
+    let lambda2 = 1;
+
+    let p1coords = {
+        start: pentagramCoords[nodeLocations[start1]],
+        end: pentagramCoords[nodeLocations[end1]]
     }
+
+    let p2coords = {
+        start: pentagramCoords[locationEnum[start2]],
+        end: pentagramCoords[locationEnum[end2]]
+    }
+
     if (middle1 === undefined) {
-        let coord_x = t * pentagramCoords[locationEnum[end1]].x + (1-t) * pentagramCoords[locationEnum[end2]].x;
-        let coord_y = t * pentagramCoords[locationEnum[end1]].y + (1-t) * pentagramCoords[locationEnum[end2]].y;
-        return `M ${coord_x} ${coord_y} L ${R * pentagramCoords[locationEnum[end2]].x} ${-R * pentagramCoords[locationEnum[end2]].y}`
-    }
-    let inCycle = false;
-    let pathString = 'M ';
-    let p1 = 0.69;
-    let p2 = 1;
-
-    let p0x = R * (t * pentagramCoords[locationEnum[start1]].x + (1-t) * pentagramCoords[locationEnum[start2]].x);
-    let p0y = -R * (t * pentagramCoords[locationEnum[start1]].y + (1-t) * pentagramCoords[locationEnum[start2]].y);
-
-    let p1x;
-    let p1y;
-
-    if (middle1 < 0 && middle2 < 0) {
-        middle1 = -middle1;
-        middle2 = -middle2;
-        p1x = -p2 * R * (t * pentagramCoords[locationEnum[middle1]].x + (1-t) * pentagramCoords[locationEnum[middle2]].x);
-        p1y = p2 * R * (t * pentagramCoords[locationEnum[middle1]].y + (1-t) * pentagramCoords[locationEnum[middle2]].y);
-    } else if (middle1 < 0 && middle2 >= 0) {
-        middle1 = -middle1;
-        p1x = R * (-p2 * t * pentagramCoords[locationEnum[middle1]].x + p1 * (1-t) * pentagramCoords[locationEnum[middle2]].x);
-        p1y = R * (p2 * t * pentagramCoords[locationEnum[middle1]].y + -p1 * (1-t) * pentagramCoords[locationEnum[middle2]].y);
-    } else if (middle1 >= 0 && middle2 < 0) {
-        middle2 = -middle2;
-        p1x = R * (p1 * t * pentagramCoords[locationEnum[middle1]].x + -p2 * (1-t) * pentagramCoords[locationEnum[middle2]].x);
-        p1y = R * (-p1 * t * pentagramCoords[locationEnum[middle1]].y + p2 * (1-t) * pentagramCoords[locationEnum[middle2]].y);
+        p1coords.middle = {x: (p1coords.start.x + p1coords.end.x) / 2, y: (p1coords.start.y + p1coords.end.y) / 2};
+    } else if (middle1 < 0) {
+        let middle = pentagramCoords[locationEnum[-middle1]];
+        p1coords.middle = {x: -lambda2 * middle.x, y: -lambda2 * middle.y};
     } else {
-        p1x = p1 * R * (t * pentagramCoords[locationEnum[middle1]].x + (1-t) * pentagramCoords[locationEnum[middle2]].x);
-        p1y = -p1 * R * (t * pentagramCoords[locationEnum[middle1]].y + (1-t) * pentagramCoords[locationEnum[middle2]].y);
+        let middle = pentagramCoords[locationEnum[middle1]];
+        p1coords.middle = {x: lambda1 * middle.x, y: lambda1 * middle.y};
     }
 
-    let p2x = R * (t * pentagramCoords[locationEnum[end1]].x + (1-t) * pentagramCoords[locationEnum[end2]].x);
-    let p2y = -R * (t * pentagramCoords[locationEnum[end1]].y + (1-t) * pentagramCoords[locationEnum[end2]].y);
+    if (middle2 === undefined) {
+        p2coords.middle = {x: (p2coords.start.x + p2coords.end.x) / 2, y: (p2coords.start.y + p2coords.end.y) / 2};
+    } else if (middle2 < 0) {
+        let middle = pentagramCoords[locationEnum[-middle2]];
+        p2coords.middle = {x: -lambda2 * middle.x, y: -lambda2 * middle.y};
+    } else {
+        let middle = pentagramCoords[locationEnum[middle2]];
+        p2coords.middle = {x: lambda1 * middle.x, y: lambda1 * middle.y};
+    }
 
-    pathString += `${p0x} ${p0y} Q ${p1x} ${p1y} ${p2x} ${p2y}`;
+    let point0 = {
+        x: R * ((1 - t) * p1coords.start.x + t * p2coords.start.x),
+        y: -R * ((1 - t) * p1coords.start.y + t * p2coords.start.y)
+    }
+
+    let point1 = {
+        x: R * ((1 - t) * p1coords.middle.x + t * p2coords.middle.x),
+        y: -R * ((1 - t) * p1coords.middle.y + t * p2coords.middle.y)
+    }
+
+    let point2 = {
+        x: R * ((1 - t) * p1coords.end.x + t * p2coords.end.x),
+        y: -R * ((1 - t) * p1coords.end.y + t * p2coords.end.y)
+    }
+
+    pathString += `${point0.x} ${point0.y} Q ${point1.x} ${point1.y} ${point2.x} ${point2.y}`;
     return pathString
 }
 
-function arcPath(data, R, t = 1) {
-    let [start, middle, end] = [data.start, data.middle, data.end];
-    if (middle === undefined) {
-        return `M 0 0 L ${R * pentagramCoords[locationEnum[end]].x} ${-R * pentagramCoords[locationEnum[end]].y}`
-    }
-    let inCycle = false;
-    let pathString = 'M ';
-    //let p = 0.75;
-    let p1 = 0.69;
-    let p2 = 1;
-
-    let p0x = R * pentagramCoords[locationEnum[start]].x;
-    let p0y = -R * pentagramCoords[locationEnum[start]].y;
-
-    let p1x;
-    let p1y;
-
-    if (middle < 0) {
-        middle = -middle;
-        p1x = -p2 * R * pentagramCoords[locationEnum[middle]].x;
-        p1y = p2 * R * pentagramCoords[locationEnum[middle]].y;
-        inCycle = true;
-    } else {
-
-        p1x = p1 * R * pentagramCoords[locationEnum[middle]].x;
-        p1y = -p1 * R * pentagramCoords[locationEnum[middle]].y;
-
-    }
-
-    let p2x = R * pentagramCoords[locationEnum[end]].x;
-    let p2y = -R * pentagramCoords[locationEnum[end]].y;
-
-    let q0x = t * p1x + (1 - t) * p0x;
-    let q0y = t * p1y + (1 - t) * p0y;
-
-    let q1x = t * p2x + (1 - t) * p1x;
-    let q1y = t * p2y + (1 - t) * p1y;
-
-    let q2x = t * q1x + (1 - t) * q0x;
-    let q2y = t * q1y + (1 - t) * q0y;
-
-    pathString += `${p0x} ${p0y} Q ${q0x} ${q0y} ${q2x} ${q2y}`;
-    return pathString
+function arcPath(duad, R, t = 1) {
+    return interpolateArcPath(duad, R, 0);
 }
 
 function drawArc(data, R, t) {
@@ -458,7 +372,7 @@ function drawArc(data, R, t) {
     } else {
         // [start, end, middle, left, right, color] = [data.start, data.end, data.middle, data.left, data.right, data.color];
         let inCycle = data.middle < 0;
-        pathString = arcPath(data, R, t);
+        pathString = arcPath(duad, R, t);
 
         let arc = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         arc.setAttribute('d', pathString);
@@ -496,46 +410,52 @@ function updatePentagrams() {
         highlight.classList.toggle('highlight');
     });
     pentagramLocations = {
-        0: pentagramLocations[currentPhiInverse[0]],
-        1: pentagramLocations[currentPhiInverse[1]],
-        2: pentagramLocations[currentPhiInverse[2]],
-        3: pentagramLocations[currentPhiInverse[3]],
-        4: pentagramLocations[currentPhiInverse[4]],
-        5: pentagramLocations[currentPhiInverse[5]]
+        0: locationEnum[currentPsi[0]],
+        1: locationEnum[currentPsi[1]],
+        2: locationEnum[currentPsi[2]],
+        3: locationEnum[currentPsi[3]],
+        4: locationEnum[currentPsi[4]],
+        5: locationEnum[currentPsi[5]]
     }
+    for (let i = 1; i <= 5; i++) {
+        nodeLocations[i] = locationEnum[cycleInverse[i - 1]];
+    }
+    
+
+    oldCycle = cycle;
     // pentagramLocations = Object.fromEntries(Object.entries(pentagramLocations).map(([key, value]) => [value, +key]));
-    pentagramGroups.forEach(pentagramGroup => {
-        [backgroundGroup, lineGroup, nodeGroup] = Array.from(pentagramGroup.children);
-        [centerLinesGroup, backgroundLinesGroup, synthemeLinesGroup] = Array.from(lineGroup.children);
-        Array.from(centerLinesGroup.children).forEach((line, i) => {
-            let idx = line.getAttribute('data-id');
-            line.setAttribute('data-id', `${cycle[idx - 1]}`);
-        });
-        Array.from(synthemeLinesGroup.children).forEach(line => {
-            let idx = line.getAttribute('data-id');
-            line.setAttribute('data-id', `${cycle[idx - 1]}`);
-        });
-        Array.from(nodeGroup.children).forEach((node, i) => {
-            let nodeId = node.getAttribute('id');
-            let pentagramIdx = nodeId.split('-')[1];
-            let nodeIdx = nodeId.split('-')[2];
-            let idx = cycle[nodeIdx - 1];
-            node.setAttribute('id', `node-${pentagramIdx}-${idx}`);
-            node.setAttribute('class', `node node-${idx}`);
-            let synthemeGroup = node.children[1];
-            Array.from(synthemeGroup.children).forEach(duadGroup => {
-                let duad = duadGroup.getAttribute('data-id');
-                [left, right] = duad.split('');
-                if (left !== '0') {
-                    left = cycle[left - 1];
-                }
-                if (right !== '0') {
-                    right = cycle[right - 1];
-                }
-                duadGroup.setAttribute('data-id', `${left}${right}`);
-            });
-        });
-    });
+    // pentagramGroups.forEach(pentagramGroup => {
+    //     [backgroundGroup, lineGroup, nodeGroup] = Array.from(pentagramGroup.children);
+    //     [centerLinesGroup, backgroundLinesGroup, synthemeLinesGroup] = Array.from(lineGroup.children);
+    //     Array.from(centerLinesGroup.children).forEach((line, i) => {
+    //         let idx = line.getAttribute('data-id');
+    //         line.setAttribute('data-id', `${cycle[idx - 1]}`);
+    //     });
+    //     Array.from(synthemeLinesGroup.children).forEach(line => {
+    //         let idx = line.getAttribute('data-id');
+    //         line.setAttribute('data-id', `${cycle[idx - 1]}`);
+    //     });
+    //     Array.from(nodeGroup.children).forEach((node, i) => {
+    //         let nodeId = node.getAttribute('id');
+    //         let pentagramIdx = nodeId.split('-')[1];
+    //         let nodeIdx = nodeId.split('-')[2];
+    //         let idx = cycle[nodeIdx - 1];
+    //         node.setAttribute('id', `node-${pentagramIdx}-${idx}`);
+    //         node.setAttribute('class', `node node-${idx}`);
+    //         let synthemeGroup = node.children[1];
+    //         Array.from(synthemeGroup.children).forEach(duadGroup => {
+    //             let duad = duadGroup.getAttribute('data-id');
+    //             [left, right] = duad.split('');
+    //             if (left !== '0') {
+    //                 left = cycle[left - 1];
+    //             }
+    //             if (right !== '0') {
+    //                 right = cycle[right - 1];
+    //             }
+    //             duadGroup.setAttribute('data-id', `${left}${right}`);
+    //         });
+    //     });
+    // });
     // setTimeout(() => {
     //     requestAnimationFrame(animationLoop);
     // }, 1000);
@@ -562,18 +482,15 @@ function animate(t) {
             });
             updateBackground = false;
         }
-        let duad = clockwiseForm[selectedNodeIndices.join('')];
-        currentPhi = phi[duad]
-        currentPhiInverse = Object.fromEntries(Object.entries(currentPhi).map(([key, value]) => [value, +key]));
-
         // let reverseLocationMap = Object.fromEntries(Object.entries(pentagramLocations).map(([key, value]) => [value, key]));
 
-        interpolatePentagrams(pentagramData[pentagramLocations[0]], pentagramData[pentagramLocations[currentPhi[0]]], easeInOutCubic(shift));
-        interpolatePentagrams(pentagramData[pentagramLocations[1]], pentagramData[pentagramLocations[currentPhi[1]]], easeInOutCubic(shift));
-        interpolatePentagrams(pentagramData[pentagramLocations[2]], pentagramData[pentagramLocations[currentPhi[2]]], easeInOutCubic(shift));
-        interpolatePentagrams(pentagramData[pentagramLocations[3]], pentagramData[pentagramLocations[currentPhi[3]]], easeInOutCubic(shift));
-        interpolatePentagrams(pentagramData[pentagramLocations[4]], pentagramData[pentagramLocations[currentPhi[4]]], easeInOutCubic(shift));
-        interpolatePentagrams(pentagramData[pentagramLocations[5]], pentagramData[pentagramLocations[currentPhi[5]]], easeInOutCubic(shift));
+        interpolatePentagram(pentagramData[0], easeInOutCubic(shift));
+        interpolatePentagram(pentagramData[1], easeInOutCubic(shift));
+        interpolatePentagram(pentagramData[2], easeInOutCubic(shift));
+        interpolatePentagram(pentagramData[3], easeInOutCubic(shift));
+        interpolatePentagram(pentagramData[4], easeInOutCubic(shift));
+        interpolatePentagram(pentagramData[5], easeInOutCubic(shift));
+        shiftNodes(easeInOutCubic(shift));
 
         requestAnimationFrame(animate);
 
@@ -585,7 +502,6 @@ function animate(t) {
     
 }
 function drawBackground() {
-    background.setAttribute('transform', `translate(${cx}, ${cy})`);
     background.setAttribute('id', 'background-layer');
 
     '12345'.split('').forEach(i => {

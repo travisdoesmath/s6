@@ -19,15 +19,36 @@ document.querySelectorAll('.node').forEach(node => {
             selectedNodeIndices = selectedNodeIndices.filter(n => n !== nodeIdx);
         }
         if (selectedNodeIndices.length === 2) {
-            let duad = clockwiseForm[selectedNodeIndices.join('')];
+            
+            let reversePentagramLocationMap = Object.fromEntries(Object.entries(pentagramLocations).map(([k,v]) => [v,k]));
+            let reverseNodeLocationMap = Object.fromEntries(Object.entries(nodeLocations).map(([k,v]) => [v,k]));
+
+            let duad = clockwiseForm[selectedNodeIndices.map(x => reverseLocationEnum[nodeLocations[x]]).join('')];
+            console.log(duad)
+
+            for (let i = 0; i < 5; i++) {
+                currentPhi[i] = phi[duad][currentPhi[i]];
+            }
+            currentPhiInverse = Object.fromEntries(Object.entries(currentPhi).map(([key, value]) => [value, +key]));
+
+            for (let i = 0; i < 6; i++) {
+                currentPsi[i] = phi[duad][currentPsi[i]];
+            }
+            currentPsiInverse = Object.fromEntries(Object.entries(currentPsi).map(([key, value]) => [value, +key]));
+
             let [a, b] = duad.split('');
-            cycle = ['1', '2', '3', '4', '5']
-            cycle[a - 1] = b;
-            cycle[b - 1] = a;
+            //cycle = ['1', '2', '3', '4', '5']
+            console.log(selectedNodeIndices, duad, a, b, cycle[a - 1], cycle[b - 1]);
+            let swap = cycle[a - 1];
+            cycle[a - 1] = cycle[b - 1];
+            cycle[b - 1] = swap;
+            cycleInverse = [1, 2, 3, 4, 5].map(i => cycle.indexOf(i) + 1);
+            console.log(cycle); 
 
             let leftPentagram = document.getElementById(`${a}`);
             let rightPentagram = document.getElementById(`${b}`);
-            let centerPentagram = document.getElementById('0');
+            
+            let centerPentagram = document.getElementById(reversePentagramLocationMap['center']);
             let highlightDuad = centerPentagram.querySelector(`.outline[duad="${duad}"]`)
             let highlightBgDuad = background.querySelector(`path[duad="${duad}"]`)
             let highlightLeftNode = leftPentagram.querySelector(`.nodes>g.node-${testMap[duad]}`)
@@ -39,7 +60,7 @@ document.querySelectorAll('.node').forEach(node => {
 
             setTimeout(() => {
                 requestAnimationFrame(animate);
-            }, 4000)
+            }, 0)
 
             // requestAnimationFrame(animate);
         } else {
@@ -50,26 +71,26 @@ document.querySelectorAll('.node').forEach(node => {
     });
 });
 
-function selectNodes(a, b) {
-    selectedNodeIndices = [a, b];
-    let nodesA = document.querySelectorAll(`.node-${a}`);
-    nodesA.forEach(n => n.classList.add('selected'));
-    setTimeout(() => {
-        let nodesB = document.querySelectorAll(`.node-${b}`);
-        nodesB.forEach(n => n.classList.add('selected'));
-    }, 500);
-    setTimeout(() => {
-        let [a, b] = selectedNodeIndices;
-        cycle = ['1', '2', '3', '4', '5'];
-        cycle[a - 1] = b;
-        cycle[b - 1] = a;
-        console.log(cycle);
-        console.log(currentPhi);
-        console.log(currentPhiInverse);
+// function selectNodes(a, b) {
+//     selectedNodeIndices = [a, b];
+//     let nodesA = document.querySelectorAll(`.node-${a}`);
+//     nodesA.forEach(n => n.classList.add('selected'));
+//     setTimeout(() => {
+//         let nodesB = document.querySelectorAll(`.node-${b}`);
+//         nodesB.forEach(n => n.classList.add('selected'));
+//     }, 500);
+//     setTimeout(() => {
+//         let [a, b] = selectedNodeIndices;
+//         cycle = ['1', '2', '3', '4', '5'];
+//         cycle[a - 1] = b;
+//         cycle[b - 1] = a;
+//         console.log(cycle);
+//         console.log(currentPhi);
+//         console.log(currentPhiInverse);
 
-        // requestAnimationFrame(animate);
-    }, 750);
-}
+//         // requestAnimationFrame(animate);
+//     }, 750);
+// }
 
 function animationLoop() {
     let nodes = ['1', '2', '3', '4', '5'];

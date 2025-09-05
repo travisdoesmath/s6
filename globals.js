@@ -1,7 +1,10 @@
 let colors = ['#d55e00', '#cc79a7', '#0072b2', '#f0e442', '	#009e73'];
 let cycle = [1, 2, 3, 4, 5];
+let cycleInverse = [1, 2, 3, 4, 5];
 let currentPhi = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5};
 let currentPhiInverse = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5};
+let currentPsi = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5};
+let currentPsiInverse = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5};
 let arcData = [
     {
         start: '2',
@@ -45,13 +48,22 @@ let arcData = [
     }
 ]
 let pentagramLocations = {
-    0: 0,
-    1: 1,
-    2: 2,
-    3: 3,
-    4: 4,
-    5: 5
+    0: 'center',
+    1: 'top',
+    2: 'top right',
+    3: 'bottom right',
+    4: 'bottom left',
+    5: 'top left'
 }
+let nodeLocations = {
+    0: 'center',
+    1: 'top',
+    2: 'top right',
+    3: 'bottom right',
+    4: 'bottom left',
+    5: 'top left'
+}
+
 let pentagramGroups = [];
 let animStart;
 let updateBackground = true;

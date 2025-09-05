@@ -1,4 +1,14 @@
 const clockwiseForm = {
+    '01': '01',
+    '10': '01',
+    '02': '02',
+    '20': '02',
+    '03': '03',
+    '30': '03',
+    '04': '04',
+    '40': '04',
+    '05': '05',
+    '50': '05',
     '12': '12',
     '21': '12',
     '23': '23',
@@ -20,6 +30,24 @@ const clockwiseForm = {
     '25': '52',
     '52': '52',
 }
+
+const duadList = [
+    '05',
+    '04',
+    '03',
+    '02',
+    '01',
+    '12',
+    '23',
+    '34',
+    '45',
+    '51',
+    '13',
+    '24',
+    '35',
+    '41',
+    '52',
+]
 
 const arcRatio = 1.25;
 
@@ -44,8 +72,6 @@ const middles = {
     '41': 5,
     '52': 1,
 }
-const cx = 0;
-const cy = 0;
 const r = 10;
 const R = 35;
 const nodeR = 3;
@@ -58,14 +84,7 @@ const pentagramCoords = {
     'bottom left': {x: Math.sin(6 * Math.PI / 5), y: Math.cos(6 * Math.PI / 5)},
     'top left': {x: Math.sin(8 * Math.PI / 5), y: Math.cos(8 * Math.PI / 5)}
 }
-const pentagramLocationCoords = {
-    'center': { cx: cx, cy: cy },
-    'top':  {cx: cx + R * Math.sin(10 * Math.PI / 5), cy: cy - R * Math.cos(10 * Math.PI / 5)},
-    'top right': { cx: cx + R * Math.sin(2 * Math.PI / 5), cy: cy - R * Math.cos(2 * Math.PI / 5) },
-    'bottom right': { cx: cx + R * Math.sin(4 * Math.PI / 5), cy: cy - R * Math.cos(4 * Math.PI / 5) },
-    'bottom left': { cx: cx + R * Math.sin(6 * Math.PI / 5), cy: cy - R * Math.cos(6 * Math.PI / 5) },
-    'top left': { cx: cx + R * Math.sin(8 * Math.PI / 5), cy: cy - R * Math.cos(8 * Math.PI / 5) }
-}
+
 const pentagramData = [
     {
         id: 0,
@@ -141,8 +160,16 @@ const locationEnum = {
     3: 'bottom right',
     4: 'bottom left',
     5: 'top left'
-
 }
+const reverseLocationEnum = {
+    'center': 0,
+    'top': 1,
+    'top right': 2,
+    'bottom right': 3,
+    'bottom left': 4,
+    'top left': 5
+}
+
 const background = document.createElementNS('http://www.w3.org/2000/svg', 'g');
 const phi = {
     '12': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1},

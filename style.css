@@ -112,7 +112,7 @@ line[data-id] {
     stroke-width: 0.5;
 }
 
-.syntheme-lines {
+.syntheme-line {
     stroke-width: 1;
     fill: none;
 }
@@ -273,7 +273,7 @@ img {
     display:block;
 }
 
-.outlines>.outline.highlight {
+.outline.highlight {
     animation: pulse1 ease-in-out 4s infinite;
 }
 
@@ -291,4 +291,10 @@ img {
     border-radius:5px;
     color: white;
     text-decoration: none;
+}
+
+.pentagram-name {
+    text-anchor: middle;
+    font-size: 10px;
+    dominant-baseline: central;
 }
