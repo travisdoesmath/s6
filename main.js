@@ -19,7 +19,7 @@ document.querySelectorAll('.node').forEach(node => {
             selectedNodeIndices = selectedNodeIndices.filter(n => n !== nodeIdx);
         }
         if (selectedNodeIndices.length === 2) {
-            let duad = selectedNodeIndices.sort().join('');
+            let duad = clockwiseForm[selectedNodeIndices.join('')];
             let [a, b] = duad.split('');
             cycle = ['1', '2', '3', '4', '5']
             cycle[a - 1] = b;
@@ -28,14 +28,18 @@ document.querySelectorAll('.node').forEach(node => {
             let leftPentagram = document.getElementById(`${a}`);
             let rightPentagram = document.getElementById(`${b}`);
             let centerPentagram = document.getElementById('0');
-            let highlightDuad = centerPentagram.querySelector(`.background-lines>line[data-id="${duad}"]`)
-            let highlightBgDuad = background.querySelector(`path[data-id="${duad}"]`)
+            let highlightDuad = centerPentagram.querySelector(`.outline[duad="${duad}"]`)
+            let highlightBgDuad = background.querySelector(`path[duad="${duad}"]`)
             let highlightLeftNode = leftPentagram.querySelector(`.nodes>g.node-${testMap[duad]}`)
             let highlightRightNode = rightPentagram.querySelector(`.nodes>g.node-${testMap[duad]}`)
             highlightDuad.classList.add('highlight');
             highlightBgDuad.classList.add('highlight');
             highlightLeftNode.classList.add('highlight');
             highlightRightNode.classList.add('highlight');
+
+            setTimeout(() => {
+                requestAnimationFrame(animate);
+            }, 4000)
 
             // requestAnimationFrame(animate);
         } else {

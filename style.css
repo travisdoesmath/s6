@@ -1,14 +1,3 @@
-@keyframes pulse {
-    0% {
-        filter: drop-shadow(0 0 5px #f0e442);
-    }
-    50% {
-        filter: drop-shadow(0 0 15px #f0e442);
-    }
-    100% {
-        filter: drop-shadow(0 0 5px #f0e442);
-    }
-}
 
 :root {
     --lightness: 50%;
@@ -20,6 +9,9 @@
     --color4: oklch(60% 0.20 250);
     --color5: oklch(50% 0.25 300); */
 
+    /* https://davidmathlogic.com/colorblind/#%23DFD072-%23E87DE8-%23E36400-%231078B9-%2329A38D */
+
+    
     --color1: oklch(85.031% 0.11661 100.402);
     --color1-dark: oklch(22% 0.11661 100.402);
     --color1-light: oklch(90% 0.11661 100.402);
@@ -36,11 +28,80 @@
     --color5-dark: oklch(18% 0.17929 47.238);
     --color5-light: oklch(80% 0.17929 47.238);
 
-    /* https://davidmathlogic.com/colorblind/#%23DFD072-%23E87DE8-%23E36400-%231078B9-%2329A38D */
-    
+
+    /* --hue-offset: -30;
+
+    --color1: oklch(35% 0.1 calc(var(--hue-offset) + 0));
+    --color2: oklch(40% 0.15 calc(var(--hue-offset) + 30));
+    --color3: oklch(48% 0.05 calc(var(--hue-offset) + 60));
+    --color4: oklch(60% 0.2 calc(var(--hue-offset) + 90));
+    --color5: oklch(70% 0.05 calc(var(--hue-offset) + 100));
+
+    --color1-dark: oklch(20% 0.05 calc(var(--hue-offset) + 0));
+    --color2-dark: oklch(25% 0.1 calc(var(--hue-offset) + 30));
+    --color3-dark: oklch(30% 0.05 calc(var(--hue-offset) + 60));
+    --color4-dark: oklch(32.5% 0.1 calc(var(--hue-offset) + 90));
+    --color5-dark: oklch(35% 0.1 calc(var(--hue-offset) + 100));
+
+    --color1-light: oklch(45% 0.1 calc(var(--hue-offset) + 0));
+    --color2-light: oklch(65% 0.1 calc(var(--hue-offset) + 30));
+    --color3-light: oklch(75% 0.05 calc(var(--hue-offset) + 60));
+    --color4-light: oklch(85% 0.1 calc(var(--hue-offset) + 90));
+    --color5-light: oklch(95% 0.05 calc(var(--hue-offset) + 100)); */
 
     --bg-color: #444;
 }
+
+@keyframes pulse1 {
+    0% {
+        filter: drop-shadow(0 0 0px #f0e442);
+    }
+    10% {
+        filter: drop-shadow(0 0 1px #f0e442);
+    }
+    20%, 100% {
+        filter: drop-shadow(0 0 0px #f0e442);
+    }
+}
+
+@keyframes pulse2 {
+    0%, 20% {
+        filter: drop-shadow(0 0 0.5px #f0e442);
+    }
+    30% {
+        filter: drop-shadow(0 0 1px #f0e442);
+    }
+    40%, 100% {
+        filter: drop-shadow(0 0 0.5px #f0e442);
+    }
+}
+
+@keyframes pulse3 {
+    0%, 40% {
+        filter: drop-shadow(0 0 0.5px #f0e442);
+    }
+    50% {
+        filter: drop-shadow(0 0 1px #f0e442);
+    }
+    60%, 100% {
+        filter: drop-shadow(0 0 0.5px #f0e442);
+    }
+}
+
+@keyframes pulse4 {
+    0%, 60% {
+        filter: drop-shadow(0 0 0.5px #f0e442);
+    }
+    70% {
+        filter: drop-shadow(0 0 1px #f0e442);
+    }
+    80%, 100% {
+        filter: drop-shadow(0 0 0.5px #f0e442);
+    }
+}
+
+
+
 
 line[data-id] {
 
@@ -212,8 +273,16 @@ img {
     display:block;
 }
 
-.highlight {
-    animation: pulse ease-in-out 2s infinite;
+.outlines>.outline.highlight {
+    animation: pulse1 ease-in-out 4s infinite;
+}
+
+#background-layer>.outline.highlight {
+    animation: 4s pulse1 ease-in-out 1s infinite;
+}
+
+.node.highlight {
+    animation: 4s pulse1 ease-in-out 2s infinite;
 }
 
 .coffee {
