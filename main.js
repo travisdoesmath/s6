@@ -21,10 +21,8 @@ document.querySelectorAll('.node').forEach(node => {
         if (selectedNodeIndices.length === 2) {
             
             let reversePentagramLocationMap = Object.fromEntries(Object.entries(pentagramLocations).map(([k,v]) => [v,k]));
-            let reverseNodeLocationMap = Object.fromEntries(Object.entries(nodeLocations).map(([k,v]) => [v,k]));
 
             let duad = clockwiseForm[selectedNodeIndices.map(x => reverseLocationEnum[nodeLocations[x]]).join('')];
-            console.log(duad)
 
             for (let i = 0; i < 5; i++) {
                 currentPhi[i] = phi[duad][currentPhi[i]];
@@ -37,26 +35,23 @@ document.querySelectorAll('.node').forEach(node => {
             currentPsiInverse = Object.fromEntries(Object.entries(currentPsi).map(([key, value]) => [value, +key]));
 
             let [a, b] = duad.split('');
-            //cycle = ['1', '2', '3', '4', '5']
-            console.log(selectedNodeIndices, duad, a, b, cycle[a - 1], cycle[b - 1]);
             let swap = cycle[a - 1];
             cycle[a - 1] = cycle[b - 1];
             cycle[b - 1] = swap;
             cycleInverse = [1, 2, 3, 4, 5].map(i => cycle.indexOf(i) + 1);
-            console.log(cycle); 
 
             let leftPentagram = document.getElementById(`${a}`);
             let rightPentagram = document.getElementById(`${b}`);
             
-            let centerPentagram = document.getElementById(reversePentagramLocationMap['center']);
-            let highlightDuad = centerPentagram.querySelector(`.outline[duad="${duad}"]`)
-            let highlightBgDuad = background.querySelector(`path[duad="${duad}"]`)
-            let highlightLeftNode = leftPentagram.querySelector(`.nodes>g.node-${testMap[duad]}`)
-            let highlightRightNode = rightPentagram.querySelector(`.nodes>g.node-${testMap[duad]}`)
-            highlightDuad.classList.add('highlight');
-            highlightBgDuad.classList.add('highlight');
-            highlightLeftNode.classList.add('highlight');
-            highlightRightNode.classList.add('highlight');
+            // let centerPentagram = document.getElementById(reversePentagramLocationMap['center']);
+            // let highlightDuad = centerPentagram.querySelector(`.outline[duad="${duad}"]`)
+            // let highlightBgDuad = background.querySelector(`path[duad="${duad}"]`)
+            // let highlightLeftNode = leftPentagram.querySelector(`.nodes>g.node-${testMap[duad]}`)
+            // let highlightRightNode = rightPentagram.querySelector(`.nodes>g.node-${testMap[duad]}`)
+            // highlightDuad.classList.add('highlight');
+            // highlightBgDuad.classList.add('highlight');
+            // highlightLeftNode.classList.add('highlight');
+            // highlightRightNode.classList.add('highlight');
 
             setTimeout(() => {
                 requestAnimationFrame(animate);
