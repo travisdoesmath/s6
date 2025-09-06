@@ -140,11 +140,22 @@ function createPentagram(pentagram, target) {
     let [pentagramGroup, backgroundGroup, linesGroup, nodesGroup] = createPentagramLayers(pentagram, target);
     createPentagramEdges(pentagram, backgroundGroup, linesGroup);
     createPentagramNodes(pentagram, nodesGroup);
-    let text = createElement('text', {
-        class: 'pentagram-name',
+    let labelGroup = createElement('g', {
+        'class': 'labelGroup',
         parent: pentagramGroup
     });
-    text.innerHTML = pentagram.id;
+    let labelBg = createElement('circle', {
+        cx: '0',
+        cy: '0',
+        r: '3',
+        fill: pentagram.id === 0 ? '#ddd' : `var(--color${pentagram.id})`,
+        parent: labelGroup
+    });
+    let text = createElement('text', {
+        class: 'pentagram-name',
+        parent: labelGroup
+    });
+    text.innerHTML = pentagram.id == 0 ? 6 : pentagram.id;
 }
 
 function createPentagramPath() {
@@ -230,17 +241,30 @@ function shiftNodes(t) {
 function shiftPentagram(pentagram, t) {
     let pentagramGroup = document.getElementById(pentagram.id);
 
-    let reverseLocationMap = Object.fromEntries(Object.entries(pentagramLocations).map(([key, value]) => [value, key]));
-
     let location1 = pentagramCoords[pentagramLocations[pentagram.id]];
     let location2 = pentagramCoords[locationEnum[currentPsi[pentagram.id]]];
 
+    let cx = R * (location1.x + location2.x) / 2;
+    let cy = R * (location1.y + location2.y) / 2;
+
+    // Calculate semi-major and semi-minor axes
+    let dx = R * (location2.x - location1.x) / 2;
+    let dy = R * (location2.y - location1.y) / 2;
+    let a = Math.sqrt(dx * dx + dy * dy); // semi-major axis
+    let b = a * 0.01; // semi-minor axis (half the major axis for a 2:1 ratio)
+
+    let angle = Math.PI * (1 - t);
+
+    // Rotate the ellipse to align with the start and end points
+    let rotationAngle = Math.atan2(dy, dx);
+
+    // Parametric equations for ellipse with rotation
     let location = {
-        x: R * (location1.x + (location2.x - location1.x) * t),
-        y: -R * (location1.y + (location2.y - location1.y) * t)
+        x: cx + (a * Math.cos(angle) * Math.cos(rotationAngle) - b * Math.sin(angle) * Math.sin(rotationAngle)),
+        y: cy + (b * Math.sin(angle) * Math.cos(rotationAngle) + a * Math.cos(angle) * Math.sin(rotationAngle))
     };
 
-    pentagramGroup.setAttribute('transform', `translate(${location.x}, ${location.y})`);
+    pentagramGroup.setAttribute('transform', `translate(${location.x}, ${-location.y})`);
 
 }
 
@@ -327,7 +351,8 @@ function arcPath(duad, R, t = 1) {
 function drawArc(data, R, t) {
     let duad = clockwiseForm[[data.start, data.end].join('')];
 
-    let inCycle = data.middle < 0;
+    // let inCycle = data.middle < 0;
+    let inCycle = false;
     pathString = arcPath(duad, R, t);
 
     let arc = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -356,6 +381,11 @@ function drawArc(data, R, t) {
 function easeInOutCubic(x) {
 return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
 }
+
+function easeInOutSine(x) {
+return -(Math.cos(Math.PI * x) - 1) / 2;
+}
+
 function updatePentagrams() {
     updateBackground = true;
     selectedNodeIndices = [];
@@ -452,7 +482,8 @@ function animate(t) {
         // }
         // let reverseLocationMap = Object.fromEntries(Object.entries(pentagramLocations).map(([key, value]) => [value, key]));
 
-        let t = easeInOutCubic(shift);
+        //let t = easeInOutCubic(shift);
+        let t = easeInOutSine(shift);
         interpolateBackground(t)
         interpolatePentagram(pentagramData[0], t);
         interpolatePentagram(pentagramData[1], t);
