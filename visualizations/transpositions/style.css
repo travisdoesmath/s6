@@ -118,7 +118,7 @@
     }
 }
 
-path.in-cycle {
+.lines>.syntheme-line.in-cycle {
     stroke-dasharray: 0,1.5;
 }
 

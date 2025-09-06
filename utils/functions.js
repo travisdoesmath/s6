@@ -27,8 +27,10 @@ function createPentagramLayers(pentagram, target) {
     return [pentagramGroup, backgroundGroup, linesGroup, nodesGroup];
 }
 
-function createPentagramEdges(pentagram, backgroundGroup, linesGroup) {
-    let bgPath = createElement('path', {d: createPentagramPath(pentagram), class: 'background-path', parent: backgroundGroup});
+function createEdges(pentagram, backgroundGroup, linesGroup, r) {
+    if (backgroundGroup !== undefined) {
+        let bgPath = createElement('path', {d: createPentagramPath(pentagram), class: 'background-path', parent: backgroundGroup});
+    }
 
     duadList.forEach(duad => {
         const outline = createElement('path', {duad: duad, class: 'outline', parent: linesGroup})
@@ -39,7 +41,10 @@ function createPentagramEdges(pentagram, backgroundGroup, linesGroup) {
         syntheme.forEach(duad => {
             let [left, right] = duad.split('');
 
-                let pentagramCycle = pentagram['5-cycle'].map((v, i, arr) => {let [a, b] = [v, arr[(i+1) % arr.length]].sort(); return a + b;})
+                let pentagramCycle = pentagram['5-cycle'].map((v, i, arr) => {
+                    let d = [v, arr[(i+1) % arr.length]].join(''); 
+                    return clockwiseForm[d];
+                })
                 let inCycle = false;
                 if (pentagramCycle.includes(duad) && config.showCycle) {
                     inCycle = true;
@@ -56,7 +61,6 @@ function createPentagramEdges(pentagram, backgroundGroup, linesGroup) {
                     }
                 })
         })
-        
     });
 }
 
@@ -138,7 +142,7 @@ function createPentagramNodes(pentagram, nodesGroup) {
 function createPentagram(pentagram, target) {
 
     let [pentagramGroup, backgroundGroup, linesGroup, nodesGroup] = createPentagramLayers(pentagram, target);
-    createPentagramEdges(pentagram, backgroundGroup, linesGroup);
+    createEdges(pentagram, backgroundGroup, linesGroup);
     createPentagramNodes(pentagram, nodesGroup);
     let labelGroup = createElement('g', {
         'class': 'labelGroup',
@@ -502,6 +506,7 @@ function animate(t) {
     }
     
 }
+
 function drawBackground() {
     background.setAttribute('id', 'background-layer');
 

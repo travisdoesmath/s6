@@ -2,7 +2,7 @@ drawBackground();
 
 pentagramData.forEach(pentagram => {
     let mainSvg = document.getElementById('main');
-    createPentagram(pentagram, mainSvg);
+    createPentagram(pentagram, mainSvg, config.r);
 });
 
 document.querySelectorAll('.node').forEach(node => {

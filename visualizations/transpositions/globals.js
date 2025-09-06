@@ -1,64 +1,26 @@
-const clockwiseForm = {
-    '01': '01',
-    '10': '01',
-    '02': '02',
-    '20': '02',
-    '03': '03',
-    '30': '03',
-    '04': '04',
-    '40': '04',
-    '05': '05',
-    '50': '05',
-    '12': '12',
-    '21': '12',
-    '23': '23',
-    '32': '23',
-    '34': '34',
-    '43': '34',
-    '45': '45',
-    '54': '45',
-    '15': '51',
-    '51': '51',    
-    '13': '13',
-    '31': '13',
-    '24': '24',
-    '42': '24',
-    '35': '35',
-    '53': '35',
-    '14': '41',
-    '41': '41',
-    '25': '52',
-    '52': '52',
-}
+const duadList = ['05','04','03','02','01','12','23','34','45','51','13','24','35','41','52'];
 
-const duadList = [
-    '05',
-    '04',
-    '03',
-    '02',
-    '01',
-    '12',
-    '23',
-    '34',
-    '45',
-    '51',
-    '13',
-    '24',
-    '35',
-    '41',
-    '52',
-]
-
-const arcRatio = 1.25;
+const clockwiseForm = [0, 1, 2, 3, 4, 5]
+    .map(i => [0, 1, 2, 3, 4, 5].map(j => [i, j]).filter(([i, j]) => i !== j))
+    .reduce((acc, elem) => acc.concat(elem), [])
+    .reduce((acc, [i, j]) => {
+        acc[`${i}${j}`] = duadList.includes(`${i}${j}`) ? `${i}${j}` : `${j}${i}`;
+        return acc;
+    }, {})
 
 const config = {
-    showCycle: true
+    showCycle: true,
+    r: 10,
+    R: 35,
+    nodeR: 3,
+    nodePadding: 1.25
 }
-const epsilon = 1/1200
-mainSvg = document.getElementById('main');
+
+const mainSvg = document.getElementById('main');
 const svgWidth = mainSvg.clientWidth;
 const svgHeight = mainSvg.clientHeight;
 const svgSize = Math.min(svgWidth, svgHeight);
+const background = document.createElementNS('http://www.w3.org/2000/svg', 'g');
 
 const middles = {
     '12': -4,
@@ -72,10 +34,8 @@ const middles = {
     '41': 5,
     '52': 1,
 }
-const r = 10;
-const R = 35;
-const nodeR = 3;
-const nodePadding = 1.25;
+
+
 const pentagramCoords = {
     'center': {x: 0, y: 0},
     'top': {x: Math.sin(10 * Math.PI / 5), y: Math.cos(10 * Math.PI / 5)},
@@ -153,6 +113,7 @@ const pentagramData = [
         '5-cycle': ['1','3','2','4','5']
     }
 ]
+
 const locationEnum = {
     0: 'center',
     1: 'top',
@@ -161,6 +122,7 @@ const locationEnum = {
     4: 'bottom left',
     5: 'top left'
 }
+
 const reverseLocationEnum = {
     'center': 0,
     'top': 1,
@@ -170,7 +132,16 @@ const reverseLocationEnum = {
     'top left': 5
 }
 
-const background = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+// const pentagramCoords = Object.entries(locationEnum)
+//     .filter(([key, value]) => value !== 'center')
+//     .reduce((acc, [key, value]) => {
+//         const angle = (parseInt(key) + 1) * Math.PI / 5;
+//         acc[value] = {x: Math.sin(angle), y: Math.cos(angle)};
+//         return acc;
+//     }, {});
+// pentagramCoords['center'] = {x: 0, y: 0};
+
+
 const phi = {
     '12': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1},
     '13': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3},
@@ -184,15 +155,30 @@ const phi = {
     '45': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1}
 }
 
-const testMap = {
-    '12': 4,
-    '13': 2,
-    '41': 5,
-    '51': 3,
-    '23': 5,
-    '24': 3,
-    '52': 1,
-    '34': 1,
-    '35': 4,
-    '45': 2
+let cycle = [1, 2, 3, 4, 5];
+let cycleInverse = [1, 2, 3, 4, 5];
+let currentPhi = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5};
+let currentPhiInverse = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5};
+let currentPsi = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5};
+let currentPsiInverse = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5};
+let pentagramLocations = {
+    0: 'center',
+    1: 'top',
+    2: 'top right',
+    3: 'bottom right',
+    4: 'bottom left',
+    5: 'top left'
 }
+let nodeLocations = {
+    0: 'center',
+    1: 'top',
+    2: 'top right',
+    3: 'bottom right',
+    4: 'bottom left',
+    5: 'top left'
+}
+
+let pentagramGroups = [];
+let animStart;
+let updateBackground = true;
+let selectedNodeIndices = [];

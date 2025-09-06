@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S_6</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+
+    </style>    
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+</head>
+<body>
+    <div class="column">
+        <h1>The Weird Symmetry of Shuffling Six Items</h1>
+        <figure>
+            <svg id="main" viewBox="-50 -50 100 100">
+            </svg>
+            <figcaption>Interactive S_5 -> S_6 Figure</figcaption>
+        </figure>
+        <p>
+            There's something mathematically interesting about the way you can rearrange 6 items. We're going to 
+            explore the <em>outer automorphism</em> of the symmetric group on 6 elements. If you're already
+            familiar with permutations and group theory, skip ahead to the <a href="#lets-go">"For you to think about"</a> section.
+        </p>
+        <p>
+            If you're not familiar with these concepts, don't worry! Expand the next section for a gentle introduction to 
+            groups, symmetry, and permutations.
+        </p>
+        <details>
+            <summary>Permutations, Groups, Symmetry</summary>
+            <section>
+            
+            <p>
+                When mathematicians talk about <em>rearranging</em>, we call it <em>permuting</em>, and we 
+                consider all possible rearrangements as <em>permutations</em>. We also have a way of 
+                organizing these permutations called <em>groups</em>. When you first learn algebra,
+                you learn how to do (and undo!) operations on numbers like addition and multiplication.
+                Groups are abstractions that capture the essence of these operations. With those abstractions,
+                you can look at underlying patterns and structures and see where they might apply. This
+                is part of why math can be so powerful; when we take something we're familiar with, abstract
+                that structure and apply it to something unfamiliar, we can unlock new insights and understandings.
+            </p>
+            <h2>An semi-formal definition of a group</h2>
+            <p>There is a formal definition of a group in abstract algebra, but here, we'll talk about it in more informal language</p>
+            <p>
+                We'll consider a group to be a collection of actions that can be performed on some set of items. The actions
+                must satisfy three properties:
+                <ul>
+                <li>Closure: for any two actions in the group, performing one after the other results in another action in the group.</li>
+                <li>Identity: there is an action in the group that does nothing</li>
+                <li>Inverses: for each action in the group, doing the action in reverse is also in the group</li>
+                </ul>
+            </p>
+            <p>
+                Let's consider these properties with a group we're already familiar with: the integers with addition.
+                <ul>
+                <li>Closure: adding any two integers always results in another integer</li>
+                <li>Identity: adding zero to any integer does not change its value</li>
+                <li>Inverses: for any integer, there is also the negative of that integer</li>
+                </ul>
+            </p>
+            <section id="think-about-1" class="green aside">    
+                <h2>For you to think about</h2>
+                <p>Which of the following satisfy the group properties? If they don't, which property do they fail?
+                <ul>
+                    <li>Even integers with addition</li>
+                    <li>Odd integers with addition</li>
+                    <li>Positive integers with addition</li>
+                    <li>Integers with multiplication</li>
+                </ul>
+                </p>
+            </section>
+            <h2>Groups and Symmetry</h2>
+            <p>
+                Now, let's take that understanding of groups and apply it to a different context.
+            </p>
+            <p>
+                Consider a square. What are all the ways we can move it so that it looks exactly the same as when we started? We can:</p>
+                <ul>
+                <li>Rotate it 90°, 180°, or 270° clockwise</li>
+                <li>Flip it horizontally or vertically</li>
+                <li>Flip it along either diagonal</li>
+                <li>Leave it as is (the identity transformation)</li>
+                </ul>
+                <p>These eight transformations form a group! Let's verify the properties:</p>
+                <ul>
+                <li>Closure: performing any two of these transformations always results in another transformation in our list</li>
+                <li>Identity: leaving the square as is (doing nothing) is in our list</li>
+                <li>Inverses: each transformation can be undone by another transformation in our list</li>
+                </ul>
+            </p>
+            <p>
+                We call these actions the <em>symmetries</em> of the square, and the group they form is called 
+                the <em>dihedral group of order 8</em>, often denoted D4. This is an example of a 
+                <em>symmetry group</em>, which is a group that describes the symmetries of a geometric object.
+            </p>
+            <p>Groups are a natural way to understand symmetry.</p>
+            </section>
+        </details>
+        <section>
+            <h2>The Unexpected S_5 in S_6</h2>
+            <h3>Mystic Pentagons</h3>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim quasi esse ducimus numquam distinctio cupiditate provident ea itaque dicta minus. Quod corrupti adipisci eius ex quia aspernatur laborum voluptatum voluptate!
+            <h3>Synthemes</h3>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim quasi esse ducimus numquam distinctio cupiditate provident ea itaque dicta minus. Quod corrupti adipisci eius ex quia aspernatur laborum voluptatum voluptate!
+        </section>
+        <section>
+            <figure>
+                <svg id="interactive-figure"></svg>
+                <figcaption>Interactive Figure</figcaption>
+            </figure>
+        </section>
+
+    </div>
+</body>
+<script src="globals.js"></script>
+<script src="functions.js"></script>
+<script src="./main.js"></script>
+</html>
