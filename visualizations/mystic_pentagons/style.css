@@ -140,11 +140,11 @@ line[data-id] {
     stroke-linecap: round;
 }
 
-*[data-id='1'] { stroke: var(--color1); }
-*[data-id='2'] { stroke: var(--color2); }
-*[data-id='3'] { stroke: var(--color3); }
-*[data-id='4'] { stroke: var(--color4); }
-*[data-id='5'] { stroke: var(--color5); }
+*[data-id='1'], *[duad='01'], *[duad='25'], *[duad='34'] { stroke: var(--color1); }
+*[data-id='2'], *[duad='02'], *[duad='13'], *[duad='45'] { stroke: var(--color2); }
+*[data-id='3'], *[duad='03'], *[duad='24'], *[duad='51'] { stroke: var(--color3); }
+*[data-id='4'], *[duad='04'], *[duad='35'], *[duad='12'] { stroke: var(--color4); }
+*[data-id='5'], *[duad='05'], *[duad='41'], *[duad='23'] { stroke: var(--color5); }
 
 .outline {
     fill: none;

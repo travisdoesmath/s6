@@ -82,49 +82,8 @@
     }
 }
 
-@keyframes pulse2 {
-    0%, 20% {
-        filter: drop-shadow(0 0 0.5px #f0e442);
-    }
-    30% {
-        filter: drop-shadow(0 0 1px #f0e442);
-    }
-    40%, 100% {
-        filter: drop-shadow(0 0 0.5px #f0e442);
-    }
-}
-
-@keyframes pulse3 {
-    0%, 40% {
-        filter: drop-shadow(0 0 0.5px #f0e442);
-    }
-    50% {
-        filter: drop-shadow(0 0 1px #f0e442);
-    }
-    60%, 100% {
-        filter: drop-shadow(0 0 0.5px #f0e442);
-    }
-}
-
-@keyframes pulse4 {
-    0%, 60% {
-        filter: drop-shadow(0 0 0.5px #f0e442);
-    }
-    70% {
-        filter: drop-shadow(0 0 1px #f0e442);
-    }
-    80%, 100% {
-        filter: drop-shadow(0 0 0.5px #f0e442);
-    }
-}
-
 .lines>.syntheme-line.in-cycle {
     stroke-dasharray: 0,1.5;
-}
-
-line[data-id] {
-
-    stroke-linecap: round;
 }
 
 .center-lines>line[data-id] {
@@ -134,28 +93,38 @@ line[data-id] {
 .syntheme-line {
     stroke-width: 1;
     fill: none;
+    stroke-linecap: round;
 }
 
 *[data-id] {
     stroke-linecap: round;
 }
 
-*[data-id='1'] { stroke: var(--color1); }
-*[data-id='2'] { stroke: var(--color2); }
-*[data-id='3'] { stroke: var(--color3); }
-*[data-id='4'] { stroke: var(--color4); }
-*[data-id='5'] { stroke: var(--color5); }
+*[data-id='1'], .syntheme-line[duad='01'], .syntheme-line[duad='52'], .syntheme-line[duad='34'] { stroke: var(--color1); }
+*[data-id='2'], .syntheme-line[duad='02'], .syntheme-line[duad='13'], .syntheme-line[duad='45'] { stroke: var(--color2); }
+*[data-id='3'], .syntheme-line[duad='03'], .syntheme-line[duad='24'], .syntheme-line[duad='51'] { stroke: var(--color3); }
+*[data-id='4'], .syntheme-line[duad='04'], .syntheme-line[duad='35'], .syntheme-line[duad='12'] { stroke: var(--color4); }
+*[data-id='5'], .syntheme-line[duad='05'], .syntheme-line[duad='41'], .syntheme-line[duad='23'] { stroke: var(--color5); }
 
 .outline {
     fill: none;
     stroke-width: 2;
 }
 
-.outline[data-id='1'] { stroke: var(--color1-dark); }
-.outline[data-id='2'] { stroke: var(--color2-dark); }
-.outline[data-id='3'] { stroke: var(--color3-dark); }
-.outline[data-id='4'] { stroke: var(--color4-dark); }
-.outline[data-id='5'] { stroke: var(--color5-dark); }
+.outline[data-id='1'] .outline[duad='01'], .outline[duad='52'], .outline[duad='34'] { stroke: var(--color1-dark); }
+.outline[data-id='2'] .outline[duad='02'], .outline[duad='13'], .outline[duad='45'] { stroke: var(--color2-dark); }
+.outline[data-id='3'] .outline[duad='03'], .outline[duad='24'], .outline[duad='51'] { stroke: var(--color3-dark); }
+.outline[data-id='4'] .outline[duad='04'], .outline[duad='35'], .outline[duad='12'] { stroke: var(--color4-dark); }
+.outline[data-id='5'] .outline[duad='05'], .outline[duad='41'], .outline[duad='23'] { stroke: var(--color5-dark); }
+
+.node-1 .node-syntheme-line { stroke: var(--color1-light); }
+.node-2 .node-syntheme-line { stroke: var(--color2-light); }
+.node-3 .node-syntheme-line { stroke: var(--color3-light); }
+.node-4 .node-syntheme-line { stroke: var(--color4-light); }
+.node-5 .node-syntheme-line { stroke: var(--color5-light); }
+
+
+
 
 .background-path {
     fill: var(--bg-color);
@@ -163,6 +132,10 @@ line[data-id] {
 
 .bgLine {
     fill:none;
+}
+
+.node>.syntheme>.duad>path {
+    stroke-width: 0.2;
 }
 
 
