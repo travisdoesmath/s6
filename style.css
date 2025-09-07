@@ -100,22 +100,22 @@
     stroke-linecap: round;
 }
 
-*[data-id='1'], .syntheme-line[duad='01'], .syntheme-line[duad='52'], .syntheme-line[duad='34'] { stroke: var(--color1); }
-*[data-id='2'], .syntheme-line[duad='02'], .syntheme-line[duad='13'], .syntheme-line[duad='45'] { stroke: var(--color2); }
-*[data-id='3'], .syntheme-line[duad='03'], .syntheme-line[duad='24'], .syntheme-line[duad='51'] { stroke: var(--color3); }
-*[data-id='4'], .syntheme-line[duad='04'], .syntheme-line[duad='35'], .syntheme-line[duad='12'] { stroke: var(--color4); }
-*[data-id='5'], .syntheme-line[duad='05'], .syntheme-line[duad='41'], .syntheme-line[duad='23'] { stroke: var(--color5); }
+*[data-id='1'] { stroke: var(--color1); }
+*[data-id='2'] { stroke: var(--color2); }
+*[data-id='3'] { stroke: var(--color3); }
+*[data-id='4'] { stroke: var(--color4); }
+*[data-id='5'] { stroke: var(--color5); }
 
 .outline {
     fill: none;
     stroke-width: 2;
 }
 
-.outline[data-id='1'] .outline[duad='01'], .outline[duad='52'], .outline[duad='34'] { stroke: var(--color1-dark); }
-.outline[data-id='2'] .outline[duad='02'], .outline[duad='13'], .outline[duad='45'] { stroke: var(--color2-dark); }
-.outline[data-id='3'] .outline[duad='03'], .outline[duad='24'], .outline[duad='51'] { stroke: var(--color3-dark); }
-.outline[data-id='4'] .outline[duad='04'], .outline[duad='35'], .outline[duad='12'] { stroke: var(--color4-dark); }
-.outline[data-id='5'] .outline[duad='05'], .outline[duad='41'], .outline[duad='23'] { stroke: var(--color5-dark); }
+.outline[data-id='1'] { stroke: var(--color1-dark); }
+.outline[data-id='2'] { stroke: var(--color2-dark); }
+.outline[data-id='3'] { stroke: var(--color3-dark); }
+.outline[data-id='4'] { stroke: var(--color4-dark); }
+.outline[data-id='5'] { stroke: var(--color5-dark); }
 
 .node-1 .node-syntheme-line { stroke: var(--color1-light); }
 .node-2 .node-syntheme-line { stroke: var(--color2-light); }

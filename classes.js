@@ -7,6 +7,7 @@ class Arc {
         this.globals = data.pentagram.composer.globals;
         this.target = target;
         this.classPrefix = config.classPrefix || '';
+        this.colorIndex = data.colorIndex;
         this.config = config;
         if (this.config.hasOutline) {
             this.outline = target.querySelector(`.outline[duad='${this.duad}']`);
@@ -17,6 +18,7 @@ class Arc {
                     parent: target
                 });
             }
+            this.outline.setAttribute('data-id', this.colorIndex);
         }
         this.pathElement = target.querySelector(`.syntheme-line[duad='${this.duad}']`);
         if (!this.pathElement) {
@@ -26,6 +28,7 @@ class Arc {
                 parent: target
             });
         }
+        this.pathElement.setAttribute('data-id', this.colorIndex);
         if (this.config.showCycles) {
             let pentagramCycle = this.pentagram.fiveCycle.map((v, i, arr) => {
                 let d = [v, arr[(i+1) % arr.length]].join(''); 
@@ -68,17 +71,12 @@ class Arc {
         }
     }
 
-    interpolatePathString(t=0, cycleFunction) {
+    interpolatePathString(t=0, cycleFunction = x => x, locations = this.globals.nodeLocations) {
         let [start1, end1] = this.duad.split('');
         let start2;
         let end2;
-        if (cycleFunction) {
-            [start2, end2] = [start1, end1].map(cycleFunction);
-        } else {
-            [start2, end2] = [start1, end1];
-        }
+        [start2, end2] = [start1, end1].map(cycleFunction);
 
-        const locations = this.globals.nodeLocations;
         const locationEnum = this.globals.locationEnum;
         const reverseLocationEnum = this.globals.reverseLocationEnum;
         const clockwiseForm = this.globals.clockwiseForm;
@@ -99,8 +97,8 @@ class Arc {
         }
 
         let p2coords = {
-            start: pentagramCoords[locations[start2]],
-            end: pentagramCoords[locations[end2]]
+            start: pentagramCoords[locationEnum[start2]],
+            end: pentagramCoords[locationEnum[end2]]
         }
 
 
@@ -150,10 +148,13 @@ class PentagramNode {
         this.id = data.id;
         this.syntheme = data.syntheme;
         this.r = data.r;
+        this.R = data.R;
         this.padding = data.padding;
         this.pentagram = data.pentagram;
         this.globals = data.pentagram.composer.globals;
         this.target = target;
+
+        this.arcs = [];
 
         this.nodeCircle = createElement('circle', {
             cx: '0',
@@ -185,6 +186,7 @@ class PentagramNode {
                 classPrefix: 'node-'
             }
             const arc = new Arc(arcData, arcConfig, duadGroup);            
+            this.arcs.push(arc);
 
             let [left, right] = duad.split('');
 
@@ -212,6 +214,21 @@ class PentagramNode {
         });
 
     }
+
+    shift(t) {
+        let i = this.id.split('-')[2];
+        let location1 = this.globals.pentagramCoords[this.globals.nodeLocations[i]];
+        let location2 = this.globals.pentagramCoords[this.globals.locationEnum[this.globals.cycleInverse[i-1]]];
+        let nodeLocation = {
+            x: this.R * (location1.x + (location2.x - location1.x) * t),
+            y: -this.R * (location1.y + (location2.y - location1.y) * t)
+        }
+        
+        this.target.setAttribute('transform', `translate(${nodeLocation.x}, ${nodeLocation.y})`);
+        this.arcs.forEach(arc => arc.morph(t, x => x == 0 ? 0 : this.globals.cycleInverse[x - 1]));
+    }
+    
+    
 }
 
 class Pentagram {
@@ -233,17 +250,20 @@ class Pentagram {
             const pathElement = createElement('path', {duad: duad, class: 'syntheme-line', parent: this.layers.lines})
         })
         
-        duadList.forEach(duad => {
-            const arcData = {
-                duad: duad,
-                r: this.r,
-                pentagram: this,
-            }
-            const arcConfig = {
-                hasOutline: true,
-            }
-            const arc = new Arc(arcData, arcConfig, this.layers.lines);
-            this.arcs.push(arc);
+        this.synthemes.forEach((syntheme, i) => {
+            syntheme.forEach(duad => {
+                const arcData = {
+                    duad: duad,
+                    r: this.r,
+                    pentagram: this,
+                    colorIndex: i + 1
+                }
+                const arcConfig = {
+                    hasOutline: true,
+                }
+                const arc = new Arc(arcData, arcConfig, this.layers.lines);
+                this.arcs.push(arc);
+            })
         })
     }
 
@@ -290,16 +310,7 @@ class Pentagram {
     }
 
     morph(t) {
-        // let [backgroundGroup, linesGroup, nodesGroup] = Array.from(this.group.children);
-
-        // const bgPath = backgroundGroup.querySelector('path');
-        // if (t < 0.5) {
-        //     bgPath.setAttribute('d', this.createInterpolatedPentagramPath(t));
-        // } else {
-        //     bgPath.setAttribute('d', this.createInterpolatedPentagramPath(1 - t));
-        // }
-
-        this.arcs.forEach(arc => arc.morph(t, x => x == 0 ? 0 : this.globals.cycle[x - 1]));
+        this.arcs.forEach(arc => arc.morph(t, x => x == 0 ? 0 : this.globals.cycleInverse[x - 1]));
     }
 }
 
@@ -325,12 +336,18 @@ class ForegroundPentagram extends Pentagram {
             labels: createElement('g', {class: 'labels', parent: this.group})
         }
         this.createEdges();
-        this.createNodes();
+        this.nodes = this.createNodes();
+    }
+
+    morph(t) {
+        this.arcs.forEach(arc => arc.morph(t, x => x == 0 ? 0 : this.globals.cycleInverse[x - 1]));
+        this.nodes.forEach(node => node.shift(t));
     }
     
     createNodes() {
         const pentagramCoords = this.globals.pentagramCoords;
         const locationEnum = this.globals.locationEnum;
+        let nodes = [];
         '12345'.split('').forEach(i => {
             const coord = pentagramCoords[locationEnum[i]];
             const nodeGroup = createElement('g', {
@@ -402,6 +419,7 @@ class ForegroundPentagram extends Pentagram {
             const nodeData = {
                 id: `node-${this.id}-${i}`,
                 syntheme: this.synthemes[i - 1],
+                R: this.r,
                 r: this.nodeR,
                 padding: this.nodePadding,
                 pentagram: this,
@@ -414,8 +432,11 @@ class ForegroundPentagram extends Pentagram {
             // const coord = pentagramCoords[locationEnum[i]];
             // const r = config.r;
 
+            nodes.push(node);
+
 
         })
+        return nodes;
     }
 }
 
@@ -432,6 +453,10 @@ class BackgroundPentagram extends Pentagram {
         }
         this.createEdges();
     }
+    morph(t) {
+        this.arcs.forEach(arc => arc.morph(t, x => this.globals.currentPsi[x]), this.globals.pentagramLocations);
+    }
+
 }
 
 class PentagramComposer {
@@ -597,7 +622,7 @@ class PentagramComposer {
             5: this.globals.locationEnum[this.globals.currentPsi[5]]
         }
         for (let i = 1; i <= 5; i++) {
-            this.globals.nodeLocations[i] = this.globals.locationEnum[cycleInverse[i - 1]];
+            this.globals.nodeLocations[i] = this.globals.locationEnum[this.globals.cycleInverse[i - 1]];
         }
     }
 
