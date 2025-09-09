@@ -1,99 +1,101 @@
-drawBackground();
-
-pentagramData.forEach(pentagram => {
-    let mainSvg = document.getElementById('main');
-    createPentagram(pentagram, mainSvg, config.r);
-});
-
-document.querySelectorAll('.node').forEach(node => {
-    node.addEventListener('click', () => {
-        let nodeIdx = node.getAttribute('id').split('-')[2];
-        if (selectedNodeIndices.includes(nodeIdx) || selectedNodeIndices.length < 2)
+const composerData = {
+    pentagramData: [
         {
-            let nodes = document.querySelectorAll(`.node-${nodeIdx}`);
-            nodes.forEach(n => n.classList.toggle('selected'));
+            id: 0,
+            synthemes: [
+                ['01', '52', '34'],
+                ['02', '13', '45'],
+                ['03', '24', '51'],
+                ['04', '35', '12'],
+                ['05', '41', '23']
+            ],
+            '5-cycle': ['1', '2', '3', '4', '5']
+        },
+        {
+            id: 1, 
+            synthemes: [
+                ['01', '52', '34'],
+                ['02', '35', '41'],
+                ['03', '12', '45'],
+                ['04', '23', '51'],
+                ['05', '13', '24']
+            ],
+            '5-cycle': ['1', '2', '4', '3', '5']
+        },
+        {
+            id: 2,
+            synthemes: [
+                ['01', '24', '35'],
+                ['02', '13', '45'],
+                ['03', '41', '52'],
+                ['04', '51', '23'],
+                ['05', '12', '34']
+            ],
+            '5-cycle': ['1','2','3','5','4']
+        },
+        {
+            id: 3,
+            synthemes: [
+                ['01', '23', '45'],
+                ['02', '41', '35'],
+                ['03', '51', '24'],
+                ['04', '13', '52'],
+                ['05', '12', '34']
+            ],
+            '5-cycle': ['1','4','3','2','5']
+        },
+        {
+            id: 4,
+            synthemes: [
+                ['01', '23', '45'],
+                ['02', '51', '34'],
+                ['03', '41', '52'],
+                ['04', '12', '35'],
+                ['05', '13', '24']
+            ],
+            '5-cycle': ['1','2','5','4','3']
+        },
+        {
+            id: 5,
+            synthemes: [
+                ['01', '24', '35'],
+                ['02', '51', '34'],
+                ['03', '12', '45'],
+                ['04', '13', '52'],
+                ['05', '41', '23']
+            ],
+            '5-cycle': ['1','3','2','4','5']
         }
-        if (node.classList.contains('selected') && selectedNodeIndices.length < 2) {
-            selectedNodeIndices.push(nodeIdx);
-        } else {
-            selectedNodeIndices = selectedNodeIndices.filter(n => n !== nodeIdx);
-        }
-        if (selectedNodeIndices.length === 2) {
-            
-            let reversePentagramLocationMap = Object.fromEntries(Object.entries(pentagramLocations).map(([k,v]) => [v,k]));
-
-            let duad = clockwiseForm[selectedNodeIndices.map(x => reverseLocationEnum[nodeLocations[x]]).join('')];
-
-            for (let i = 0; i < 5; i++) {
-                currentPhi[i] = phi[duad][currentPhi[i]];
-            }
-            currentPhiInverse = Object.fromEntries(Object.entries(currentPhi).map(([key, value]) => [value, +key]));
-
-            for (let i = 0; i < 6; i++) {
-                currentPsi[i] = phi[duad][currentPsi[i]];
-            }
-            currentPsiInverse = Object.fromEntries(Object.entries(currentPsi).map(([key, value]) => [value, +key]));
-
-            let [a, b] = duad.split('');
-            let swap = cycle[a - 1];
-            cycle[a - 1] = cycle[b - 1];
-            cycle[b - 1] = swap;
-            cycleInverse = [1, 2, 3, 4, 5].map(i => cycle.indexOf(i) + 1);
-
-            let leftPentagram = document.getElementById(`${a}`);
-            let rightPentagram = document.getElementById(`${b}`);
-            
-            // let centerPentagram = document.getElementById(reversePentagramLocationMap['center']);
-            // let highlightDuad = centerPentagram.querySelector(`.outline[duad="${duad}"]`)
-            // let highlightBgDuad = background.querySelector(`path[duad="${duad}"]`)
-            // let highlightLeftNode = leftPentagram.querySelector(`.nodes>g.node-${testMap[duad]}`)
-            // let highlightRightNode = rightPentagram.querySelector(`.nodes>g.node-${testMap[duad]}`)
-            // highlightDuad.classList.add('highlight');
-            // highlightBgDuad.classList.add('highlight');
-            // highlightLeftNode.classList.add('highlight');
-            // highlightRightNode.classList.add('highlight');
-
-            setTimeout(() => {
-                requestAnimationFrame(animate);
-            }, 0)
-
-            // requestAnimationFrame(animate);
-        } else {
-            document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
-        }
-
-        //requestAnimationFrame(animate);
-    });
-});
-
-// function selectNodes(a, b) {
-//     selectedNodeIndices = [a, b];
-//     let nodesA = document.querySelectorAll(`.node-${a}`);
-//     nodesA.forEach(n => n.classList.add('selected'));
-//     setTimeout(() => {
-//         let nodesB = document.querySelectorAll(`.node-${b}`);
-//         nodesB.forEach(n => n.classList.add('selected'));
-//     }, 500);
-//     setTimeout(() => {
-//         let [a, b] = selectedNodeIndices;
-//         cycle = ['1', '2', '3', '4', '5'];
-//         cycle[a - 1] = b;
-//         cycle[b - 1] = a;
-//         console.log(cycle);
-//         console.log(currentPhi);
-//         console.log(currentPhiInverse);
-
-//         // requestAnimationFrame(animate);
-//     }, 750);
-// }
-
-function animationLoop() {
-    let nodes = ['1', '2', '3', '4', '5'];
-    nodes = nodes.sort(() => Math.random() - 0.5);
-    let a = nodes[0];
-    let b = nodes[1];
-    selectNodes(a, b);
-    // requestAnimationFrame(animationLoop);
+    ],
+}
+const composerConfig =  {
+    showCycle: true,
+    r: 10,
+    R: 35,
+    nodeR: 3,
+    nodePadding: 1.25
 }
 
-// requestAnimationFrame(animationLoop);
+const composer = new PentagramComposer(composerData, composerConfig, document.getElementById('main'));
+
+let animStart;
+
+function animate(t) {
+    if (animStart === undefined) {
+        animStart = t;
+    }
+    const elapsed = t - animStart;
+    const shift = Math.min(elapsed / 1200, 1.5);
+    
+    if (shift < 1) {
+        //let t = easeInOutCubic(shift);
+        let t = easeInOutSine(shift);
+        composer.interpolate(t);
+        requestAnimationFrame(animate);
+    } else {
+        animStart = undefined;
+        composer.updatePentagrams();
+        // requestAnimationFrame(animate);
+    }
+    
+}
