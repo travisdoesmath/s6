@@ -82,7 +82,11 @@
     }
 }
 
-.lines>.syntheme-line.in-cycle {
+line.outline[data-id='-1'] {
+    stroke: var(--color2-dark);
+}
+
+.lines>*.in-cycle {
     stroke-dasharray: 0,1.5;
 }
 
@@ -91,6 +95,12 @@
 }
 
 .syntheme-line {
+    stroke-width: 1;
+    fill: none;
+    stroke-linecap: round;
+}
+
+.mystic-line {
     stroke-width: 1;
     fill: none;
     stroke-linecap: round;
@@ -105,6 +115,12 @@
 *[data-id='3'] { stroke: var(--color3); }
 *[data-id='4'] { stroke: var(--color4); }
 *[data-id='5'] { stroke: var(--color5); }
+
+.mystic-line[data-id='1'] { stroke: var(--color1); }
+.mystic-line[data-id='2'] { stroke: var(--color2); }
+.mystic-line[data-id='3'] { stroke: var(--color3); }
+.mystic-line[data-id='4'] { stroke: var(--color4); }
+.mystic-line[data-id='5'] { stroke: var(--color5); }
 
 .outline {
     fill: none;

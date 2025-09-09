@@ -76,7 +76,13 @@ const composerConfig =  {
     nodePadding: 1.25
 }
 
+const mysticComposerConfig =  {
+    showCycle: true,
+    R: 10
+}
+
 const composer = new PentagramComposer(composerData, composerConfig, document.getElementById('main'));
+const mysticComposer = new MysticPentagramComposer(composerData, mysticComposerConfig, document.getElementById('mystic'));
 
 let animStart;
 
