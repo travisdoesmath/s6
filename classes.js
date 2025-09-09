@@ -5,6 +5,7 @@ class Arc {
         this.pentagram = data.pentagram;
         this.composer = data.pentagram.composer;
         this.globals = data.pentagram.composer.globals;
+        this.locations = data.locations;
         this.target = target;
         this.classPrefix = config.classPrefix || '';
         this.colorIndex = data.colorIndex;
@@ -63,15 +64,15 @@ class Arc {
         }
     }
     
-    morph(t, cycleFunction) {
-        const pathString = this.interpolatePathString(t, cycleFunction);
+    morph(t, cycleFunction, locations) {
+        const pathString = this.interpolatePathString(t, cycleFunction, locations);
         this.pathElement.setAttribute('d', pathString);
         if (this.config.hasOutline) {
             this.outline.setAttribute('d', pathString);
         }
     }
 
-    interpolatePathString(t=0, cycleFunction = x => x, locations = this.globals.nodeLocations) {
+    interpolatePathString(t=0, cycleFunction = x => x, locations = this.globals.pentagramLocations) {
         let [start1, end1] = this.duad.split('');
         let start2;
         let end2;
@@ -179,6 +180,7 @@ class PentagramNode {
                 duad: duad,
                 r: this.r - this.padding,
                 pentagram: this.pentagram,
+                locations: this.globals.nodeLocations,
                 composer: this.pentagram.composer
             }
             const arcConfig = {
@@ -256,6 +258,7 @@ class Pentagram {
                     duad: duad,
                     r: this.r,
                     pentagram: this,
+                    locations: this.globals.pentagramLocations,
                     colorIndex: i + 1
                 }
                 const arcConfig = {
@@ -320,6 +323,7 @@ class ForegroundPentagram extends Pentagram {
         this.fiveCycle = data['5-cycle'];
         this.globals = data.composer.globals;
         let location = this.globals.pentagramCoords[this.globals.pentagramLocations[this.id]];
+        this.locations = this.globals.pentagramLocations;
         this.R = data.R;
         this.r = data.r;
         this.nodeR = data.nodeR;
@@ -337,11 +341,34 @@ class ForegroundPentagram extends Pentagram {
         }
         this.createEdges();
         this.nodes = this.createNodes();
+        this.createLabel();
     }
 
-    morph(t) {
-        this.arcs.forEach(arc => arc.morph(t, x => x == 0 ? 0 : this.globals.cycleInverse[x - 1]));
+    morph(t, cycleFunction = x => x == 0 ? 0 : this.globals.cycleInverse[x - 1], locations = this.globals.nodeLocations) {
+        this.arcs.forEach(arc => arc.morph(t, x => x == 0 ? 0 : this.globals.cycleInverse[x - 1], locations));
         this.nodes.forEach(node => node.shift(t));
+    }
+    createLabel() {
+        const labelGroup = createElement('g', {
+            id: this.id,
+            class: 'label',
+            parent: this.layers.labels
+        });
+        const labelBg = createElement('circle', {
+            cx: '0',
+            cy: '0',
+            r: '3',
+            fill: this.id === 0 ? '#ddd' : `var(--color${this.id})`,
+            parent: labelGroup
+        });
+        let text = createElement('text', {
+            class: 'pentagram-name',
+            parent: labelGroup,
+            fill: this.id === 0 ? '#666' : `var(--color${this.id}-dark)`,
+            opacity: 0.5    
+        });
+        text.innerHTML = this.id == 0 ? 6 : this.id;
+
     }
     
     createNodes() {
