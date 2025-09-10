@@ -133,6 +133,10 @@ line.outline[data-id='-1'] {
 .outline[data-id='4'] { stroke: var(--color4-dark); }
 .outline[data-id='5'] { stroke: var(--color5-dark); }
 
+.node {
+    cursor: pointer;
+}
+
 .node-1 .node-syntheme-line { stroke: var(--color1-light); }
 .node-2 .node-syntheme-line { stroke: var(--color2-light); }
 .node-3 .node-syntheme-line { stroke: var(--color3-light); }
@@ -301,8 +305,18 @@ img {
     text-decoration: none;
 }
 
-.pentagram-name {
+.pentagram-label {
     text-anchor: middle;
     font-size: 5px;
     dominant-baseline: central;
+    cursor: pointer;
+    stroke: none;
+}
+
+.mystic-pentagram-label {
+    text-anchor: middle;
+    font-size: 3px;
+    dominant-baseline: central;
+    cursor: pointer;
+    stroke: none;
 }

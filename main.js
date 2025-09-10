@@ -78,30 +78,9 @@ const composerConfig =  {
 
 const mysticComposerConfig =  {
     showCycle: true,
-    R: 10
+    R: 10,
+    nodeR: 2
 }
 
 const composer = new PentagramComposer(composerData, composerConfig, document.getElementById('main'));
 const mysticComposer = new MysticPentagramComposer(composerData, mysticComposerConfig, document.getElementById('mystic'));
-
-let animStart;
-
-function animate(t) {
-    if (animStart === undefined) {
-        animStart = t;
-    }
-    const elapsed = t - animStart;
-    const shift = Math.min(elapsed / 1200, 1.5);
-    
-    if (shift < 1) {
-        //let t = easeInOutCubic(shift);
-        let t = easeInOutSine(shift);
-        composer.interpolate(t);
-        requestAnimationFrame(animate);
-    } else {
-        animStart = undefined;
-        composer.updatePentagrams();
-        // requestAnimationFrame(animate);
-    }
-    
-}
