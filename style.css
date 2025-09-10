@@ -320,3 +320,18 @@ img {
     cursor: pointer;
     stroke: none;
 }
+
+.pentad-label {
+    font-family:monospace;
+    text-anchor: middle;
+    font-size: 32px;
+    dominant-baseline: central;
+    stroke: none;
+    fill: #333;
+}
+
+text.duad {
+    text-anchor: middle;
+    font-size: 3px;
+    dominant-baseline: central;
+}
