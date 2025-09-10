@@ -491,7 +491,7 @@ class ForegroundPentagram extends Pentagram {
             fill: this.id === 0 ? '#666' : `var(--color${this.id}-dark)`,
             opacity: 0.5    
         });
-        text.innerHTML = this.id == 0 ? 6 : this.id;
+        text.innerHTML = ['A','B','C','D','E','F'][this.id];
 
     }
     
@@ -512,7 +512,7 @@ class ForegroundPentagram extends Pentagram {
                 let nodeIdx = nodeGroup.getAttribute('id').split('-')[2];
                 if (this.globals.selectedNodeIndices.includes(nodeIdx) || this.globals.selectedNodeIndices.length < 2)
                 {
-                    let nodes = document.querySelectorAll(`.node-${nodeIdx}`);
+                    let nodes = this.target.querySelectorAll(`.node-${nodeIdx}`);
                     nodes.forEach(n => n.classList.toggle('selected'));
                 }
                 if (nodeGroup.classList.contains('selected') && this.globals.selectedNodeIndices.length < 2) {
@@ -674,13 +674,14 @@ class MysticPentagram extends Pentagram {
             cx: '0',
             cy: '0',
             r: '2',
-            fill: `var(--color${2})`,
+            // fill: `var(--color${2})`,
+            fill: 'none',
             parent: labelGroup
         });
         let text = createElement('text', {
             class: 'mystic-pentagram-label',
             parent: labelGroup,
-            fill: `var(--color${2})-dark`,
+            fill: `var(--color${2}-light)`,
             opacity: 0.5    
         });
         text.innerHTML = ['A','B','C','D','E','F'][this.id];
@@ -704,7 +705,7 @@ class MysticPentagram extends Pentagram {
                 let nodeIdx = nodeGroup.getAttribute('id').split('-')[2];
                 if (this.globals.selectedNodeIndices.includes(nodeIdx) || this.globals.selectedNodeIndices.length < 2)
                 {
-                    let nodes = document.querySelectorAll(`.node-${nodeIdx}`);
+                    let nodes = this.target.querySelectorAll(`.node-${nodeIdx}`);
                     nodes.forEach(n => n.classList.toggle('selected'));
                 }
                 if (nodeGroup.classList.contains('selected') && this.globals.selectedNodeIndices.length < 2) {
@@ -714,9 +715,6 @@ class MysticPentagram extends Pentagram {
                 }
                 if (this.globals.selectedNodeIndices.length === 2) {
 
-                    console.log(this.globals.selectedNodeIndices);
-                    console.log(this.globals.reversenodeLocationEnum);
-                    console.log(this.globals.nodeLocations);
                     let duad = this.globals.clockwiseForm[this.globals.selectedNodeIndices.map(x => this.globals.reversenodeLocationEnum[this.globals.nodeLocations[x]]).join('')];
 
                     console.log(this.globals.phi, duad)
@@ -779,9 +777,8 @@ class MysticPentagram extends Pentagram {
 
     shift(t) {
         let location1 = this.globals.locationCoords[this.globals.pentagramLocations[this.id]];
-        let location2 = this.globals.locationCoords[this.globals.locationEnum[this.globals.currentPsiInverse[this.id]]];
+        let location2 = this.globals.locationCoords[this.globals.locationEnum[this.globals.currentPsi[this.id]]];
 
-        // Parametric equations for ellipse with rotation
         let location = {
             x: t * location2.x + (1 - t) * location1.x,
             y: t * location2.y + (1 - t) * location1.y
