@@ -1150,21 +1150,26 @@ class Duad {
         this.id = data.id;
         this.duad = data.duad;
         this.target = target;
+        this.bgColor = data.bgColor;
+        this.textColor = data.textColor;
+        this.strokeColor = data.strokeColor;
         this.render();
     }
 
     render() {
         const duadBg = createElement('circle', {
             r: '2',
-            fill: `var(--color${this.id + 1})`,
+            fill: this.bgColor,
+            // stroke: this.strokeColor,
+            // 'stroke-width': '0.25',
             parent: this.target
         })
         const duadText = createElement('text', {
             class: 'duad',
-            fill: `var(--color${this.id + 1}-dark)`,
+            fill: this.textColor,
             parent: this.target
         });
-        duadText.innerHTML = this.duad.split('').sort().map(x => +x + 1).join('');
+        duadText.innerHTML = this.duad.split('').map(x => x == '0' ? 6 : +x).sort().join('');
     }
 }
 
@@ -1179,19 +1184,33 @@ class Syntheme {
     render() {
         const synthemeElement = createElement('g', { 
             class: 'syntheme', 
-            transform: `translate(0, ${-12 + 6 * this.id})`,
+            transform: `translate(0, ${-10 + 5 * this.id})`,
             parent: this.target 
         });
-        this.duads.forEach((duad, i) => {
+        const synthemeBorder = createElement('rect', {
+            x: -8.5,
+            y: -2.5,
+            width: 17,
+            height: 5,
+            fill: `var(--color${this.id + 1})`,
+            opacity: 0.25,   
+            rx: 2.5,
+            ry: 2.5,
+            parent: synthemeElement
+        });
+        console.log(this.duads)
+        this.duads.map(x => x.split('').sort().join('')).sort().forEach((duad, i) => {
             const duadGroup = createElement('g', {
                 class: 'duad',
                 transform: `translate(${-6 + 6 * i}, 0)`,
-                fill: `var(--color${this.id + 1})`,
                 parent: synthemeElement
             });
             const duadData = {
                 id: this.id,
-                duad: duad
+                duad: duad,
+                bgColor: i == 0 ? `var(--color${this.id + 1})` : `var(--color${this.id + 1}-dark)`,
+                textColor: i == 0 ? `var(--color${this.id + 1}-dark)` : `var(--color${this.id + 1})`,
+                strokeColor: `var(--color${this.id + 1})`,
             }
             new Duad(duadData, duadGroup);
         });
@@ -1246,9 +1265,9 @@ class PentadComposer {
             5: 'bottom right'
         };
         this.pentadLocationCoords = {
-            'top left': {x: -25, y: -10},
-            'top center': {x: 0, y: -10},
-            'top right': {x: 25, y: -10},
+            'top left': {x: -25, y: -5},
+            'top center': {x: 0, y: -5},
+            'top right': {x: 25, y: -5},
             'bottom left': {x: -25, y: 30},
             'bottom center': {x: 0, y: 30},
             'bottom right': {x: 25, y: 30}

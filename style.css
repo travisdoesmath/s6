@@ -322,16 +322,16 @@ img {
 }
 
 .pentad-label {
-    font-family:monospace;
     text-anchor: middle;
-    font-size: 32px;
+    font-size: 4px;
     dominant-baseline: central;
+    transform: translate(0,-15px);
     stroke: none;
     fill: #333;
 }
 
 text.duad {
     text-anchor: middle;
-    font-size: 3px;
+    font-size: 2.5px;
     dominant-baseline: central;
 }
