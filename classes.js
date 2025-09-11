@@ -1352,6 +1352,10 @@ class PermutationNode {
                     let swap = cycle[a];
                     cycle[a] = cycle[b];
                     cycle[b] = swap;
+                    if (this.globals.currentLinkedPermutation) {
+                        let psi = this.globals.psi[this.globals.selectedNodeIndices.sort().join('')];
+                        this.globals.currentLinkedPermutation = Object.fromEntries(Array.from({length: this.globals.cycle.length}).map((v, i) => [i, psi[+this.globals.currentLinkedPermutation[i]]]))
+                    }
                     this.globals.cycleInverse = Array.from({length: this.globals.cycle.length}).map(i => cycle.indexOf(i) + 1);
 
                     setTimeout(() => {
@@ -1530,6 +1534,8 @@ class LinkedPermutationComposer {
             selectedNodeIndices: [],
             currentPermutation: Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, i])),
             currentPermutationInverse: Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, i])),
+            currentLinkedPermutation: Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, i])),
+            currentLinkedPermutationInverse: Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, i])),
             psi: {
                 '01': {0: 1, 1: 0, 2: 5, 3: 4, 4: 3, 5: 2}, // (12)(36)(45)
                 '02': {0: 2, 1: 3, 2: 0, 3: 1, 4: 5, 5: 4}, // (13)(24)(56)
@@ -1555,8 +1561,8 @@ class LinkedPermutationComposer {
         }
         this.animStart = undefined;
         this.nodes = this.createNodes();
-        this.cycleLabel1 = this.createCycleLabel(20);
-        this.cycleLabel2 = this.createCycleLabel(-5);
+        this.cycleLabel1 = this.createCycleLabel(-5);
+        this.cycleLabel2 = this.createCycleLabel(20);
     }
 
     createCycleLabel(yOffset) {
@@ -1577,7 +1583,7 @@ class LinkedPermutationComposer {
         let nodes = [];
         for (let i = 0; i < this.n; i++) {
             const permutationNodeData = {
-                id: i,
+                id: `A${i}`,
                 location: this.globals.nodeLocations[i],
                 yOffset: -15,
                 globals: this.globals,
@@ -1588,7 +1594,7 @@ class LinkedPermutationComposer {
         }
         for (let i = 0; i < this.n; i++) {
             const permutationNodeData = {
-                id: i,
+                id: `B${i}`,
                 location: this.globals.nodeLocations[i],
                 yOffset: 10,
                 globals: this.globals,
@@ -1609,7 +1615,7 @@ class LinkedPermutationComposer {
 
     update() {
         this.cycleLabel1.innerHTML = permutationToCycle(this.globals.cycle);
-        this.cycleLabel2.innerHTML = permutationToCycle(this.globals.cycle);
+        this.cycleLabel2.innerHTML = permutationToCycle(this.globals.currentLinkedPermutation);
 
         this.globals.currentPermutation = Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, this.globals.cycle[i]]));
         this.globals.currentPermutationInverse = Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, this.globals.cycle.indexOf(i)]));
