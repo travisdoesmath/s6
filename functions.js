@@ -19,27 +19,48 @@ function easeInOutSine(x) {
 return -(Math.cos(Math.PI * x) - 1) / 2;
 }
 
-function permutationToCycle(permutation) {
-    elements = Array.from({ length: Object.keys(permutation).length }, (_, i) => i + 1);
+function cycleNotation(permutation) {
+    elements = Object.keys(permutation);
     let visited = new Set();
     let cycles = [];
 
-    for (let i = 0; i < elements.length; i++) {
-        if (!visited.has(i)) {
-            let current = i;
+    elements.forEach(element => {
+        if (!visited.has(element)) {
+            let current = String(element);
             let cycle = [];
 
             while (!visited.has(current)) {
                 visited.add(current);
                 cycle.push(current);
-                current = permutation[current];
+                current = String(permutation[current]);
             }
 
             if (cycle.length > 1) {
                 cycles.push(cycle);
             }
         }
-    }
+    })
 
-    return cycles.map(cycle => '(' + cycle.map(x => x + 1).join(' ') + ')').join('');
+    return cycles.map(cycle => '(' + cycle.join(' ') + ')').join('');
+}
+
+function stringToPermutationMap(str) {
+    let permutation = {};
+    let cycles = str.match(/\(([^)]+)\)/g);
+    cycles.forEach(cycle => {
+        let elements = cycle.replaceAll('(','').replaceAll(')','').split(' ').filter(x => x !== '(' && x !== ')');
+        elements.forEach((char, i) => {
+            let nextChar = elements[(i + 1) % elements.length];
+            permutation[char] = nextChar;
+        });
+    });
+    return permutation;
+}
+
+function arrayToMap(arr) {
+    let map = {};
+    arr.forEach((value, index) => {
+        map[index] = value;
+    });
+    return map;
 }

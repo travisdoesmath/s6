@@ -94,7 +94,7 @@ line.outline[data-id='-1'] {
     stroke-width: 0.5;
 }
 
-.syntheme-line {
+.duad-line {
     stroke-width: 1;
     fill: none;
     stroke-linecap: round;
@@ -350,3 +350,7 @@ text.duad {
 .permutation-node>text {
     stroke: none;
 }
+
+/* .duad>.arc>.outline {
+    stroke: var(--color4-dark);
+} */
