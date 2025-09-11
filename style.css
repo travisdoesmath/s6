@@ -330,8 +330,23 @@ img {
     fill: #333;
 }
 
+.syntheme-label {
+    text-anchor: middle;
+    font-size: 4px;
+    dominant-baseline: central;
+    stroke: none;
+}
+
 text.duad {
     text-anchor: middle;
     font-size: 2.5px;
     dominant-baseline: central;
+}
+
+.permutation-node {
+    cursor: pointer;
+}
+
+.permutation-node>text {
+    stroke: none;
 }
