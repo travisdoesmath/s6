@@ -86,7 +86,7 @@ line.outline[data-id='-1'] {
     stroke: var(--color2-dark);
 }
 
-.lines>*.in-cycle {
+.lines>.duad>.line>.duad-line.in-cycle {
     stroke-dasharray: 0,1.5;
 }
 
@@ -349,6 +349,11 @@ text.duad {
 
 .permutation-node>text {
     stroke: none;
+}
+
+.node>.syntheme>.duad>.arc>path {
+    fill: none;
+    stroke-width: 0.25;
 }
 
 /* .duad>.arc>.outline {
