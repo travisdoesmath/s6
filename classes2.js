@@ -202,7 +202,6 @@ class Arc extends BaseComponent {
                 this.pathElement.classList.add('in-cycle')
             }
         }
-
     }
 
     extendBase() {
@@ -280,9 +279,7 @@ class Line extends BaseComponent {
                 this.lineElement.classList.add('in-cycle')
             }
         }
-
     }
-
     
     morph(t) {
         const locations = this.locations;
@@ -394,7 +391,6 @@ class PentagramComposer extends BasePentagramComposer {
     }
 
     createComponents() {
-
         this.createBackground();
         this.pentagrams = this.createPentagrams();
     }
@@ -415,7 +411,8 @@ class PentagramComposer extends BasePentagramComposer {
         }
         const backgroundConfig = {
             showCycle: false,
-            showLabel: false
+            showLabel: false,
+            useArcs: true
         }
         this.background = new BackgroundPentagram(backgroundData, backgroundConfig, this.target);
     }
@@ -646,7 +643,7 @@ class PentagramNode extends BaseComponent {
                 });
                 let [left, right] = this.globals.clockwiseForm[duad].split('');
                 let locations = Object.entries(this.data.pentagramCoords).map(([key, value]) => new Location(key, value.multiply(this.data.r - this.data.padding)));
-                const { arcStart, arcEnd, midpoint } = getArcData(locations, +left + 1, +right + 1);
+                const { arcStart, arcEnd, midpoint } = getArcData(locations, left, right);
                 const arcData = {
                     id: duad,
                     duad: duad,
@@ -704,7 +701,7 @@ class BasePentagram extends BaseComponent{
         this.layers = {
             lines: createElement('g', { class: 'lines', parent: this.group }),
             labels: createElement('g', { class: 'labels', parent: this.group }),
-            backgrounds: createElement('g', { class: 'backgrounds', parent: this.group })
+            background: createElement('g', { class: 'background', parent: this.group })
         };
     }
 
@@ -735,7 +732,8 @@ class BasePentagram extends BaseComponent{
                 syntheme.forEach(duad => {
                     let [left, right] = this.globals.clockwiseForm[duad].split('');
                     [left, right] = [+left, +right]
-                    const { arcStart, arcEnd, midpoint } = getArcData(this.data.subcomponentLocations, left, right, lambda1, lambda2);
+                    let locations = [new Location('center', new Coords(0,0)), ...this.data.subcomponentLocations];
+                    const { arcStart, arcEnd, midpoint } = getArcData(locations, left, right, lambda1, lambda2);
                     const arcData = {
                         id: duad,
                         duad: duad,
@@ -773,7 +771,6 @@ class BasePentagram extends BaseComponent{
                             return this.globals.clockwiseForm[d];
                         })
                         let inCycle  = pentagramCycle.includes(duad);
-                        console.log(this.data, duad)
                         const lineData = {
                             id: duad,
                             duad: duad,
@@ -833,9 +830,10 @@ class BasePentagram extends BaseComponent{
 }
 
 class BackgroundPentagram extends BasePentagram {
-    constructor(data, target, composer) {
-        super(data, target, composer, {
-            type: 'background-pentagram'
+    constructor(data, config, target, extensions = {}) {
+        super(data, config, target, {
+            type: 'background-pentagram',
+            ...extensions
         }); 
     }
     morph(t) {
@@ -903,13 +901,13 @@ class ForegroundPentagram extends BasePentagram {
             const nodeGroup = createElement('g', {
                 id: this.id, 
                 transform: `translate(${location.coords.x}, ${location.coords.y})`,
-                class: `node node-${i}`,
-                id: `node-${this.id}-${i}`,
+                class: `node node-${i+1}`,
+                id: `node-${this.id}-${i+1}`,
                 parent: this.layers.nodes,
             });
             const nodeData = {
-                id: `node-${this.id}-${i}`,
-                syntheme: this.synthemes[i - 1],
+                id: `node-${this.id}-${i + 1}`,
+                syntheme: this.synthemes[i],
                 R: this.data.r,
                 r: this.data.nodeR,
                 padding: this.data.nodePadding,
@@ -980,7 +978,6 @@ class MysticPentagram extends BasePentagram {
     }
 
     createNodes() {
-        console.log(this.data)
         const pentagramLocations = this.data.subcomponentLocations;
         let nodes = [];
         pentagramLocations.forEach((location, i) => {

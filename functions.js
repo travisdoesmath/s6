@@ -45,21 +45,21 @@ function cycleNotation(permutation) {
 }
 
 function getArcData(locations, left, right, lambda1 = 0.1, lambda2 = 0.7) {
-    let arcStart = locations[left - 1] || new Location('center', new Coords(0, 0));
-    let arcEnd = locations[right - 1] || new Location('center', new Coords(0, 0));
+    let arcStart = locations[left];
+    let arcEnd = locations[right];
     let midpoint = new Coords(
         (arcStart.coords.x + arcEnd.coords.x) / 2,
         (arcStart.coords.y + arcEnd.coords.y) / 2
     );
-    if (left !== 0) {
+    if (left != 0) {
         if (Math.abs(left - right) == 1 || Math.abs(left - right) == 4) {
-            let midpointLabel = (left + 2) % 5;
+            let midpointLabel = (left + 2) % 5 + 1;
             let oppositePoint = locations[midpointLabel];
             midpoint.x -= lambda1 * (oppositePoint.coords.x - midpoint.x);
             midpoint.y -= lambda1 * (oppositePoint.coords.y - midpoint.y);
         }
         if (Math.abs(left - right) == 2 || Math.abs(left - right) == 3) {
-            let midpointLabel = (left) % 5;
+            let midpointLabel = (left) % 5 + 1;
             let oppositePoint = locations[midpointLabel];
             midpoint.x += lambda2 * (oppositePoint.coords.x - midpoint.x);
             midpoint.y += lambda2 * (oppositePoint.coords.y - midpoint.y);
