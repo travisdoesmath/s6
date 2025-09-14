@@ -63,7 +63,7 @@ function clockwiseForm(a, b) {
 
 
 
-function getArcData(locations, left, right, phi, lambda1 = 0.1, lambda2 = 0.7) {
+function getArcData(locations, left, right, phi, verbose=false) {
     if (phi === undefined) {
         phi = new Permutation(6)
     }
@@ -72,6 +72,9 @@ function getArcData(locations, left, right, phi, lambda1 = 0.1, lambda2 = 0.7) {
     phiRight = phi.map(right)
     let arcStart = locations[left];
     let arcEnd = locations[right];
+    if (verbose) {
+        console.log(left, right, phiLeft, phiRight, arcStart, arcEnd, locations);
+    }
     let dotProduct = (arcStart.coords.x * arcEnd.coords.x + arcStart.coords.y * arcEnd.coords.y) / (Math.sqrt(arcStart.coords.x**2 + arcStart.coords.y**2) * Math.sqrt(arcEnd.coords.x**2 + arcEnd.coords.y**2));
 
     let arcAngle = Math.acos(dotProduct) || 0;
