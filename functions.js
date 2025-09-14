@@ -44,28 +44,46 @@ function cycleNotation(permutation) {
     return cycles.map(cycle => '(' + cycle.join(' ') + ')').join('');
 }
 
-function getArcData(locations, left, right, lambda1 = 0.1, lambda2 = 0.7) {
+function clockwiseForm(a, b) {
+    let duadList =  ['05','04','03','02','01','12','23','34','45','51','13','24','35','41','52'];
+    let clockwiseMap = [...Array(6).keys()]
+        .map(i => [...Array(6).keys()]
+            .map(j => [i, j])
+            .filter(([i, j]) => i !== j)
+        )
+        .reduce((acc, elem) => acc.concat(elem), [])
+        .reduce((acc, [i, j]) => {
+            acc[`${i}${j}`] = duadList.includes(`${i}${j}`) ? `${i}${j}` : `${j}${i}`;
+            return acc;
+        }, {});
+    
+    return clockwiseMap[[a, b].join('')]
+
+}
+
+
+
+function getArcData(locations, left, right, phi, lambda1 = 0.1, lambda2 = 0.7) {
+    if (phi === undefined) {
+        phi = new Permutation(6)
+    }
+    // [phiLeft, phiRight] = clockwiseForm(phi.map(left), phi.map(right));
+    phiLeft = phi.map(left)
+    phiRight = phi.map(right)
     let arcStart = locations[left];
     let arcEnd = locations[right];
-    let midpoint = new Coords(
+    let dotProduct = (arcStart.coords.x * arcEnd.coords.x + arcStart.coords.y * arcEnd.coords.y) / (Math.sqrt(arcStart.coords.x**2 + arcStart.coords.y**2) * Math.sqrt(arcEnd.coords.x**2 + arcEnd.coords.y**2));
+
+    let arcAngle = Math.acos(dotProduct) || 0;
+
+    let arcMiddle = new Coords(
         (arcStart.coords.x + arcEnd.coords.x) / 2,
         (arcStart.coords.y + arcEnd.coords.y) / 2
     );
-    if (left != 0) {
-        if (Math.abs(left - right) == 1 || Math.abs(left - right) == 4) {
-            let midpointLabel = (left + 2) % 5 + 1;
-            let oppositePoint = locations[midpointLabel];
-            midpoint.x -= lambda1 * (oppositePoint.coords.x - midpoint.x);
-            midpoint.y -= lambda1 * (oppositePoint.coords.y - midpoint.y);
-        }
-        if (Math.abs(left - right) == 2 || Math.abs(left - right) == 3) {
-            let midpointLabel = (left) % 5 + 1;
-            let oppositePoint = locations[midpointLabel];
-            midpoint.x += lambda2 * (oppositePoint.coords.x - midpoint.x);
-            midpoint.y += lambda2 * (oppositePoint.coords.y - midpoint.y);
-        }
-    }
-    return { arcStart, arcEnd, midpoint };
+    arcMiddle.x *= (1 + (arcAngle / Math.PI));
+    arcMiddle.y *= (1 + (arcAngle / Math.PI));
+
+    return { arcStart, arcMiddle, arcEnd };
 }
 
 function stringToPermutationMap(str) {
@@ -87,4 +105,8 @@ function arrayToMap(arr) {
         map[index] = value;
     });
     return map;
+}
+
+function lerp(start, end, t) {
+    return start + (end - start) * t;
 }
