@@ -147,7 +147,7 @@ class BaseComposer {
         let origin = new Location('center', new Coords(0, 0));
         const oldState = {
             componentLocations: [...new Array(this.componentLocations.length).keys()].map(i => this.componentLocations[this.currentPsi.map(i)]),
-            subcomponentLocations: [...new Array(this.subcomponentLocations.length).keys()].map(i => this.subcomponentLocations[this.currentPhi.map(i + 1) - 1]),
+            subcomponentLocations: [...new Array(this.subcomponentLocations.length).keys()].map(i => this.subcomponentLocations[this.currentPhi.map(i)]),
             // componentLocations: this.componentLocations,
             // subcomponentLocations: this.subcomponentLocations,
             psi: this.psi,
@@ -155,7 +155,7 @@ class BaseComposer {
         }
         const newState = {
             componentLocations: [...new Array(this.componentLocations.length).keys()].map(i => this.componentLocations[this.psiOfSwap.map(this.currentPsi.map(i))]),
-            subcomponentLocations: [...new Array(this.subcomponentLocations.length).keys()].map(i => this.subcomponentLocations[this.swap.map(this.currentPhi.map(i+1))-1]),
+            subcomponentLocations: [...new Array(this.subcomponentLocations.length).keys()].map(i => this.subcomponentLocations[this.swap.map(this.currentPhi.map(i))]),
             psi: this.psiOfSwap,
             phi: this.swap
 
@@ -277,8 +277,6 @@ class Arc extends BaseComponent {
     }    
 }
 
-
-
 class Line extends BaseComponent {
     constructor(data, config, target, extensions = {}) {
         super(data, config, target, {
@@ -318,7 +316,9 @@ class Line extends BaseComponent {
     }
     
     morph(oldState, newState, t) {
-        const pentagramCoords = this.globals.pentagramCoords;
+        if (t < 2/1200) {
+            // console.log(this, oldState, newState, t);
+        }
         let p1coords = {
             start: { x: oldState.x1, y: oldState.y1 },
             end: { x: oldState.x2, y: oldState.y2 }
@@ -330,13 +330,13 @@ class Line extends BaseComponent {
         }
 
         let point0 = {
-            x: this.r * lerp(p1coords.start.x, p2coords.start.x, t),
-            y: this.r * lerp(p1coords.start.y, p2coords.start.y, t)
+            x: lerp(p1coords.start.x, p2coords.start.x, t),
+            y: lerp(p1coords.start.y, p2coords.start.y, t)
         }
 
         let point1 = {
-            x: this.r * lerp(p1coords.end.x, p2coords.end.x, t),
-            y: this.r * lerp(p1coords.end.y, p2coords.end.y, t)
+            x: lerp(p1coords.end.x, p2coords.end.x, t),
+            y: lerp(p1coords.end.y, p2coords.end.y, t)
         }
 
         this.lineElement.setAttribute('x1', point0.x);
@@ -408,7 +408,9 @@ class BasePentagramComposer extends BaseComposer {
     }
 
     updateState() {
-        this.background.update();
+        if (this.background) {
+            this.background.update();
+        }
         this.updatePentagrams();
     }
 
@@ -441,7 +443,7 @@ class PentagramComposer extends BasePentagramComposer {
 
         let componentLocations = Object.entries(pentagramCoords)
             .map(([label, coords]) => new Location(label, coords.multiply(config.R)));
-        let subcomponentLocations = Object.entries(pentagramCoords).filter(x => x[0] !== 'center')
+        let subcomponentLocations = Object.entries(pentagramCoords)
             .map(([label, coords]) => new Location(label, coords.multiply(config.r)));
 
         extensions = {
@@ -476,7 +478,7 @@ class PentagramComposer extends BasePentagramComposer {
                 ['05', '41', '23']
             ],
             r: this.config.R,
-            subcomponentLocations: this.componentLocations.filter(loc => loc.label !== 'center'),
+            subcomponentLocations: this.componentLocations,
             composer: this
         }
         const backgroundConfig = {
@@ -590,7 +592,10 @@ class MysticPentagramComposer extends BasePentagramComposer {
     }
 
     createComponents() {
+        const components = [];
         this.pentagrams = this.createPentagrams();
+        components.push(...this.pentagrams);
+        return components;
     }
 
     createPentagrams() {
@@ -635,22 +640,22 @@ class MysticPentagramComposer extends BasePentagramComposer {
     }
 
     interactionHandler(event, that) {
+        // let nodeIdx = this.currentPhi.inverse(that.group.getAttribute('id').split('-')[2]);
         let nodeIdx = that.group.getAttribute('id').split('-')[2];
         let nodes = this.target.querySelectorAll(`.node-${nodeIdx}`);
         if (this.globals.selectedNodeIndices.includes(nodeIdx) || this.globals.selectedNodeIndices.length < 2)
         {            
             nodes.forEach(n => n.classList.toggle('selected'));
-        }
-        
+        }        
         if (nodes[0].classList.contains('selected') && this.globals.selectedNodeIndices.length < 2) {
             this.globals.selectedNodeIndices.push(nodeIdx);
         } else {
             this.globals.selectedNodeIndices = this.globals.selectedNodeIndices.filter(n => n !== nodeIdx);
         }
         if (this.globals.selectedNodeIndices.length === 2) {
-            let duad = this.globals.clockwiseForm[this.globals.selectedNodeIndices.join('')];
-            this.currentPhi.compose(new Permutation(this.globals.phi[duad]));
-            this.currentPsi.compose(new Permutation(this.globals.psi[duad]));
+            let duad = this.globals.clockwiseForm[this.globals.selectedNodeIndices.map(x => this.currentPhi.map(x)).join('')];
+            this.swap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]});
+            this.psiOfSwap = new Permutation(this.globals.psi[duad]);
 
             requestAnimationFrame(this.animate.bind(this));
             
@@ -658,6 +663,7 @@ class MysticPentagramComposer extends BasePentagramComposer {
             document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
         }            
     }
+    
 }
 
 class PentagramNode extends BaseComponent {
@@ -776,8 +782,8 @@ class PentagramNode extends BaseComponent {
         this.arcs.forEach(arc => {
             let [left, right] = arc.data.duad.split('');
             // let locations = Object.entries(this.data.pentagramCoords).map(([key, value]) => new Location(newState.phi.map(key), value.multiply(this.data.r - this.data.padding)));
-            let oldLocations = [new Location('center', new Coords(0,0)), ...oldState.subcomponentLocations.map(loc => loc.multiply((this.data.r - this.data.padding)/this.data.R))];
-            let newLocations = [new Location('center', new Coords(0,0)), ...newState.subcomponentLocations.map(loc => loc.multiply((this.data.r - this.data.padding)/this.data.R))];
+            let oldLocations = oldState.subcomponentLocations.map(loc => loc.multiply((this.data.r - this.data.padding)/this.data.R));
+            let newLocations = newState.subcomponentLocations.map(loc => loc.multiply((this.data.r - this.data.padding)/this.data.R));
             let oldArcData = getArcData(oldLocations, left, right, oldState.psi);
             let newArcData = getArcData(newLocations, left, right, newState.psi);
             arc.morph(oldArcData, newArcData, t);
@@ -840,7 +846,9 @@ class BasePentagram extends BaseComponent{
                 syntheme.forEach(duad => {
                     let [left, right] = this.globals.clockwiseForm[duad].split('');
                     [left, right] = [+left, +right]
-                    let locations = [new Location('center', new Coords(0,0)), ...this.data.subcomponentLocations];
+                    
+                    //let locations = [new Location('center', new Coords(0,0)), ...this.data.subcomponentLocations];
+                    let locations = this.data.subcomponentLocations;
                     const { arcStart, arcMiddle, arcEnd } = getArcData(locations, left, right);
                     const arcData = {
                         id: duad,
@@ -891,14 +899,14 @@ class BasePentagram extends BaseComponent{
                             colorIndex: inCycle ? 1 : 2,
                             inCycle: inCycle
                         }
-                        const duadGroup = this.group.querySelector(`.duad[data-id="${duad}"]`);
-
-                        const line = new Line(lineData, {
+                        const lineConfig = {
                             showCycle: true,
                             hasOutline: true,
-                        }, duadGroup);
-                        subcomponents.edges.push(line);
+                        }
+                        const duadGroup = this.group.querySelector(`.duad[data-id="${duad}"]`);
 
+                        const line = new Line(lineData, lineConfig, duadGroup, {});
+                        subcomponents.edges.push(line);
                     }
                 })
             })
@@ -933,7 +941,7 @@ class BasePentagram extends BaseComponent{
 
     morph(oldState, newState, t) {
         this.subcomponents.edges.forEach(edge => {
-            let [left, right] = edge.data.duad.split('');
+            let [left, right] = edge.data.duad.split('').map(x => +x);
             if (this.config.useArcs) {
                 const oldArcData = getArcData(oldState.componentLocations, left, right, oldState.phi);
                 const newArcData = getArcData(newState.componentLocations, left, right, newState.phi);
@@ -941,17 +949,20 @@ class BasePentagram extends BaseComponent{
             }
             if (this.config.useLines) {
                 const oldLineData = {
-                    x1: oldState.subcomponentLocations[left].x,
-                    y1: oldState.subcomponentLocations[left].y,
-                    x2: oldState.subcomponentLocations[right].x,
-                    y2: oldState.subcomponentLocations[right].y
+                    x1: oldState.subcomponentLocations[left].coords.x,
+                    y1: oldState.subcomponentLocations[left].coords.y,
+                    x2: oldState.subcomponentLocations[right].coords.x,
+                    y2: oldState.subcomponentLocations[right].coords.y
                 };
                 const newLineData = {
-                    x1: newState.subcomponentLocations[left].x,
-                    y1: newState.subcomponentLocations[left].y,
-                    x2: newState.subcomponentLocations[right].x,
-                    y2: newState.subcomponentLocations[right].y
+                    x1: newState.subcomponentLocations[left].coords.x,
+                    y1: newState.subcomponentLocations[left].coords.y,
+                    x2: newState.subcomponentLocations[right].coords.x,
+                    y2: newState.subcomponentLocations[right].coords.y
                 };
+                if (t < 1/1200) {
+                    // console.log(oldState, newState, left, right, oldLineData, newLineData);
+                }
                 edge.morph(oldLineData, newLineData, t);
             }
         });
@@ -972,7 +983,7 @@ class BackgroundPentagram extends BasePentagram {
 }
 
 class ForegroundPentagram extends BasePentagram {
-    constructor(data, config, target) {
+    constructor(data, config, target, extensions = {}) {
         super(data, config, target, {
             type: 'foreground-pentagram',
             position: data.position,
@@ -980,6 +991,7 @@ class ForegroundPentagram extends BasePentagram {
             r: data.r,
             nodeR: data.nodeR,
             nodePadding: data.nodePadding,
+            ...extensions
         });
         this.subcomponents.nodes = this.createNodes();
     }
@@ -995,15 +1007,15 @@ class ForegroundPentagram extends BasePentagram {
     morph(oldState, newState, t) {
         this.subcomponents.edges.forEach(arc => {            
             let [left, right] = arc.data.duad.split('');
-            let oldArcData = getArcData([new Location('center', new Coords(0,0)), ...oldState.subcomponentLocations], left, right, oldState.psi);
-            let newArcData = getArcData([new Location('center', new Coords(0,0)), ...newState.subcomponentLocations], left, right, newState.psi);
+            let oldArcData = getArcData(oldState.subcomponentLocations, left, right, oldState.psi);
+            let newArcData = getArcData(newState.subcomponentLocations, left, right, newState.psi);
 
             arc.morph(oldArcData, newArcData, t);
         });
         this.subcomponents.nodes.forEach(node => node.morph(oldState, newState, t));
         this.subcomponents.nodes.forEach(node => {
-            let oldLocation = oldState.subcomponentLocations[node.id.split('-')[2] - 1];
-            let newLocation = newState.subcomponentLocations[node.id.split('-')[2] - 1];
+            let oldLocation = oldState.subcomponentLocations[node.id.split('-')[2]];
+            let newLocation = newState.subcomponentLocations[node.id.split('-')[2]];
             node.shift(oldLocation, newLocation, t)
         });
     }
@@ -1031,7 +1043,7 @@ class ForegroundPentagram extends BasePentagram {
     }
     
     createNodes() {
-        const pentagramLocations = this.data.subcomponentLocations;
+        const pentagramLocations = this.data.subcomponentLocations.filter(loc => loc.label !== 'center');
         let nodes = [];
         pentagramLocations.forEach((location, i) => {
             // const nodeGroup = createElement('g', {
@@ -1050,7 +1062,7 @@ class ForegroundPentagram extends BasePentagram {
                 padding: this.data.nodePadding,
                 pentagram: this,
                 pentagramCoords: this.data.pentagramCoords,
-                subcomponentLocations: this.data.pentagramLocations,
+                subcomponentLocations:this.data.subcomponentLocations,
                 group: this.layers.nodes,
                 location: location,
                 interactionHandler: this.data.interactionHandler.bind(this.data.composer)
@@ -1077,6 +1089,7 @@ class MysticPentagram extends BasePentagram {
             nodeR: data.nodeR,
             ...extensions
         });
+        this.subcomponents.nodes = this.createNodes();
     }
     extendBase() {
         this.layers = {
@@ -1085,11 +1098,6 @@ class MysticPentagram extends BasePentagram {
             nodes: createElement('g', {class: 'nodes', parent: this.group}),
             labels: createElement('g', {class: 'labels', parent: this.group})
         }
-    }
-
-    createSubcomponents() {
-        super.createSubcomponents();
-        this.nodes = this.createNodes();
     }
 
     createLabel() {
@@ -1117,33 +1125,28 @@ class MysticPentagram extends BasePentagram {
     }
 
     createNodes() {
-        const pentagramLocations = this.data.subcomponentLocations;
+        // const pentagramLocations = this.data.subcomponentLocations;
         let nodes = [];
-        pentagramLocations.forEach((location, i) => {
+        this.data.subcomponentLocations.forEach((location, i) => {
             if (i !== 0) {
-                const nodeGroup = createElement('g', {
-                    id: this.id, 
-                    transform: `translate(${location.coords.x}, ${location.coords.y})`,
-                    class: `node node-${i}`,
-                    id: `node-${this.id}-${i}`,
-                    parent: this.layers.nodes,
-                });
                 const nodeData = {
                     id: `node-${this.id}-${i}`,
                     label: i,   
+                    class: `node-${i}`,
+                    location: location,
                     R: this.data.r,
                     r: this.data.nodeR,
                     padding: this.data.nodePadding,
                     pentagram: this,
                     pentagramCoords: this.data.pentagramCoords,
-                    subcomponentLocations: this.data.pentagramLocations,
-                    group: nodeGroup,
+                    subcomponentLocations: this.data.subcomponentLocations,
+                    
                     interactionHandler: this.data.interactionHandler.bind(this.data.composer)
                 }
                 const nodeConfig = {
 
                 }
-                const node = new PentagramNode(nodeData, nodeConfig, nodeGroup);
+                const node = new PentagramNode(nodeData, nodeConfig, this.layers.nodes);
 
                 nodes.push(node);
 
@@ -1153,23 +1156,15 @@ class MysticPentagram extends BasePentagram {
         })
         return nodes;
     }
-
+    
     morph(oldState, newState, t) {
-        this.lines.forEach(line => line.morph(oldState, newState, t));
-        this.nodes.forEach(node => node.shift(oldState, newState, t));
+        super.morph(oldState, newState, t);
+        this.subcomponents.nodes.forEach(node => node.morph(oldState, newState, t));
+        this.subcomponents.nodes.forEach(node => {
+            let oldLocation = oldState.subcomponentLocations[node.id.split('-')[2]];
+            let newLocation = newState.subcomponentLocations[node.id.split('-')[2]];
+            node.shift(oldLocation, newLocation, t)
+        });
     }
-
-    shift(oldState, newState, t) {
-        let location1 = oldState.location.coords;
-        let location2 = newState.location.coords;
-
-        let location = {
-            x: t * location2.x + (1 - t) * location1.x,
-            y: t * location2.y + (1 - t) * location1.y
-        };
-
-        this.group.setAttribute('transform', `translate(${location.x}, ${location.y})`);
-    }
-
 }
 
