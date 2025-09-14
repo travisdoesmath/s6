@@ -531,7 +531,7 @@ class PentagramComposer extends BasePentagramComposer {
             this.globals.selectedNodeIndices = this.globals.selectedNodeIndices.filter(n => n !== nodeIdx);
         }
         if (this.globals.selectedNodeIndices.length === 2) {
-            let duad = this.globals.clockwiseForm[this.globals.selectedNodeIndices.join('')];
+            let duad = this.globals.clockwiseForm[this.globals.selectedNodeIndices.map(x => this.currentPhi.map(x)).join('')];
             this.swap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]});
             this.psiOfSwap = new Permutation(this.globals.psi[duad]);
 
@@ -787,9 +787,9 @@ class PentagramNode extends BaseComponent {
     shift(oldLocation, newLocation, t, linear=true) {
         const start = oldLocation.coords;
         const end = newLocation.coords;
-        if (t < 2/1200) {
-            console.log(start, end, t);
-        }
+        // if (t < 2/1200) {
+        //     console.log(start, end, t);
+        // }
         if (linear) {
             let x = lerp(start.x, end.x, t);
             let y = lerp(start.y, end.y, t);
@@ -1001,9 +1001,11 @@ class ForegroundPentagram extends BasePentagram {
             arc.morph(oldArcData, newArcData, t);
         });
         this.subcomponents.nodes.forEach(node => node.morph(oldState, newState, t));
-        let oldLocation = oldState.componentLocations[this.id];
-        let newLocation = newState.componentLocations[this.id];
-        this.subcomponents.nodes.forEach(node => node.shift(oldLocation, newLocation, t));
+        this.subcomponents.nodes.forEach(node => {
+            let oldLocation = oldState.subcomponentLocations[node.id.split('-')[2] - 1];
+            let newLocation = newState.subcomponentLocations[node.id.split('-')[2] - 1];
+            node.shift(oldLocation, newLocation, t)
+        });
     }
 
     createLabel() {
