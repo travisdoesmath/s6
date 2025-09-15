@@ -305,7 +305,7 @@ img {
     text-decoration: none;
 }
 
-.pentagram-label {
+.star-label {
     text-anchor: middle;
     font-size: 5px;
     dominant-baseline: central;
@@ -313,7 +313,7 @@ img {
     stroke: none;
 }
 
-.mystic-pentagram-label {
+.mystic-star-label {
     text-anchor: middle;
     font-size: 3px;
     dominant-baseline: central;

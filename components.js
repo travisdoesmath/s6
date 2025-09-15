@@ -192,7 +192,7 @@ class Line extends BaseComponent {
     }
 }
 
-class PentagramNode extends BaseComponent {
+class StarNode extends BaseComponent {
     constructor(data, config, target, extensions = {}) {
         super(data, config, target, {
             type: 'node',
@@ -201,8 +201,8 @@ class PentagramNode extends BaseComponent {
             r: data.nodeR,
             R: data.r,
             padding: data.padding,
-            pentagram: data.pentagram,
-            globals: data.pentagram.composer.globals,
+            star: data.star,
+            globals: data.star.composer.globals,
             ...extensions
         });
         this.group.classList.add(data.class);
@@ -231,7 +231,7 @@ class PentagramNode extends BaseComponent {
             });
             this.nodeCircle.setAttribute('fill', `var(--color1)`);
             let text = createElement('text', {
-                class: 'mystic-pentagram-label',
+                class: 'mystic-star-label',
                 parent: labelGroup,
                 fill: `var(--color1-dark)`,
                 opacity: 0.5    
@@ -253,13 +253,13 @@ class PentagramNode extends BaseComponent {
                     parent: synthemeGroup
                 });
                 let [left, right] = this.globals.clockwiseForm[duad].split('');
-                let locations = Object.entries(this.data.pentagramCoords).map(([key, value]) => new Location(key, value.multiply(this.data.r - this.data.padding)));
+                let locations = Object.entries(this.data.starCoords).map(([key, value]) => new Location(key, value.multiply(this.data.r - this.data.padding)));
                 const { arcStart, arcMiddle, arcEnd } = getArcData(locations, left, right);
                 const arcData = {
                     id: duad,
                     duad: duad,
                     r: this.data.r,
-                    pentagram: this,
+                    star: this,
                     arcStart: arcStart,
                     arcMiddle: arcMiddle,
                     arcEnd: arcEnd,
@@ -272,11 +272,11 @@ class PentagramNode extends BaseComponent {
                 const arc = new Arc(arcData, arcConfig, duadGroup);            
                 this.arcs.push(arc);
 
-                const pentagramCoords = Object.values(this.data.pentagramCoords);
+                const starCoords = Object.values(this.data.starCoords);
                 const i = this.id.split('-')[2];
                 const circle1 = createElement('circle', {
-                    cx: `${(this.data.r - this.data.padding) * pentagramCoords[left].x}`,
-                    cy: `${(this.data.r - this.data.padding) * pentagramCoords[left].y}`,
+                    cx: `${(this.data.r - this.data.padding) * starCoords[left].x}`,
+                    cy: `${(this.data.r - this.data.padding) * starCoords[left].y}`,
                     r: `${this.data.r/10}`,
                     fill: `var(--color${i}-light)`,
                     stroke: 'none',
@@ -284,8 +284,8 @@ class PentagramNode extends BaseComponent {
                 });
 
                 const circle2 = createElement('circle', {
-                    cx: `${(this.data.r - this.data.padding) * pentagramCoords[right].x}`,
-                    cy: `${(this.data.r - this.data.padding) * pentagramCoords[right].y}`,
+                    cx: `${(this.data.r - this.data.padding) * starCoords[right].x}`,
+                    cy: `${(this.data.r - this.data.padding) * starCoords[right].y}`,
                     r: `${this.data.r/10}`,
                     fill: `var(--color${i}-light)`,
                     stroke: 'none',
@@ -326,7 +326,7 @@ class PentagramNode extends BaseComponent {
     }
 }
 
-class BasePentagram extends BaseComponent{
+class BaseStar extends BaseComponent{
     constructor(data, config, target, extensions = {}) {
         super(data, config, target, {
             synthemes: data.synthemes,
@@ -373,7 +373,7 @@ class BasePentagram extends BaseComponent{
                         id: duad,
                         duad: duad,
                         r: this.r,
-                        pentagram: this,
+                        star: this,
                         arcStart: arcStart,
                         arcMiddle: arcMiddle,
                         arcEnd: arcEnd,
@@ -401,16 +401,16 @@ class BasePentagram extends BaseComponent{
                     if (left !== 0) {
                         let startCoords = this.data.subcomponentLocations[left];
                         let endCoords = this.data.subcomponentLocations[right];
-                        let pentagramCycle = this.data.fiveCycle.map((v, i, arr) => {
+                        let starCycle = this.data.fiveCycle.map((v, i, arr) => {
                             let d = [v, arr[(i+1) % arr.length]].join(''); 
                             return this.globals.clockwiseForm[d];
                         })
-                        let inCycle  = pentagramCycle.includes(duad);
+                        let inCycle  = starCycle.includes(duad);
                         const lineData = {
                             id: duad,
                             duad: duad,
                             r: this.R,
-                            pentagram: this,
+                            star: this,
                             x1: startCoords.coords.x,
                             y1: startCoords.coords.y,
                             x2: endCoords.coords.x,
@@ -447,7 +447,7 @@ class BasePentagram extends BaseComponent{
         //     parent: labelGroup
         // });
         let text = createElement('text', {
-            class: 'pentagram-label',
+            class: 'star-label',
             parent: labelGroup,
             fill: this.id === 0 ? '#666' : `var(--color${this.id}-dark)`,
             opacity: 0.5
@@ -485,10 +485,10 @@ class BasePentagram extends BaseComponent{
     }
 }
 
-class BackgroundPentagram extends BasePentagram {
+class BackgroundStar extends BaseStar {
     constructor(data, config, target, extensions = {}) {
         super(data, config, target, {
-            type: 'background-pentagram',
+            type: 'background-star',
             ...extensions
         }); 
     }
@@ -498,10 +498,10 @@ class BackgroundPentagram extends BasePentagram {
     }
 }
 
-class ForegroundPentagram extends BasePentagram {
+class ForegroundStar extends BaseStar {
     constructor(data, config, target, extensions = {}) {
         super(data, config, target, {
-            type: 'foreground-pentagram',
+            type: 'foreground-star',
             position: data.position,
             R: data.R,
             r: data.r,
@@ -550,7 +550,7 @@ class ForegroundPentagram extends BasePentagram {
             parent: labelGroup
         });
         let text = createElement('text', {
-            class: 'pentagram-label',
+            class: 'star-label',
             parent: labelGroup,
             fill: this.id === 0 ? '#666' : `var(--color${this.id}-dark)`,
             opacity: 0.5    
@@ -559,9 +559,9 @@ class ForegroundPentagram extends BasePentagram {
     }
     
     createNodes() {
-        const pentagramLocations = this.data.subcomponentLocations.filter(loc => loc.label !== 'center');
+        const starLocations = this.data.subcomponentLocations.filter(loc => loc.label !== 'center');
         let nodes = [];
-        pentagramLocations.forEach((location, i) => {
+        starLocations.forEach((location, i) => {
             const nodeData = {
                 id: `node-${this.id}-${i + 1}`,
                 class: `node-${i+1}`,
@@ -569,8 +569,8 @@ class ForegroundPentagram extends BasePentagram {
                 R: this.data.r,
                 r: this.data.nodeR,
                 padding: this.data.nodePadding,
-                pentagram: this,
-                pentagramCoords: this.data.pentagramCoords,
+                star: this,
+                starCoords: this.data.starCoords,
                 subcomponentLocations:this.data.subcomponentLocations,
                 group: this.layers.nodes,
                 location: location,
@@ -579,7 +579,7 @@ class ForegroundPentagram extends BasePentagram {
             const nodeConfig = {
 
             }
-            const node = new PentagramNode(nodeData, nodeConfig, this.layers.nodes);
+            const node = new StarNode(nodeData, nodeConfig, this.layers.nodes);
 
             nodes.push(node);
 
@@ -589,10 +589,10 @@ class ForegroundPentagram extends BasePentagram {
     }
 }
 
-class MysticPentagram extends BasePentagram {
+class MysticStar extends BaseStar {
     constructor(data,config, target, extensions = {}) {
         super(data, config, target, {
-            type: 'mystic-pentagram',
+            type: 'mystic-star',
             position: data.position,
             R: data.R,
             r: data.r,
@@ -624,7 +624,7 @@ class MysticPentagram extends BasePentagram {
             parent: labelGroup
         });
         let text = createElement('text', {
-            class: 'mystic-pentagram-label',
+            class: 'mystic-star-label',
             parent: labelGroup,
             fill: `var(--color${2}-light)`,
             opacity: 0.5    
@@ -645,8 +645,8 @@ class MysticPentagram extends BasePentagram {
                     R: this.data.r,
                     r: this.data.nodeR,
                     padding: this.data.nodePadding,
-                    pentagram: this,
-                    pentagramCoords: this.data.pentagramCoords,
+                    star: this,
+                    starCoords: this.data.starCoords,
                     subcomponentLocations: this.data.subcomponentLocations,
                     
                     interactionHandler: this.data.interactionHandler.bind(this.data.composer)
@@ -654,7 +654,7 @@ class MysticPentagram extends BasePentagram {
                 const nodeConfig = {
 
                 }
-                const node = new PentagramNode(nodeData, nodeConfig, this.layers.nodes);
+                const node = new StarNode(nodeData, nodeConfig, this.layers.nodes);
 
                 nodes.push(node);
 
@@ -681,7 +681,7 @@ class PermutationComponent extends BaseComponent {
         super(data, config, target, {
             type: 'permutation-component',
             globals: data.globals,
-            subcomponentLocations: [...Array(6).keys()].map(i => new Coords(config.padding*(i - 2 * data.n/(data.n - 1)), config.yOffset || 0)),
+            subcomponentLocations: [...Array(6).keys()].map(i => new Location(i, new Coords(config.padding*(i - 2 * data.n/(data.n - 1)), config.yOffset || 0))),
             ...extensions
         });
         if (data.labels === undefined) {
@@ -729,11 +729,10 @@ class PermutationComponent extends BaseComponent {
                 globals: this.globals,
                 location: location,
                 color: this.config.color || '--color3',
-                target: this.layers.nodes,
                 interactionHandler: this.data.interactionHandler.bind(this.data.composer),
-                parent: this
+                parent: this,
             };
-            nodes.push(new PermutationNode(permutationNodeData, this.layers.nodes));
+            nodes.push(new PermutationNode(permutationNodeData, {}, this.layers.nodes));
         })
         return nodes;
     }
@@ -750,5 +749,204 @@ class PermutationComponent extends BaseComponent {
     update(phi=this.globals.currentPhi) {
         this.subcomponents.cycleLabel.innerHTML = phi.cycleNotation;
         this.subcomponentLocations.map((loc, i) => phi.map(i))
+    }
+}
+
+class PermutationNode extends BaseComponent {
+    constructor(data, config, target, extensions = {}) {
+        super(data, config, target, {
+            type: 'permutation-node',
+            label: data.label,
+            globals: data.globals,
+            location: data.location,
+            color: data.color,
+            parent: data.parent,
+            ...extensions
+        });
+        if (data.labels === undefined) {
+            this.labels = [...Array(data.n).keys()].map(i => i + 1);
+        } else {
+            this.globals.currentPhi;
+            this.globals.currentPsi.setLabels(data.labels);
+        }
+        this.group.addEventListener('click', (event) => data.interactionHandler(event, this) );
+    }
+
+
+    createSubcomponents() {
+        const background = createElement('circle', {
+            cx: 0,
+            cy: 0,
+            r: 5,
+            fill: `var(${this.color})`,
+            parent: this.group
+        });
+        const text = createElement('text', {
+            x: 0,
+            y: 0,
+            fill: `var(${this.color}-dark)`,
+            'font-size': 7,
+            'text-anchor': 'middle',
+            'dominant-baseline': 'central',
+            parent: this.group
+        });
+        text.innerHTML = this.label ? this.label : (parseInt(this.id) + 1).toString();
+    }
+
+    shift(oldLocation, newLocation, t, linear=false) {
+        if (linear) {
+            const location = {
+                x: (1-t) * oldLocation.coords.x + t * newLocation.coords.x,
+                y: (1-t) * oldLocation.coords.y + t * newLocation.coords.y
+            };
+            this.group.setAttribute('transform', `translate(${location.x}, ${location.y})`);
+        } else {
+
+            let cx = (oldLocation.coords.x + newLocation.coords.x) / 2;
+            let cy = (oldLocation.coords.y + newLocation.coords.y) / 2;
+
+            // Calculate semi-major and semi-minor axes
+            let dx = (newLocation.coords.x - oldLocation.coords.x) / 2;
+            // let dy = (end.y - start.y) / 2;
+            // let a = Math.sqrt(dx * dx + dy * dy); // semi-major axis
+            let a = dx
+            let b = a * 0.5; // semi-minor axis (half the major axis for a 2:1 ratio)
+
+            let angle = Math.PI * (1 + t);
+
+            // Rotate the ellipse to align with the start and end points
+            // let rotationAngle = Math.atan2(dy, dx);
+
+            // Parametric equations for ellipse with rotation
+            let location = {
+                x: cx + (a * Math.cos(angle)),
+                y: cy + (b * Math.sin(angle))
+            };
+
+            this.group.setAttribute('transform', `translate(${location.x}, ${location.y})`);
+        }
+    }
+
+}
+
+class Duad extends BaseComponent {
+    constructor(data, config, target, extensions = {}) {
+        super(data, config, target, {
+            id: data.id,
+            class: 'duad',
+            location: data.location,
+            duad: data.duad,
+            bgColor: data.bgColor,
+            textColor: data.textColor,
+            strokeColor: data.strokeColor,
+            ...extensions
+        });
+    }
+
+    createSubcomponents() {
+        const duadBg = createElement('circle', {
+            r: '2',
+            fill: this.bgColor,
+            // stroke: this.strokeColor,
+            // 'stroke-width': '0.25',
+            parent: this.group
+        })
+        const duadText = createElement('text', {
+            class: 'duad',
+            fill: this.textColor,
+            parent: this.group
+        });
+        duadText.innerHTML = this.duad.split('').map(x => x == '0' ? 6 : +x).sort().join('');
+    }
+}
+
+class Syntheme extends BaseComponent{
+    constructor(data, config, target, extensions = {}) {
+        super(data, config, target, {
+            id: data.id,
+            class: 'syntheme',
+            location: data.location,
+            duads: data.duads,
+            ...extensions
+        });
+    }
+
+    createSubcomponents() {
+        const synthemeElement = createElement('g', { 
+            class: 'syntheme', 
+            transform: `translate(3, ${-10 + 5 * this.id})`,
+            parent: this.group
+        });
+        const synthemeBorder = createElement('rect', {
+            x: -14.5,
+            y: -2.5,
+            width: 23,
+            height: 5,
+            fill: `var(--color${this.id + 1})`,
+            opacity: 0.25,   
+            rx: 2.5,
+            ry: 2.5,
+            parent: synthemeElement
+        });
+        const synthemeLabel = createElement('g', {
+            class: 'syntheme-label',
+            transform: 'translate(-12,0)',
+            parent: synthemeElement
+        });
+        createElement('circle', {
+            cx: 0,
+            cy: 0,
+            r: 2,
+            fill: `var(--color${this.id + 1}-dark)`,
+            parent: synthemeLabel
+        });
+        const synthemeLabelText = createElement('text', {
+            class: 'syntheme-label-text',
+            fill: `var(--color${this.id + 1})`,
+            'font-size': '2.5px',
+            parent: synthemeLabel
+        })
+        synthemeLabelText.innerHTML = this.duads.filter(x => x.startsWith('0')).map(x => x.split('')[1])
+        this.duads.map(x => x.split('').sort().join('')).sort().forEach((duad, i) => {
+            const duadData = {
+                id: this.id,
+                duad: duad,
+                location: new Location(duad, new Coords(-6 + 6 * i, 0)),
+                bgColor: `var(--color${this.id + 1})`,
+                textColor: `var(--color${this.id + 1}-dark)`,
+                strokeColor: `var(--color${this.id + 1})`,
+            }
+            new Duad(duadData, {}, synthemeElement);
+        });
+    }
+}
+
+class Pentad extends BaseComponent {
+    constructor(data, config, target) {
+        super(data, config, target, {
+            id: data.id,
+            location: data.location,
+            locationCoords: data.locationCoords,
+        });
+        this.label.innerHTML = ['A','B','C','D','E','F'][this.id];
+    }
+
+    createSubcomponents() {
+        this.label = createElement('text', {
+            class: 'pentad-label',
+            parent: this.group,
+        })
+
+        this.createSynthemes();
+    }
+
+    createSynthemes() {
+        this.data.synthemes.forEach((syntheme, i) => {
+            const synthemeData = {
+                id: i,
+                duads: syntheme,
+            }
+            new Syntheme(synthemeData, {}, this.group);
+        });
     }
 }

@@ -91,7 +91,7 @@ class BaseComposer {
     }
 }
 
-class BasePentagramComposer extends BaseComposer {
+class BaseStarComposer extends BaseComposer {
     constructor(data, config, target, extensions = {}) {
         let duadList =  ['05','04','03','02','01','12','23','34','45','51','13','24','35','41','52']
         let clockwiseForm = [...Array(6).keys()]
@@ -149,10 +149,10 @@ class BasePentagramComposer extends BaseComposer {
         if (this.background) {
             this.background.update();
         }
-        this.updatePentagrams();
+        this.updateStars();
     }
 
-    updatePentagrams() {
+    updateStars() {
         this.globals.selectedNodeIndices = [];
 
         document.querySelectorAll('.node.selected').forEach(node => {
@@ -168,10 +168,9 @@ class BasePentagramComposer extends BaseComposer {
     }
 }
 
-
-class PentagramComposer extends BasePentagramComposer {
+class StarComposer extends BaseStarComposer {
     constructor(data, config, target, extensions = {}) {
-        let pentagramCoords = {
+        let starCoords = {
             'center': new Coords(0, 0),
             'top': new Coords(Math.sin(10 * Math.PI / 5), -Math.cos(10 * Math.PI / 5)),
             'top right': new Coords(Math.sin(2 * Math.PI / 5), -Math.cos(2 * Math.PI / 5)),
@@ -180,13 +179,13 @@ class PentagramComposer extends BasePentagramComposer {
             'top left': new Coords(Math.sin(8 * Math.PI / 5), -Math.cos(8 * Math.PI / 5))
         }
 
-        let componentLocations = Object.entries(pentagramCoords)
+        let componentLocations = Object.entries(starCoords)
             .map(([label, coords]) => new Location(label, coords.multiply(config.R)));
-        let subcomponentLocations = Object.entries(pentagramCoords)
+        let subcomponentLocations = Object.entries(starCoords)
             .map(([label, coords]) => new Location(label, coords.multiply(config.r)));
 
         extensions = {
-            pentagramCoords: pentagramCoords,
+            starCoords: starCoords,
             componentLocations: componentLocations,
             subcomponentLocations: subcomponentLocations,
             currentPhi: new Permutation(6),
@@ -201,8 +200,8 @@ class PentagramComposer extends BasePentagramComposer {
     createComponents() {
         const components = [];
         components.push(this.createBackground());
-        this.pentagrams = this.createPentagrams();
-        components.push(...this.pentagrams);
+        this.stars = this.createStars();
+        components.push(...this.stars);
         return components;
     }
 
@@ -225,24 +224,24 @@ class PentagramComposer extends BasePentagramComposer {
             showLabel: false,
             useArcs: true
         }
-        this.background = new BackgroundPentagram(backgroundData, backgroundConfig, this.target);
+        this.background = new BackgroundStar(backgroundData, backgroundConfig, this.target);
         return this.background;
     }
 
-    createPentagrams() {
-        let pentagrams = []
-        this.data.pentagramData.forEach(pentagram => {
-            const pentagramData = {
-                id: pentagram.id,
-                location: this.componentLocations[pentagram.id],
-                synthemes: pentagram.synthemes,
-                fiveCycle: pentagram['5-cycle'],
+    createStars() {
+        let stars = []
+        this.data.pentadData.forEach(star => {
+            const pentadData = {
+                id: star.id,
+                location: this.componentLocations[star.id],
+                synthemes: star.synthemes,
+                fiveCycle: star['5-cycle'],
                 r: this.config.r,
                 R: this.config.R,
                 nodeR: this.config.nodeR,
                 nodePadding: this.config.nodePadding,
                 composer: this,
-                pentagramCoords: this.pentagramCoords,
+                starCoords: this.starCoords,
                 subcomponentLocations: this.subcomponentLocations,
                 interactionHandler: this.interactionHandler
             }
@@ -252,10 +251,10 @@ class PentagramComposer extends BasePentagramComposer {
                 nodeR: this.config.nodeR,
                 nodePadding: this.config.nodePadding
             }
-            const newPentagram = new ForegroundPentagram(pentagramData, configData, this.target);
-            pentagrams.push(newPentagram);
+            const newStar = new ForegroundStar(pentadData, configData, this.target);
+            stars.push(newStar);
         });
-        return pentagrams;
+        return stars;
     }
 
     interactionHandler(event, that) {
@@ -285,16 +284,16 @@ class PentagramComposer extends BasePentagramComposer {
     
     morph(oldState, newState, t) {
         this.background.morph(oldState, newState, t);
-        this.pentagrams.forEach(pentagram => {
-            pentagram.morph(oldState, newState, t);
+        this.stars.forEach(star => {
+            star.morph(oldState, newState, t);
         });
     }
 
 }
 
-class MysticPentagramComposer extends BasePentagramComposer {
+class MysticStarComposer extends BaseStarComposer {
     constructor(data, config, target, extensions = {}) {
-        let pentagramCoords = [
+        let starCoords = [
             new Location('center', new Coords(0, 0)),
             new Location('top', new Coords(Math.sin(10 * Math.PI / 5), -Math.cos(10 * Math.PI / 5))),
             new Location('top right', new Coords(Math.sin(2 * Math.PI / 5), -Math.cos(2 * Math.PI / 5))),
@@ -313,11 +312,12 @@ class MysticPentagramComposer extends BasePentagramComposer {
                 new Location('bottom left', new Coords(-25, 12.5)),
             ]
         }
-        if (config.configuration === 'pentagon') {
-            componentLocations = pentagramCoords.map(location => location.multiply(config.R))
+        if (config.configuration === 'star') {
+            componentLocations = starCoords
+            .map(location => location.multiply(config.R))
         }
 
-        let subcomponentLocations = pentagramCoords.map(location => new Location(location.label, location.coords.multiply(config.r)));
+        let subcomponentLocations = starCoords.map(location => new Location(location.label, location.coords.multiply(config.r)));
 
         extensions = {
             componentLocations: componentLocations,
@@ -338,30 +338,30 @@ class MysticPentagramComposer extends BasePentagramComposer {
 
     createComponents() {
         const components = [];
-        this.pentagrams = this.createPentagrams();
-        components.push(...this.pentagrams);
+        this.stars = this.createStars();
+        components.push(...this.stars);
         return components;
     }
 
-    createPentagrams() {
-        let pentagrams = [];
-        this.data.pentagramData.forEach(pentagram => {
-            const pentagramGroup = createElement('g', {
-                class: 'pentagram',
-                'data-id': pentagram.id,
+    createStars() {
+        let stars = [];
+        this.data.pentadData.forEach(star => {
+            const starGroup = createElement('g', {
+                class: 'star',
+                'data-id': star.id,
             })
 
-            const pentagramData = {
-                id: pentagram.id,
-                location: this.componentLocations[pentagram.id],
-                synthemes: pentagram.synthemes,
-                fiveCycle: pentagram['5-cycle'],
+            const pentadData = {
+                id: star.id,
+                location: this.componentLocations[star.id],
+                synthemes: star.synthemes,
+                fiveCycle: star['5-cycle'],
                 R: this.config.r,
                 r: this.config.r,
                 nodeR: this.config.nodeR,
                 nodePadding: this.config.nodePadding,
                 composer: this,
-                pentagramCoords: this.pentagramCoords,
+                starCoords: this.starCoords,
                 subcomponentLocations: this.subcomponentLocations,
                 interactionHandler: this.interactionHandler
             }
@@ -371,16 +371,16 @@ class MysticPentagramComposer extends BasePentagramComposer {
                 nodeR: this.config.nodeR,
                 nodePadding: this.config.nodePadding
             }
-            const newPentagram = new MysticPentagram(pentagramData, configData, this.target);
-            pentagrams.push(newPentagram);
+            const newStar = new MysticStar(pentadData, configData, this.target);
+            stars.push(newStar);
         });
-        return pentagrams;
+        return stars;
 
     }
 
     morph(oldState, newState, t) {
-        this.pentagrams.forEach(pentagram => {
-            pentagram.morph(oldState, newState, t);
+        this.stars.forEach(star => {
+            star.morph(oldState, newState, t);
         });
     }
 
@@ -601,5 +601,40 @@ class LinkedPermutationComposer extends BaseComposer {
         this.globals.selectedNodeIndices = [];
         this.globals.selectedOutNodeIndices = [];
         document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+    }
+}
+
+class PentadComposer extends BaseComposer {
+    constructor(data, config, target) {
+        let pentadLocations = [
+            new Location('top left', new Coords(-30, -5)),
+            new Location('top center', new Coords(0, -5)),
+            new Location('top right', new Coords(30, -5)),
+            new Location('bottom left', new Coords(-30, 30)),
+            new Location('bottom center', new Coords(0, 30)),
+            new Location('bottom right', new Coords(30, 30))
+        ]
+
+        super(data, config, target, {
+            pentadLocations: pentadLocations,
+        });
+        this.pentads = this.createComponents();
+    }
+
+    createComponents() {
+        let pentads = []
+        this.data.pentadData.forEach(pentad => {
+            const location = this.pentadLocations[pentad.id];
+            const pentadData = {
+                id: pentad.id,
+                '5-cycle': pentad['5-cycle'],
+                synthemes: pentad.synthemes,
+                location: location,
+            };
+            const pentadConfig = {};
+            const pentadElement = new Pentad(pentadData, pentadConfig, this.target);
+            pentads.push(pentadElement);
+        });
+        return pentads;
     }
 }
