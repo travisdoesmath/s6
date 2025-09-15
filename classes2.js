@@ -31,15 +31,40 @@ class Permutation {
         } else if (typeof permutation == 'number') {
             this.permutation = Object.fromEntries([...Array(permutation).keys()].map(i => [i, i]));
         } else {
-            throw new Error("Invalid permutation type");
+            throw new Error(`Invalid permutation type: ${typeof permutation} `);
         }
     }
     copy() {
         return new Permutation(this.permutation);
     }
     cycleNotation() {
-        return this.cycleNotation(this.permutation);
+        return cycleNotation(this.permutation);
     }
+
+    cycleNotation(index=1) {
+        let elements = Object.keys(this.permutation);
+        let visited = new Set();
+        let cycles = [];
+
+        elements.forEach(element => {
+            if (!visited.has(element)) {
+                let current = String(element);
+                let cycle = [];
+
+                while (!visited.has(current)) {
+                    visited.add(current);
+                    cycle.push(current);
+                    current = String(this.permutation[current]);
+                }
+
+                if (cycle.length > 1) {
+                    cycles.push(cycle);
+                }
+            }
+        })
+
+    return cycles.map(cycle => '(' + (cycle.map(el => +el + index).join(' ')) + ')').join('');
+}
 
     map(value) {
         if (Object.keys(this.permutation).includes(String(value))) {
@@ -53,12 +78,17 @@ class Permutation {
         return Object.keys(this.permutation).find(key => this.permutation[key] === value) || value;
     }
 
-    compose(permutation) {
+    compose(thatPermutation) {
         let newPermutation = {};
-        Object.keys(this.permutation).forEach(key => {
-            newPermutation[key] = permutation.map(this.permutation[key]);
+        Object.keys(thatPermutation.permutation)
+            .filter(key => !Object.keys(this.permutation).includes(key))
+            .forEach(key => {
+            newPermutation[key] = thatPermutation.permutation[key];
         });
-        this.permutation = newPermutation;
+        Object.keys(this.permutation).forEach(key => {
+            newPermutation[key] = thatPermutation.map(this.permutation[key]);
+        });
+        return new Permutation(newPermutation);
     }
 }
 
@@ -316,9 +346,6 @@ class Line extends BaseComponent {
     }
     
     morph(oldState, newState, t) {
-        if (t < 2/1200) {
-            // console.log(this, oldState, newState, t);
-        }
         let p1coords = {
             start: { x: oldState.x1, y: oldState.y1 },
             end: { x: oldState.x2, y: oldState.y2 }
@@ -793,9 +820,6 @@ class PentagramNode extends BaseComponent {
     shift(oldLocation, newLocation, t, linear=true) {
         const start = oldLocation.coords;
         const end = newLocation.coords;
-        // if (t < 2/1200) {
-        //     console.log(start, end, t);
-        // }
         if (linear) {
             let x = lerp(start.x, end.x, t);
             let y = lerp(start.y, end.y, t);
@@ -804,7 +828,7 @@ class PentagramNode extends BaseComponent {
         } else {
             // implement code for elliptic path
         }
-    }}
+}}
 
 class BasePentagram extends BaseComponent{
     constructor(data, config, target, extensions = {}) {
@@ -960,9 +984,6 @@ class BasePentagram extends BaseComponent{
                     x2: newState.subcomponentLocations[right].coords.x,
                     y2: newState.subcomponentLocations[right].coords.y
                 };
-                if (t < 1/1200) {
-                    // console.log(oldState, newState, left, right, oldLineData, newLineData);
-                }
                 edge.morph(oldLineData, newLineData, t);
             }
         });
@@ -1168,3 +1189,529 @@ class MysticPentagram extends BasePentagram {
     }
 }
 
+class Duad {
+    constructor(data, target) {
+        this.id = data.id;
+        this.duad = data.duad;
+        this.target = target;
+        this.bgColor = data.bgColor;
+        this.textColor = data.textColor;
+        this.strokeColor = data.strokeColor;
+        this.render();
+    }
+
+    render() {
+        const duadBg = createElement('circle', {
+            r: '2',
+            fill: this.bgColor,
+            // stroke: this.strokeColor,
+            // 'stroke-width': '0.25',
+            parent: this.target
+        })
+        const duadText = createElement('text', {
+            class: 'duad',
+            fill: this.textColor,
+            parent: this.target
+        });
+        duadText.innerHTML = this.duad.split('').map(x => x == '0' ? 6 : +x).sort().join('');
+    }
+}
+
+class Syntheme {
+    constructor(data, target) {
+        this.id = data.id;
+        this.duads = data.duads;
+        this.target = target;
+        this.render();
+    }
+
+    render() {
+        const synthemeElement = createElement('g', { 
+            class: 'syntheme', 
+            transform: `translate(3, ${-10 + 5 * this.id})`,
+            parent: this.target 
+        });
+        const synthemeBorder = createElement('rect', {
+            x: -14.5,
+            y: -2.5,
+            width: 23,
+            height: 5,
+            fill: `var(--color${this.id + 1})`,
+            opacity: 0.25,   
+            rx: 2.5,
+            ry: 2.5,
+            parent: synthemeElement
+        });
+        const synthemeLabel = createElement('g', {
+            class: 'syntheme-label',
+            transform: 'translate(-12,0)',
+            parent: synthemeElement
+        });
+        createElement('circle', {
+            cx: 0,
+            cy: 0,
+            r: 2,
+            fill: `var(--color${this.id + 1}-dark)`,
+            parent: synthemeLabel
+        });
+        const synthemeLabelText = createElement('text', {
+            class: 'syntheme-label-text',
+            fill: `var(--color${this.id + 1})`,
+            'font-size': '2.5px',
+            parent: synthemeLabel
+        })
+        synthemeLabelText.innerHTML = this.duads.filter(x => x.startsWith('0')).map(x => x.split('')[1])
+        this.duads.map(x => x.split('').sort().join('')).sort().forEach((duad, i) => {
+            const duadGroup = createElement('g', {
+                class: 'duad',
+                transform: `translate(${-6 + 6 * i}, 0)`,
+                parent: synthemeElement
+            });
+            const duadData = {
+                id: this.id,
+                duad: duad,
+                bgColor: `var(--color${this.id + 1})`,
+                textColor: `var(--color${this.id + 1}-dark)`,
+                strokeColor: `var(--color${this.id + 1})`,
+            }
+            new Duad(duadData, duadGroup);
+        });
+    }
+}
+
+class Pentad {
+    constructor(data, config, target) {
+        this.id = data.id;
+        this.data = data;
+        this.config = config;
+        this.target = target;
+        this.location = data.location;
+        this.locationCoords = data.locationCoords;
+        this.group = createElement('g', {
+            id: this.id,
+            transform: `translate(${this.locationCoords.x}, ${this.locationCoords.y})`,
+            parent: this.target
+        });
+        this.label = createElement('text', {
+            class: 'pentad-label',
+            parent: this.group,
+        })
+        this.label.innerHTML = ['A','B','C','D','E','F'][this.id];
+
+
+        this.createSynthemes();
+    }
+
+    createSynthemes() {
+        this.data.synthemes.forEach((syntheme, i) => {
+            const synthemeData = {
+                id: i,
+                duads: syntheme,
+            }
+            new Syntheme(synthemeData, this.group);
+        });
+    }
+}
+
+class PentadComposer {
+    constructor(data, config, target) {
+        this.data = data;
+        this.config = config;
+        this.target = target;
+        this.pentadLocations = {
+            0: 'top left', 
+            1: 'top center', 
+            2: 'top right', 
+            3: 'bottom left', 
+            4: 'bottom center', 
+            5: 'bottom right'
+        };
+        this.pentadLocationCoords = {
+            'top left': {x: -30, y: -5},
+            'top center': {x: 0, y: -5},
+            'top right': {x: 30, y: -5},
+            'bottom left': {x: -30, y: 30},
+            'bottom center': {x: 0, y: 30},
+            'bottom right': {x: 30, y: 30}
+        }
+        this.pentadLocationEnum = {
+            0: 'top left', 
+            1: 'top center', 
+            2: 'top right', 
+            3: 'bottom left', 
+            4: 'bottom center', 
+            5: 'bottom right'
+        }
+        this.pentads = this.createPentads();
+    }
+
+    createPentads() {
+        let pentads = []
+        this.data.pentagramData.forEach(pentagram => {
+            const location = this.pentadLocations[pentagram.id];
+            const pentadData = {
+                id: pentagram.id,
+                '5-cycle': pentagram['5-cycle'],
+                synthemes: pentagram.synthemes,
+                location: location,
+                locationCoords: this.pentadLocationCoords[location]
+            };
+            const pentadConfig = {};
+            const pentad = new Pentad(pentadData, pentadConfig, this.target);
+            pentads.push(pentad);
+        });
+        return pentads;
+    }
+}
+
+class PermutationNode {
+    constructor(data, target) {
+        this.id = data.id;
+        this.globals = data.globals;
+        this.location = data.location;
+        this.color = data.color;
+        this.target = target;
+        this.yOffset = data.yOffset || 0;
+        this.group = createElement('g', {
+            id: this.id,
+            class: 'permutation-node',
+            transform: `translate(${this.location.x}, ${this.location.y + (this.yOffset)})`,
+            parent: this.target
+        });
+        this.group.addEventListener('click', (event) => data.interactionHandler(event, this));
+        this.render();
+    }
+
+    shift(oldLocation, newLocation, t, linear=false) {
+        const start = oldLocation[this.id];
+        const end = newLocation[this.id];
+        if (linear) {
+            const location = {
+                x: (1-t) * oldLocation.x + t * newLocation.x,
+                y: (1-t) * oldLocation.y + t * newLocation.y
+            };
+            this.group.setAttribute('transform', `translate(${location.x}, ${location.y + this.yOffset})`);
+        } else {
+
+            let cx = (oldLocation.x + newLocation.x) / 2;
+            let cy = (oldLocation.y + newLocation.y) / 2;
+
+            // Calculate semi-major and semi-minor axes
+            let dx = (newLocation.x - oldLocation.x) / 2;
+            // let dy = (end.y - start.y) / 2;
+            // let a = Math.sqrt(dx * dx + dy * dy); // semi-major axis
+            let a = dx
+            let b = a * 0.5; // semi-minor axis (half the major axis for a 2:1 ratio)
+
+            let angle = Math.PI * (1 + t);
+
+            // Rotate the ellipse to align with the start and end points
+            // let rotationAngle = Math.atan2(dy, dx);
+
+            // Parametric equations for ellipse with rotation
+            let location = {
+                x: cx + (a * Math.cos(angle)),
+                y: cy + (b * Math.sin(angle))
+            };
+
+            this.group.setAttribute('transform', `translate(${location.x}, ${-location.y + this.yOffset})`);
+        }
+    }
+
+    render() {
+        const background = createElement('circle', {
+            cx: 0,
+            cy: 0,
+            r: 5,
+            fill: `var(${this.color})`,
+            parent: this.group
+        });
+        const text = createElement('text', {
+            x: 0,
+            y: 0,
+            fill: `var(${this.color}-dark)`,
+            'font-size': 7,
+            'text-anchor': 'middle',
+            'dominant-baseline': 'central',
+            parent: this.group
+        });
+        text.innerHTML = this.id + 1;
+    }
+}
+
+class PermutationComponent extends BaseComponent {
+    constructor(data, config, target, extensions = {}) {
+        super(data, config, target, {
+            type: 'permutation-component',
+            globals: data.globals,
+            subcomponentLocations: [...Array(6).keys()].map(i => new Coords(config.padding*(i - 2 * data.n/(data.n - 1)), 0)),
+            ...extensions
+        });
+    }
+    extendBase() {
+        this.layers = {
+            background: createElement('g', { class: 'background', parent: this.group }),
+            nodes: createElement('g', { class: 'nodes', parent: this.group }),
+            labels: createElement('g', { class: 'labels', parent: this.group }),
+        };
+    }
+
+    createSubcomponents() {
+        let subcomponents = {};
+        subcomponents.cycleLabel = this.createCycleLabel();
+        subcomponents.nodes = this.createNodes();
+        return subcomponents
+    }
+
+    createCycleLabel() {
+        const label = createElement('text', {
+            x: 0,
+            y: 15,
+            fill: 'var(--color3-dark)',
+            'font-size': 7,
+            'text-anchor': 'middle',
+            'dominant-baseline': 'central',
+            parent: this.layers.labels
+        });
+        label.innerHTML = this.globals.currentPhi.cycleNotation();
+        return label
+    }
+
+    createNodes() {
+        let nodes = [];
+        this.subcomponentLocations.forEach((location, i) => {
+            const permutationNodeData = {
+                id: i,
+                globals: this.globals,
+                location: location,
+                color: '--color3',
+                target: this.layers.nodes,
+                interactionHandler: this.data.interactionHandler.bind(this.data.composer),
+                yOffset: 0
+            };
+            nodes.push(new PermutationNode(permutationNodeData, this.layers.nodes));
+        })
+        return nodes;
+    }
+
+    interpolate(t) {
+        this.subcomponents.cycleLabel.innerHTML = this.globals.currentPhi.cycleNotation() + this.globals.swap.cycleNotation();
+        // this.subcomponents.cycleLabel.innerHTML = 'test';
+        this.subcomponents.nodes.forEach(node => {
+            let oldLocation = this.subcomponentLocations[this.globals.currentPhi.map(node.id)];
+            let newLocation = this.subcomponentLocations[this.globals.swap.compose(this.globals.currentPhi).map(node.id)];
+            node.shift(oldLocation, newLocation, t, false);
+        });
+    }
+
+    update() {
+        this.subcomponents.cycleLabel.innerHTML = this.globals.currentPhi.cycleNotation();
+        this.subcomponentLocations.map((loc, i) => this.globals.currentPhi.map(i))
+    }
+
+}
+
+class PermutationComposer extends BaseComposer{
+    constructor(data, config, target, extensions = {}) {
+        let globals =  {
+            selectedNodeIndices: [],
+            currentPhi: new Permutation(config.n),
+            psi: {
+                '01': {0: 1, 1: 0, 2: 5, 3: 4, 4: 3, 5: 2}, // (12)(36)(45)
+                '02': {0: 2, 1: 3, 2: 0, 3: 1, 4: 5, 5: 4}, // (13)(24)(56)
+                '03': {0: 3, 1: 5, 2: 4, 3: 0, 4: 2, 5: 1}, // (14)(26)(35)
+                '04': {0: 4, 1: 2, 2: 1, 3: 5, 4: 0, 5: 3}, // (15)(23)(46)
+                '05': {0: 5, 1: 4, 2: 3, 3: 2, 4: 1, 5: 0}, // (16)(25)(34)
+                '12': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1}, // (15)(26)(43)
+                '13': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3}, // (13)(25)(46)
+                '41': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0}, // (16)(24)(35)
+                '51': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4}, // (14)(23)(56)
+                '23': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0}, // (16)(23)(45)
+                '24': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2}, // (14)(25)(36)
+                '52': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3}, // (12)(35)(46)
+                '34': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4}, // (12)(34)(56)
+                '35': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2}, // (15)(24)(36)
+                '45': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1}  // (13)(26)(45)
+            },
+        }
+        super(data, config, target, {
+            globals: globals,    
+            ...extensions
+        });
+        this.currentPhi = new Permutation(this.config.n);
+    }
+
+    createComponents() {
+        let components = [this.createPermutationComponent()];
+        return components;  
+    }
+
+
+    createPermutationComponent() {
+        return new PermutationComponent({
+            id: 'permutation-component',
+            n: this.config.n,
+            location: new Location('origin', new Coords(0,0)),
+            interactionHandler: this.interactionHandler.bind(this),
+            globals: this.globals,
+        }, {padding: 15}, this.target, {});
+        
+    }
+    
+    interpolate(t) {
+        this.components.forEach(component => {
+            component.interpolate(t);
+        });
+    }
+
+    interactionHandler(event, that) {
+        // let nodeIdx = this.currentPhi.inverse(that.id);
+        let nodeIdx = +that.id;
+        let nodes = Array.from(that.target.getElementsByClassName('permutation-node')).filter(el => el.id == nodeIdx);
+        if (this.globals.selectedNodeIndices.includes(nodeIdx) || this.globals.selectedNodeIndices.length < 2)
+        {            
+            nodes.forEach(n => n.classList.toggle('selected'));
+        }        
+        if (nodes[0].classList.contains('selected') && this.globals.selectedNodeIndices.length < 2) {
+            this.globals.selectedNodeIndices.push(nodeIdx);
+        } else {
+            this.globals.selectedNodeIndices = this.globals.selectedNodeIndices.filter(n => n !== nodeIdx);
+        }
+        if (this.globals.selectedNodeIndices.length === 2) {
+            let duad = this.globals.selectedNodeIndices.map(x => this.currentPhi.map(x)).join('');
+            this.globals.swap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]});
+            this.globals.psiOfSwap = new Permutation(this.globals.psi[clockwiseForm(duad)]);
+
+            requestAnimationFrame(this.animate.bind(this));
+            
+        } else {
+            document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
+        }            
+    }
+
+    update() {
+        this.globals.currentPhi = this.globals.swap.compose(this.globals.currentPhi);
+        this.components.forEach(component => component.update())
+        //component.subcomponentLocations.map((loc, i) => this.globals.currentPhi.map(i)));
+        this.globals.selectedNodeIndices = [];
+        document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+    }
+}
+
+class LinkedPermutationComposer {
+    constructor(config, target) {
+        this.n = config.n;
+        this.config = config;
+        this.target = target;
+        this.globals = {
+            composer: this,
+            selectedNodeIndices: [],
+            currentPhi: Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, i])),
+            currentPhiInverse: Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, i])),
+            currentLinkedPermutation: Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, i])),
+            currentLinkedPermutationInverse: Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, i])),
+            psi: {
+                '01': {0: 1, 1: 0, 2: 5, 3: 4, 4: 3, 5: 2}, // (12)(36)(45)
+                '02': {0: 2, 1: 3, 2: 0, 3: 1, 4: 5, 5: 4}, // (13)(24)(56)
+                '03': {0: 3, 1: 5, 2: 4, 3: 0, 4: 2, 5: 1}, // (14)(26)(35)
+                '04': {0: 4, 1: 2, 2: 1, 3: 5, 4: 0, 5: 3}, // (15)(23)(46)
+                '05': {0: 5, 1: 4, 2: 3, 3: 2, 4: 1, 5: 0}, // (16)(25)(34)
+                '12': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1}, // (15)(26)(43)
+                '13': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3}, // (13)(25)(46)
+                '41': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0}, // (16)(24)(35)
+                '51': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4}, // (14)(23)(56)
+                '23': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0}, // (16)(23)(45)
+                '24': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2}, // (14)(25)(36)
+                '52': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3}, // (12)(35)(46)
+                '34': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4}, // (12)(34)(56)
+                '35': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2}, // (15)(24)(36)
+                '45': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1}  // (13)(26)(45)
+            },
+            cycle: Array.from({ length: this.n }, (_, i) => i),
+            nodeLocations: Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, { 
+                x: 15*(i - 2 * this.n/(this.n - 1)),
+                y: 0
+            }]))
+        }
+        this.animStart = undefined;
+        this.nodes = this.createNodes();
+        this.cycleLabel1 = this.createCycleLabel(-5);
+        this.cycleLabel2 = this.createCycleLabel(20);
+    }
+
+    createCycleLabel(yOffset) {
+        const label = createElement('text', {
+            x: 0,
+            y: yOffset,
+            fill: 'var(--color3-dark)',
+            'font-size': 7,
+            'text-anchor': 'middle',
+            'dominant-baseline': 'central',
+            parent: this.layers.labels
+        });
+        label.innerHTML = cycleNotation(this.globals.cycle);
+        return label
+    }
+
+    createNodes() {
+        let nodes = [];
+        for (let i = 0; i < this.n; i++) {
+            const permutationNodeData = {
+                id: `A${i}`,
+                location: this.globals.nodeLocations[i],
+                yOffset: -15,
+                globals: this.globals,
+                color: '--color1',
+                target: this.target
+            };
+            nodes.push(new PermutationNode(permutationNodeData, this.target));
+        }
+        for (let i = 0; i < this.n; i++) {
+            const permutationNodeData = {
+                id: `B${i}`,
+                location: this.globals.nodeLocations[i],
+                yOffset: 10,
+                globals: this.globals,
+                color: '--color2',
+                target: this.target
+            };
+            nodes.push(new PermutationNode(permutationNodeData, this.target));
+        }
+
+        return nodes;
+    }
+
+    interpolate(t) {
+        this.nodes.forEach(node => {
+            node.shift(t, true);
+        });
+    }
+
+    update() {
+        this.cycleLabel1.innerHTML = cycleNotation(this.globals.cycle);
+        this.cycleLabel2.innerHTML = cycleNotation(this.globals.currentLinkedPermutation);
+
+        this.globals.currentPhi = Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, this.globals.cycle[i]]));
+        this.globals.currentPhiInverse = Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, this.globals.cycle.indexOf(i)]));
+        this.globals.cycleInverse = Array.from({ length: this.n }, (_, i) => this.globals.cycle.indexOf(i));
+        this.globals.selectedNodeIndices = [];
+        document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+    }
+
+    animate(t) {
+        
+        if (this.animStart === undefined) {
+            this.animStart = t;
+        }
+        const elapsed = t - this.animStart;
+        const shift = Math.min(elapsed / 600, 1);
+        if (shift < 1) {
+            let t = easeInOutCubic(shift);
+            this.interpolate(t);
+            requestAnimationFrame(this.animate.bind(this));
+        } else {
+            this.animStart = undefined;
+            this.update();
+        }
+    }
+}

@@ -19,32 +19,32 @@ function easeInOutSine(x) {
 return -(Math.cos(Math.PI * x) - 1) / 2;
 }
 
-function cycleNotation(permutation) {
-    elements = Object.keys(permutation);
-    let visited = new Set();
-    let cycles = [];
+// function cycleNotation(permutation) {
+//     elements = Object.keys(permutation);
+//     let visited = new Set();
+//     let cycles = [];
 
-    elements.forEach(element => {
-        if (!visited.has(element)) {
-            let current = String(element);
-            let cycle = [];
+//     elements.forEach(element => {
+//         if (!visited.has(element)) {
+//             let current = String(element);
+//             let cycle = [];
 
-            while (!visited.has(current)) {
-                visited.add(current);
-                cycle.push(current);
-                current = String(permutation[current]);
-            }
+//             while (!visited.has(current)) {
+//                 visited.add(current);
+//                 cycle.push(current);
+//                 current = String(permutation[current]);
+//             }
 
-            if (cycle.length > 1) {
-                cycles.push(cycle);
-            }
-        }
-    })
+//             if (cycle.length > 1) {
+//                 cycles.push(cycle);
+//             }
+//         }
+//     })
 
-    return cycles.map(cycle => '(' + cycle.join(' ') + ')').join('');
-}
+//     return cycles.map(cycle => '(' + cycle.join(' ') + ')').join('');
+// }
 
-function clockwiseForm(a, b) {
+function clockwiseForm(a) {
     let duadList =  ['05','04','03','02','01','12','23','34','45','51','13','24','35','41','52'];
     let clockwiseMap = [...Array(6).keys()]
         .map(i => [...Array(6).keys()]
@@ -56,8 +56,10 @@ function clockwiseForm(a, b) {
             acc[`${i}${j}`] = duadList.includes(`${i}${j}`) ? `${i}${j}` : `${j}${i}`;
             return acc;
         }, {});
-    
-    return clockwiseMap[[a, b].join('')]
+
+    // console.log(clockwiseMap, a)
+
+    return clockwiseMap[a];
 
 }
 
