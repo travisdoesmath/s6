@@ -1371,11 +1371,11 @@ class PermutationNode {
         this.location = data.location;
         this.color = data.color;
         this.target = target;
-        this.yOffset = data.yOffset || 0;
+        this.parent = data.parent;
         this.group = createElement('g', {
             id: this.id,
             class: 'permutation-node',
-            transform: `translate(${this.location.x}, ${this.location.y + (this.yOffset)})`,
+            transform: `translate(${this.location.x}, ${this.location.y})`,
             parent: this.target
         });
         this.group.addEventListener('click', (event) => data.interactionHandler(event, this));
@@ -1390,7 +1390,7 @@ class PermutationNode {
                 x: (1-t) * oldLocation.x + t * newLocation.x,
                 y: (1-t) * oldLocation.y + t * newLocation.y
             };
-            this.group.setAttribute('transform', `translate(${location.x}, ${location.y + this.yOffset})`);
+            this.group.setAttribute('transform', `translate(${location.x}, ${location.y})`);
         } else {
 
             let cx = (oldLocation.x + newLocation.x) / 2;
@@ -1414,7 +1414,7 @@ class PermutationNode {
                 y: cy + (b * Math.sin(angle))
             };
 
-            this.group.setAttribute('transform', `translate(${location.x}, ${-location.y + this.yOffset})`);
+            this.group.setAttribute('transform', `translate(${location.x}, ${-location.y})`);
         }
     }
 
@@ -1444,7 +1444,7 @@ class PermutationComponent extends BaseComponent {
         super(data, config, target, {
             type: 'permutation-component',
             globals: data.globals,
-            subcomponentLocations: [...Array(6).keys()].map(i => new Coords(config.padding*(i - 2 * data.n/(data.n - 1)), 0)),
+            subcomponentLocations: [...Array(6).keys()].map(i => new Coords(config.padding*(i - 2 * data.n/(data.n - 1)), config.yOffset || 0)),
             ...extensions
         });
     }
@@ -1466,8 +1466,8 @@ class PermutationComponent extends BaseComponent {
     createCycleLabel() {
         const label = createElement('text', {
             x: 0,
-            y: 15,
-            fill: 'var(--color3-dark)',
+            y: 10,
+            fill: `var(${this.config.color3}-dark)`,
             'font-size': 7,
             'text-anchor': 'middle',
             'dominant-baseline': 'central',
@@ -1484,29 +1484,30 @@ class PermutationComponent extends BaseComponent {
                 id: i,
                 globals: this.globals,
                 location: location,
-                color: '--color3',
+                color: this.config.color || '--color3',
                 target: this.layers.nodes,
                 interactionHandler: this.data.interactionHandler.bind(this.data.composer),
-                yOffset: 0
+                parent: this
+                // yOffset: 0
             };
             nodes.push(new PermutationNode(permutationNodeData, this.layers.nodes));
         })
         return nodes;
     }
 
-    interpolate(t) {
-        this.subcomponents.cycleLabel.innerHTML = this.globals.currentPhi.cycleNotation() + this.globals.swap.cycleNotation();
+    interpolate(t, cycle=this.globals.currentPhi, swap=this.globals.swap) {
+        this.subcomponents.cycleLabel.innerHTML = cycle.cycleNotation() + swap.cycleNotation();
         // this.subcomponents.cycleLabel.innerHTML = 'test';
         this.subcomponents.nodes.forEach(node => {
-            let oldLocation = this.subcomponentLocations[this.globals.currentPhi.map(node.id)];
-            let newLocation = this.subcomponentLocations[this.globals.swap.compose(this.globals.currentPhi).map(node.id)];
+            let oldLocation = this.subcomponentLocations[cycle.map(node.id)];
+            let newLocation = this.subcomponentLocations[swap.compose(cycle).map(node.id)];
             node.shift(oldLocation, newLocation, t, false);
         });
     }
 
-    update() {
-        this.subcomponents.cycleLabel.innerHTML = this.globals.currentPhi.cycleNotation();
-        this.subcomponentLocations.map((loc, i) => this.globals.currentPhi.map(i))
+    update(phi=this.globals.currentPhi) {
+        this.subcomponents.cycleLabel.innerHTML = phi.cycleNotation();
+        this.subcomponentLocations.map((loc, i) => phi.map(i))
     }
 
 }
@@ -1538,7 +1539,6 @@ class PermutationComposer extends BaseComposer{
             globals: globals,    
             ...extensions
         });
-        this.currentPhi = new Permutation(this.config.n);
     }
 
     createComponents() {
@@ -1559,9 +1559,7 @@ class PermutationComposer extends BaseComposer{
     }
     
     interpolate(t) {
-        this.components.forEach(component => {
-            component.interpolate(t);
-        });
+        this.components.forEach(component => component.interpolate(t, this.globals.currentPhi, this.globals.swap));
     }
 
     interactionHandler(event, that) {
@@ -1578,12 +1576,11 @@ class PermutationComposer extends BaseComposer{
             this.globals.selectedNodeIndices = this.globals.selectedNodeIndices.filter(n => n !== nodeIdx);
         }
         if (this.globals.selectedNodeIndices.length === 2) {
-            let duad = this.globals.selectedNodeIndices.map(x => this.currentPhi.map(x)).join('');
+            let duad = this.globals.selectedNodeIndices.join('');
             this.globals.swap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]});
             this.globals.psiOfSwap = new Permutation(this.globals.psi[clockwiseForm(duad)]);
 
             requestAnimationFrame(this.animate.bind(this));
-            
         } else {
             document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
         }            
@@ -1594,22 +1591,16 @@ class PermutationComposer extends BaseComposer{
         this.components.forEach(component => component.update())
         //component.subcomponentLocations.map((loc, i) => this.globals.currentPhi.map(i)));
         this.globals.selectedNodeIndices = [];
-        document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+        this.target.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
     }
 }
 
-class LinkedPermutationComposer {
-    constructor(config, target) {
-        this.n = config.n;
-        this.config = config;
-        this.target = target;
-        this.globals = {
-            composer: this,
+class LinkedPermutationComposer extends BaseComposer {
+    constructor(data, config, target, extensions = {}) {
+        let globals =  {
             selectedNodeIndices: [],
-            currentPhi: Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, i])),
-            currentPhiInverse: Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, i])),
-            currentLinkedPermutation: Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, i])),
-            currentLinkedPermutationInverse: Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, i])),
+            currentPhi: new Permutation(config.n),
+            currentPsi: new Permutation(config.n),
             psi: {
                 '01': {0: 1, 1: 0, 2: 5, 3: 4, 4: 3, 5: 2}, // (12)(36)(45)
                 '02': {0: 2, 1: 3, 2: 0, 3: 1, 4: 5, 5: 4}, // (13)(24)(56)
@@ -1627,91 +1618,188 @@ class LinkedPermutationComposer {
                 '35': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2}, // (15)(24)(36)
                 '45': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1}  // (13)(26)(45)
             },
-            cycle: Array.from({ length: this.n }, (_, i) => i),
-            nodeLocations: Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, { 
-                x: 15*(i - 2 * this.n/(this.n - 1)),
-                y: 0
-            }]))
         }
-        this.animStart = undefined;
-        this.nodes = this.createNodes();
-        this.cycleLabel1 = this.createCycleLabel(-5);
-        this.cycleLabel2 = this.createCycleLabel(20);
-    }
-
-    createCycleLabel(yOffset) {
-        const label = createElement('text', {
-            x: 0,
-            y: yOffset,
-            fill: 'var(--color3-dark)',
-            'font-size': 7,
-            'text-anchor': 'middle',
-            'dominant-baseline': 'central',
-            parent: this.layers.labels
+        super(data, config, target, {
+            globals: globals,    
+            ...extensions
         });
-        label.innerHTML = cycleNotation(this.globals.cycle);
-        return label
     }
 
-    createNodes() {
-        let nodes = [];
-        for (let i = 0; i < this.n; i++) {
-            const permutationNodeData = {
-                id: `A${i}`,
-                location: this.globals.nodeLocations[i],
-                yOffset: -15,
-                globals: this.globals,
-                color: '--color1',
-                target: this.target
-            };
-            nodes.push(new PermutationNode(permutationNodeData, this.target));
-        }
-        for (let i = 0; i < this.n; i++) {
-            const permutationNodeData = {
-                id: `B${i}`,
-                location: this.globals.nodeLocations[i],
-                yOffset: 10,
-                globals: this.globals,
-                color: '--color2',
-                target: this.target
-            };
-            nodes.push(new PermutationNode(permutationNodeData, this.target));
-        }
-
-        return nodes;
+    createComponents() {
+        let components = []
+        components.push(this.createPermutationComponent(-17.5, '--color2'));
+        components.push(this.createPermutationComponent(7.5, '--color1'));
+        return components;  
     }
 
+    createPermutationComponent(yOffset, color = '--color3') {
+        return new PermutationComponent({
+            id: 'permutation-component',
+            n: this.config.n,
+            location: new Location('origin', new Coords(0, yOffset || 0)),
+            interactionHandler: this.interactionHandler.bind(this),
+            globals: this.globals,
+        }, {padding: 15, color: color}, this.target, {});
+        
+    }
+    
     interpolate(t) {
-        this.nodes.forEach(node => {
-            node.shift(t, true);
-        });
+        this.components[0].interpolate(t, this.globals.currentPhi, this.globals.swap);
+        this.components[1].interpolate(t, this.globals.currentPsi, this.globals.psiOfSwap);
+    }
+
+
+    interactionHandler(event, that) {
+        console.log(that)
+        let nodeIdx = +that.id;
+        let nodes = Array.from(that.target.getElementsByClassName('permutation-node')).filter(el => el.id == nodeIdx);
+        if (this.globals.selectedNodeIndices.includes(nodeIdx) || this.globals.selectedNodeIndices.length < 2)
+        {            
+            nodes.forEach(n => n.classList.toggle('selected'));
+        }        
+        if (nodes[0].classList.contains('selected') && this.globals.selectedNodeIndices.length < 2) {
+            this.globals.selectedNodeIndices.push(nodeIdx);
+        } else {
+            this.globals.selectedNodeIndices = this.globals.selectedNodeIndices.filter(n => n !== nodeIdx);
+        }
+        if (this.globals.selectedNodeIndices.length === 2) {
+            let duad = this.globals.selectedNodeIndices.join('');
+            this.globals.swap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]});
+            this.globals.psiOfSwap = new Permutation(this.globals.psi[clockwiseForm(duad)]);
+
+            requestAnimationFrame(this.animate.bind(this));
+            
+        } else {
+            that.target.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
+        }            
     }
 
     update() {
-        this.cycleLabel1.innerHTML = cycleNotation(this.globals.cycle);
-        this.cycleLabel2.innerHTML = cycleNotation(this.globals.currentLinkedPermutation);
-
-        this.globals.currentPhi = Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, this.globals.cycle[i]]));
-        this.globals.currentPhiInverse = Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, this.globals.cycle.indexOf(i)]));
-        this.globals.cycleInverse = Array.from({ length: this.n }, (_, i) => this.globals.cycle.indexOf(i));
+        this.globals.currentPhi = this.globals.swap.compose(this.globals.currentPhi);
+        this.globals.currentPsi = this.globals.psiOfSwap.compose(this.globals.currentPsi);
+        this.components[0].update(this.globals.currentPhi);
+        this.components[1].update(this.globals.currentPsi);
+        //component.subcomponentLocations.map((loc, i) => this.globals.currentPhi.map(i)));
         this.globals.selectedNodeIndices = [];
         document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
     }
-
-    animate(t) {
-        
-        if (this.animStart === undefined) {
-            this.animStart = t;
-        }
-        const elapsed = t - this.animStart;
-        const shift = Math.min(elapsed / 600, 1);
-        if (shift < 1) {
-            let t = easeInOutCubic(shift);
-            this.interpolate(t);
-            requestAnimationFrame(this.animate.bind(this));
-        } else {
-            this.animStart = undefined;
-            this.update();
-        }
-    }
 }
+
+
+// class LinkedPermutationComposer {
+//     constructor(config, target) {
+//         this.n = config.n;
+//         this.config = config;
+//         this.target = target;
+//         this.globals = {
+//             composer: this,
+//             selectedNodeIndices: [],
+//             currentPhi: Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, i])),
+//             currentPhiInverse: Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, i])),
+//             currentLinkedPermutation: Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, i])),
+//             currentLinkedPermutationInverse: Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, i])),
+//             psi: {
+//                 '01': {0: 1, 1: 0, 2: 5, 3: 4, 4: 3, 5: 2}, // (12)(36)(45)
+//                 '02': {0: 2, 1: 3, 2: 0, 3: 1, 4: 5, 5: 4}, // (13)(24)(56)
+//                 '03': {0: 3, 1: 5, 2: 4, 3: 0, 4: 2, 5: 1}, // (14)(26)(35)
+//                 '04': {0: 4, 1: 2, 2: 1, 3: 5, 4: 0, 5: 3}, // (15)(23)(46)
+//                 '05': {0: 5, 1: 4, 2: 3, 3: 2, 4: 1, 5: 0}, // (16)(25)(34)
+//                 '12': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1}, // (15)(26)(43)
+//                 '13': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3}, // (13)(25)(46)
+//                 '41': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0}, // (16)(24)(35)
+//                 '51': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4}, // (14)(23)(56)
+//                 '23': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0}, // (16)(23)(45)
+//                 '24': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2}, // (14)(25)(36)
+//                 '52': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3}, // (12)(35)(46)
+//                 '34': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4}, // (12)(34)(56)
+//                 '35': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2}, // (15)(24)(36)
+//                 '45': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1}  // (13)(26)(45)
+//             },
+//             cycle: Array.from({ length: this.n }, (_, i) => i),
+//             nodeLocations: Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, { 
+//                 x: 15*(i - 2 * this.n/(this.n - 1)),
+//                 y: 0
+//             }]))
+//         }
+//         this.animStart = undefined;
+//         this.nodes = this.createNodes();
+//         this.cycleLabel1 = this.createCycleLabel(-5);
+//         this.cycleLabel2 = this.createCycleLabel(20);
+//     }
+
+//     createCycleLabel(yOffset) {
+//         const label = createElement('text', {
+//             x: 0,
+//             y: yOffset,
+//             fill: 'var(--color3-dark)',
+//             'font-size': 7,
+//             'text-anchor': 'middle',
+//             'dominant-baseline': 'central',
+//             parent: this.layers.labels
+//         });
+//         label.innerHTML = cycleNotation(this.globals.cycle);
+//         return label
+//     }
+
+//     createNodes() {
+//         let nodes = [];
+//         for (let i = 0; i < this.n; i++) {
+//             const permutationNodeData = {
+//                 id: `A${i}`,
+//                 location: this.globals.nodeLocations[i],
+//                 yOffset: -15,
+//                 globals: this.globals,
+//                 color: '--color1',
+//                 target: this.target
+//             };
+//             nodes.push(new PermutationNode(permutationNodeData, this.target));
+//         }
+//         for (let i = 0; i < this.n; i++) {
+//             const permutationNodeData = {
+//                 id: `B${i}`,
+//                 location: this.globals.nodeLocations[i],
+//                 yOffset: 10,
+//                 globals: this.globals,
+//                 color: '--color2',
+//                 target: this.target
+//             };
+//             nodes.push(new PermutationNode(permutationNodeData, this.target));
+//         }
+
+//         return nodes;
+//     }
+
+//     interpolate(t) {
+//         this.nodes.forEach(node => {
+//             node.shift(t, true);
+//         });
+//     }
+
+//     update() {
+//         this.cycleLabel1.innerHTML = cycleNotation(this.globals.cycle);
+//         this.cycleLabel2.innerHTML = cycleNotation(this.globals.currentLinkedPermutation);
+
+//         this.globals.currentPhi = Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, this.globals.cycle[i]]));
+//         this.globals.currentPhiInverse = Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, this.globals.cycle.indexOf(i)]));
+//         this.globals.cycleInverse = Array.from({ length: this.n }, (_, i) => this.globals.cycle.indexOf(i));
+//         this.globals.selectedNodeIndices = [];
+//         document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+//     }
+
+//     animate(t) {
+        
+//         if (this.animStart === undefined) {
+//             this.animStart = t;
+//         }
+//         const elapsed = t - this.animStart;
+//         const shift = Math.min(elapsed / 600, 1);
+//         if (shift < 1) {
+//             let t = easeInOutCubic(shift);
+//             this.interpolate(t);
+//             requestAnimationFrame(this.animate.bind(this));
+//         } else {
+//             this.animStart = undefined;
+//             this.update();
+//         }
+//     }
+// }
