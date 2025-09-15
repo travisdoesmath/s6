@@ -21,7 +21,7 @@ class Location {
 }
 
 class Permutation {
-    constructor(permutation) {
+    constructor(permutation, labels = undefined) {
         if (typeof permutation == 'object') {
             this.permutation = permutation;
         } else if (Array.isArray(permutation)) {
@@ -33,15 +33,34 @@ class Permutation {
         } else {
             throw new Error(`Invalid permutation type: ${typeof permutation} `);
         }
+        if (labels === undefined) {
+                        this.labels = Object.keys(this.permutation);
+            if (this.labels.every(x => !isNaN(+x))) {
+                this.labels = this.labels.map(x => String(1 + +x));
+            }
+            this.labels = {};
+            const keys = Object.keys(this.permutation);
+            keys.forEach(key => {
+                this.labels[key] = !isNaN(+key) ? String(1 + +key) : key;
+            });
+
+        } else {
+            this.labels = labels;
+        }
+        this.cycleNotation = this._cycleNotation();
     }
+
+    setLabels(labels) {
+        this.labels = labels;
+        this.cycleNotation = this._cycleNotation();
+    }
+    
+    
     copy() {
         return new Permutation(this.permutation);
     }
-    cycleNotation() {
-        return cycleNotation(this.permutation);
-    }
 
-    cycleNotation(index=1) {
+    _cycleNotation() {
         let elements = Object.keys(this.permutation);
         let visited = new Set();
         let cycles = [];
@@ -61,10 +80,10 @@ class Permutation {
                     cycles.push(cycle);
                 }
             }
-        })
+        });
 
-    return cycles.map(cycle => '(' + (cycle.map(el => +el + index).join(' ')) + ')').join('');
-}
+        return cycles.map(cycle => '(' + (cycle.map(el => this.labels[el]).join(' ')) + ')').join('');
+    }
 
     map(value) {
         if (Object.keys(this.permutation).includes(String(value))) {
@@ -88,7 +107,7 @@ class Permutation {
         Object.keys(this.permutation).forEach(key => {
             newPermutation[key] = thatPermutation.map(this.permutation[key]);
         });
-        return new Permutation(newPermutation);
+        return new Permutation(newPermutation, thatPermutation.labels);
     }
 }
 
@@ -419,7 +438,22 @@ class BasePentagramComposer extends BaseComposer {
             '52': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3},
             '34': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4},
             '35': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2},
-            '45': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1}
+            '45': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1},
+            'AB': {0: 1, 1: 0, 2: 5, 3: 4, 4: 3, 5: 2},
+            'AC': {0: 2, 1: 3, 2: 0, 3: 1, 4: 5, 5: 4},
+            'AD': {0: 3, 1: 5, 2: 4, 3: 0, 4: 2, 5: 1},
+            'AE': {0: 4, 1: 2, 2: 1, 3: 5, 4: 0, 5: 3},
+            'AF': {0: 5, 1: 4, 2: 3, 3: 2, 4: 1, 5: 0},
+            'BC': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1},
+            'BD': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3},
+            'EB': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0},
+            'FB': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4},
+            'CD': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0},
+            'CE': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2},
+            'FC': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3},
+            'DE': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4},
+            'DF': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2},
+            'EF': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1},
 
         }
         let globals = {
@@ -1367,6 +1401,7 @@ class PentadComposer {
 class PermutationNode {
     constructor(data, target) {
         this.id = data.id;
+        this.label = data.label;
         this.globals = data.globals;
         this.location = data.location;
         this.color = data.color;
@@ -1378,6 +1413,7 @@ class PermutationNode {
             transform: `translate(${this.location.x}, ${this.location.y})`,
             parent: this.target
         });
+        this.label = data.label;
         this.group.addEventListener('click', (event) => data.interactionHandler(event, this));
         this.render();
     }
@@ -1435,7 +1471,7 @@ class PermutationNode {
             'dominant-baseline': 'central',
             parent: this.group
         });
-        text.innerHTML = this.id + 1;
+        text.innerHTML = this.label ? this.label : (parseInt(this.id) + 1).toString();
     }
 }
 
@@ -1447,6 +1483,12 @@ class PermutationComponent extends BaseComponent {
             subcomponentLocations: [...Array(6).keys()].map(i => new Coords(config.padding*(i - 2 * data.n/(data.n - 1)), config.yOffset || 0)),
             ...extensions
         });
+        if (data.labels === undefined) {
+            this.labels = [...Array(data.n).keys()].map(i => i + 1);
+        } else {
+            this.globals.currentPhi;
+            this.globals.currentPsi.setLabels(data.labels);
+        }
     }
     extendBase() {
         this.layers = {
@@ -1473,7 +1515,7 @@ class PermutationComponent extends BaseComponent {
             'dominant-baseline': 'central',
             parent: this.layers.labels
         });
-        label.innerHTML = this.globals.currentPhi.cycleNotation();
+        label.innerHTML = this.globals.currentPhi.cycleNotation;
         return label
     }
 
@@ -1482,6 +1524,7 @@ class PermutationComponent extends BaseComponent {
         this.subcomponentLocations.forEach((location, i) => {
             const permutationNodeData = {
                 id: i,
+                label: this.data.labels ? this.data.labels[i] : (i + 1).toString(),
                 globals: this.globals,
                 location: location,
                 color: this.config.color || '--color3',
@@ -1496,7 +1539,7 @@ class PermutationComponent extends BaseComponent {
     }
 
     interpolate(t, cycle=this.globals.currentPhi, swap=this.globals.swap) {
-        this.subcomponents.cycleLabel.innerHTML = cycle.cycleNotation() + swap.cycleNotation();
+        this.subcomponents.cycleLabel.innerHTML = cycle.cycleNotation + swap.cycleNotation;
         // this.subcomponents.cycleLabel.innerHTML = 'test';
         this.subcomponents.nodes.forEach(node => {
             let oldLocation = this.subcomponentLocations[cycle.map(node.id)];
@@ -1506,7 +1549,7 @@ class PermutationComponent extends BaseComponent {
     }
 
     update(phi=this.globals.currentPhi) {
-        this.subcomponents.cycleLabel.innerHTML = phi.cycleNotation();
+        this.subcomponents.cycleLabel.innerHTML = phi.cycleNotation;
         this.subcomponentLocations.map((loc, i) => phi.map(i))
     }
 
@@ -1539,6 +1582,9 @@ class PermutationComposer extends BaseComposer{
             globals: globals,    
             ...extensions
         });
+        if (config.permutation) {
+            this.globals.currentPhi = config.permutation;
+        }
     }
 
     createComponents() {
@@ -1577,7 +1623,8 @@ class PermutationComposer extends BaseComposer{
         }
         if (this.globals.selectedNodeIndices.length === 2) {
             let duad = this.globals.selectedNodeIndices.join('');
-            this.globals.swap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]});
+            let swap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]});
+            this.globals.swap = swap;
             this.globals.psiOfSwap = new Permutation(this.globals.psi[clockwiseForm(duad)]);
 
             requestAnimationFrame(this.animate.bind(this));
@@ -1599,48 +1646,73 @@ class LinkedPermutationComposer extends BaseComposer {
     constructor(data, config, target, extensions = {}) {
         let globals =  {
             selectedNodeIndices: [],
+            selectedOutNodeIndices: [],
             currentPhi: new Permutation(config.n),
             currentPsi: new Permutation(config.n),
-            psi: {
-                '01': {0: 1, 1: 0, 2: 5, 3: 4, 4: 3, 5: 2}, // (12)(36)(45)
-                '02': {0: 2, 1: 3, 2: 0, 3: 1, 4: 5, 5: 4}, // (13)(24)(56)
-                '03': {0: 3, 1: 5, 2: 4, 3: 0, 4: 2, 5: 1}, // (14)(26)(35)
-                '04': {0: 4, 1: 2, 2: 1, 3: 5, 4: 0, 5: 3}, // (15)(23)(46)
-                '05': {0: 5, 1: 4, 2: 3, 3: 2, 4: 1, 5: 0}, // (16)(25)(34)
-                '12': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1}, // (15)(26)(43)
-                '13': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3}, // (13)(25)(46)
-                '41': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0}, // (16)(24)(35)
-                '51': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4}, // (14)(23)(56)
-                '23': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0}, // (16)(23)(45)
-                '24': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2}, // (14)(25)(36)
-                '52': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3}, // (12)(35)(46)
-                '34': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4}, // (12)(34)(56)
-                '35': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2}, // (15)(24)(36)
-                '45': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1}  // (13)(26)(45)
+            psi: {                
+                '01': {0: 1, 1: 0, 2: 5, 3: 4, 4: 3, 5: 2},
+                '02': {0: 2, 1: 3, 2: 0, 3: 1, 4: 5, 5: 4},
+                '03': {0: 3, 1: 5, 2: 4, 3: 0, 4: 2, 5: 1},
+                '04': {0: 4, 1: 2, 2: 1, 3: 5, 4: 0, 5: 3},
+                '05': {0: 5, 1: 4, 2: 3, 3: 2, 4: 1, 5: 0},
+                '12': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1},
+                '13': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3},
+                '41': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0},
+                '51': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4},
+                '23': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0},
+                '24': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2},
+                '52': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3},
+                '34': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4},
+                '35': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2},
+                '45': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1},
+                'AB': {0: 1, 1: 0, 2: 5, 3: 4, 4: 3, 5: 2},
+                'AC': {0: 2, 1: 3, 2: 0, 3: 1, 4: 5, 5: 4},
+                'AD': {0: 3, 1: 5, 2: 4, 3: 0, 4: 2, 5: 1},
+                'AE': {0: 4, 1: 2, 2: 1, 3: 5, 4: 0, 5: 3},
+                'AF': {0: 5, 1: 4, 2: 3, 3: 2, 4: 1, 5: 0},
+                'BC': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1},
+                'BD': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3},
+                'EB': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0},
+                'FB': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4},
+                'CD': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0},
+                'CE': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2},
+                'FC': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3},
+                'DE': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4},
+                'DF': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2},
+                'EF': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1},
             },
         }
         super(data, config, target, {
             globals: globals,    
             ...extensions
         });
+        if (config.phi) {
+            this.globals.currentPhi = config.phi;
+        }
+        if (config.psi) {
+            this.globals.currentPsi = config.psi; 
+        }
     }
 
     createComponents() {
-        let components = []
-        components.push(this.createPermutationComponent(-17.5, '--color2'));
-        components.push(this.createPermutationComponent(7.5, '--color1'));
+        let components = [
+            new PermutationComponent({
+                id: 'permutation-component',
+                n: this.config.n,
+                location: new Location('origin', new Coords(0, -17.5)),
+                interactionHandler: this.interactionHandler.bind(this),
+                globals: this.globals,
+            }, {padding: 15, color: '--color2', input: true}, this.target, {}),
+            new PermutationComponent({
+                id: 'permutation-component',
+                n: this.config.n,
+                location: new Location('origin', new Coords(0, 7.5)),
+                interactionHandler: this.interactionHandler.bind(this),
+                globals: this.globals,
+                labels: ['A', 'B', 'C', 'D', 'E', 'F']
+            }, {padding: 15, color: '--color1', output: true}, this.target, {})    
+        ]
         return components;  
-    }
-
-    createPermutationComponent(yOffset, color = '--color3') {
-        return new PermutationComponent({
-            id: 'permutation-component',
-            n: this.config.n,
-            location: new Location('origin', new Coords(0, yOffset || 0)),
-            interactionHandler: this.interactionHandler.bind(this),
-            globals: this.globals,
-        }, {padding: 15, color: color}, this.target, {});
-        
     }
     
     interpolate(t) {
@@ -1648,24 +1720,34 @@ class LinkedPermutationComposer extends BaseComposer {
         this.components[1].interpolate(t, this.globals.currentPsi, this.globals.psiOfSwap);
     }
 
-
     interactionHandler(event, that) {
-        console.log(that)
         let nodeIdx = +that.id;
+        let selectedNodeIndices = this.globals.selectedNodeIndices;
+        let out = false;
+        // console.log(that.label, ['A','B','C','D','E','F'].includes(that.label))
+        if (['A','B','C','D','E','F'].includes(that.label)) {
+            out = true;
+            selectedNodeIndices = this.globals.selectedOutNodeIndices;
+        }
         let nodes = Array.from(that.target.getElementsByClassName('permutation-node')).filter(el => el.id == nodeIdx);
-        if (this.globals.selectedNodeIndices.includes(nodeIdx) || this.globals.selectedNodeIndices.length < 2)
+        if (selectedNodeIndices.includes(nodeIdx) || selectedNodeIndices.length < 2)
         {            
             nodes.forEach(n => n.classList.toggle('selected'));
         }        
-        if (nodes[0].classList.contains('selected') && this.globals.selectedNodeIndices.length < 2) {
-            this.globals.selectedNodeIndices.push(nodeIdx);
+        if (nodes[0].classList.contains('selected') && selectedNodeIndices.length < 2) {
+            selectedNodeIndices.push(nodeIdx);
         } else {
-            this.globals.selectedNodeIndices = this.globals.selectedNodeIndices.filter(n => n !== nodeIdx);
+            selectedNodeIndices = selectedNodeIndices.filter(n => n !== nodeIdx);
         }
-        if (this.globals.selectedNodeIndices.length === 2) {
-            let duad = this.globals.selectedNodeIndices.join('');
-            this.globals.swap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]});
-            this.globals.psiOfSwap = new Permutation(this.globals.psi[clockwiseForm(duad)]);
+        if (selectedNodeIndices.length === 2) {
+            let duad = selectedNodeIndices.join('');
+            if (out) {
+                this.globals.psiOfSwap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]}, labels=['A', 'B', 'C', 'D', 'E', 'F']);
+                this.globals.swap = new Permutation(this.globals.psi[clockwiseForm(duad)]);
+            } else {
+                this.globals.swap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]});
+                this.globals.psiOfSwap = new Permutation(this.globals.psi[clockwiseForm(duad)], labels=['A', 'B', 'C', 'D', 'E', 'F']);
+            }
 
             requestAnimationFrame(this.animate.bind(this));
             
@@ -1679,8 +1761,8 @@ class LinkedPermutationComposer extends BaseComposer {
         this.globals.currentPsi = this.globals.psiOfSwap.compose(this.globals.currentPsi);
         this.components[0].update(this.globals.currentPhi);
         this.components[1].update(this.globals.currentPsi);
-        //component.subcomponentLocations.map((loc, i) => this.globals.currentPhi.map(i)));
         this.globals.selectedNodeIndices = [];
+        this.globals.selectedOutNodeIndices = [];
         document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
     }
 }

@@ -45,7 +45,7 @@ return -(Math.cos(Math.PI * x) - 1) / 2;
 // }
 
 function clockwiseForm(a) {
-    let duadList =  ['05','04','03','02','01','12','23','34','45','51','13','24','35','41','52'];
+    let duadList =  ['05','04','03','02','01','12','23','34','45','51','13','24','35','41','52', 'AB', 'BC', 'CD', 'DE', 'EA', 'AC', 'BD', 'CE', 'DA', 'EB', 'AD', 'BE', 'CA'];
     let clockwiseMap = [...Array(6).keys()]
         .map(i => [...Array(6).keys()]
             .map(j => [i, j])
