@@ -68,6 +68,7 @@ const composerData = {
         }
     ],
 }
+
 const composerConfig =  {
     showCycle: true,
     r: 10,
@@ -78,8 +79,18 @@ const composerConfig =  {
 
 const mysticComposerConfig =  {
     showCycle: true,
-    R: 10,
-    nodeR: 2
+    r: 10,
+    nodeR: 2,
+    configuration: 'rectangle'
+}
+
+const mysticComposerConfig2 =  {
+    showCycle: true,
+    R: 35,
+    r: 10,
+    nodeR: 2,
+    configuration: 'pentagon'
+
 }
 
 const linkedPermutationComposerConfig =  {
@@ -87,8 +98,18 @@ const linkedPermutationComposerConfig =  {
     psi: new Permutation(6, labels=['A', 'B', 'C', 'D', 'E', 'F'])
 }
 
+let pentagramCoords = {
+            'center': new Coords(0, 0),
+            'top': new Coords(Math.sin(10 * Math.PI / 5), -Math.cos(10 * Math.PI / 5)),
+            'top right': new Coords(Math.sin(2 * Math.PI / 5), -Math.cos(2 * Math.PI / 5)),
+            'bottom right': new Coords(Math.sin(4 * Math.PI / 5), -Math.cos(4 * Math.PI / 5)),
+            'bottom left': new Coords(Math.sin(6 * Math.PI / 5), -Math.cos(6 * Math.PI / 5)),
+            'top left': new Coords(Math.sin(8 * Math.PI / 5), -Math.cos(8 * Math.PI / 5))
+        }
+
 const composer = new PentagramComposer(composerData, composerConfig, document.getElementById('main'));
 const mysticComposer = new MysticPentagramComposer(composerData, mysticComposerConfig, document.getElementById('mystic'));
+const mysticComposer2 = new MysticPentagramComposer(composerData, mysticComposerConfig2, document.getElementById('mystic2')); 
 const pentadComposer = new PentadComposer(composerData, {}, document.getElementById('pentads'));
 const permutationComposer = new PermutationComposer({}, {n: 6}, document.getElementById('permutations'));
 const linkedPermutationComposer = new LinkedPermutationComposer({}, linkedPermutationComposerConfig, document.getElementById('linked-permutations'));
