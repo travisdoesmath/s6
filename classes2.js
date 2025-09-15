@@ -439,22 +439,6 @@ class BasePentagramComposer extends BaseComposer {
             '34': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4},
             '35': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2},
             '45': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1},
-            'AB': {0: 1, 1: 0, 2: 5, 3: 4, 4: 3, 5: 2},
-            'AC': {0: 2, 1: 3, 2: 0, 3: 1, 4: 5, 5: 4},
-            'AD': {0: 3, 1: 5, 2: 4, 3: 0, 4: 2, 5: 1},
-            'AE': {0: 4, 1: 2, 2: 1, 3: 5, 4: 0, 5: 3},
-            'AF': {0: 5, 1: 4, 2: 3, 3: 2, 4: 1, 5: 0},
-            'BC': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1},
-            'BD': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3},
-            'EB': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0},
-            'FB': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4},
-            'CD': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0},
-            'CE': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2},
-            'FC': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3},
-            'DE': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4},
-            'DF': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2},
-            'EF': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1},
-
         }
         let globals = {
             duadList: duadList,
@@ -486,8 +470,8 @@ class BasePentagramComposer extends BaseComposer {
         });
         // this.componentLocations = this.componentLocations.map((loc, i) => this.componentLocations[this.psiOfSwap.map(i)]);
         // this.subcomponentLocations = this.subcomponentLocations.map((loc, i) => this.subcomponentLocations[this.swap.map(i + 1) - 1]);
-        this.currentPhi.compose(this.swap);
-        this.currentPsi.compose(this.psiOfSwap);
+        this.currentPhi = this.currentPhi.compose(this.swap);
+        this.currentPsi = this.currentPsi.compose(this.psiOfSwap);
     }
 }
 
@@ -1552,7 +1536,6 @@ class PermutationComponent extends BaseComponent {
         this.subcomponents.cycleLabel.innerHTML = phi.cycleNotation;
         this.subcomponentLocations.map((loc, i) => phi.map(i))
     }
-
 }
 
 class PermutationComposer extends BaseComposer{
@@ -1665,21 +1648,6 @@ class LinkedPermutationComposer extends BaseComposer {
                 '34': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4},
                 '35': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2},
                 '45': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1},
-                'AB': {0: 1, 1: 0, 2: 5, 3: 4, 4: 3, 5: 2},
-                'AC': {0: 2, 1: 3, 2: 0, 3: 1, 4: 5, 5: 4},
-                'AD': {0: 3, 1: 5, 2: 4, 3: 0, 4: 2, 5: 1},
-                'AE': {0: 4, 1: 2, 2: 1, 3: 5, 4: 0, 5: 3},
-                'AF': {0: 5, 1: 4, 2: 3, 3: 2, 4: 1, 5: 0},
-                'BC': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1},
-                'BD': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3},
-                'EB': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0},
-                'FB': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4},
-                'CD': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0},
-                'CE': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2},
-                'FC': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3},
-                'DE': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4},
-                'DF': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2},
-                'EF': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1},
             },
         }
         super(data, config, target, {
@@ -1766,122 +1734,3 @@ class LinkedPermutationComposer extends BaseComposer {
         document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
     }
 }
-
-
-// class LinkedPermutationComposer {
-//     constructor(config, target) {
-//         this.n = config.n;
-//         this.config = config;
-//         this.target = target;
-//         this.globals = {
-//             composer: this,
-//             selectedNodeIndices: [],
-//             currentPhi: Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, i])),
-//             currentPhiInverse: Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, i])),
-//             currentLinkedPermutation: Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, i])),
-//             currentLinkedPermutationInverse: Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, i])),
-//             psi: {
-//                 '01': {0: 1, 1: 0, 2: 5, 3: 4, 4: 3, 5: 2}, // (12)(36)(45)
-//                 '02': {0: 2, 1: 3, 2: 0, 3: 1, 4: 5, 5: 4}, // (13)(24)(56)
-//                 '03': {0: 3, 1: 5, 2: 4, 3: 0, 4: 2, 5: 1}, // (14)(26)(35)
-//                 '04': {0: 4, 1: 2, 2: 1, 3: 5, 4: 0, 5: 3}, // (15)(23)(46)
-//                 '05': {0: 5, 1: 4, 2: 3, 3: 2, 4: 1, 5: 0}, // (16)(25)(34)
-//                 '12': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1}, // (15)(26)(43)
-//                 '13': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3}, // (13)(25)(46)
-//                 '41': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0}, // (16)(24)(35)
-//                 '51': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4}, // (14)(23)(56)
-//                 '23': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0}, // (16)(23)(45)
-//                 '24': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2}, // (14)(25)(36)
-//                 '52': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3}, // (12)(35)(46)
-//                 '34': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4}, // (12)(34)(56)
-//                 '35': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2}, // (15)(24)(36)
-//                 '45': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1}  // (13)(26)(45)
-//             },
-//             cycle: Array.from({ length: this.n }, (_, i) => i),
-//             nodeLocations: Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, { 
-//                 x: 15*(i - 2 * this.n/(this.n - 1)),
-//                 y: 0
-//             }]))
-//         }
-//         this.animStart = undefined;
-//         this.nodes = this.createNodes();
-//         this.cycleLabel1 = this.createCycleLabel(-5);
-//         this.cycleLabel2 = this.createCycleLabel(20);
-//     }
-
-//     createCycleLabel(yOffset) {
-//         const label = createElement('text', {
-//             x: 0,
-//             y: yOffset,
-//             fill: 'var(--color3-dark)',
-//             'font-size': 7,
-//             'text-anchor': 'middle',
-//             'dominant-baseline': 'central',
-//             parent: this.layers.labels
-//         });
-//         label.innerHTML = cycleNotation(this.globals.cycle);
-//         return label
-//     }
-
-//     createNodes() {
-//         let nodes = [];
-//         for (let i = 0; i < this.n; i++) {
-//             const permutationNodeData = {
-//                 id: `A${i}`,
-//                 location: this.globals.nodeLocations[i],
-//                 yOffset: -15,
-//                 globals: this.globals,
-//                 color: '--color1',
-//                 target: this.target
-//             };
-//             nodes.push(new PermutationNode(permutationNodeData, this.target));
-//         }
-//         for (let i = 0; i < this.n; i++) {
-//             const permutationNodeData = {
-//                 id: `B${i}`,
-//                 location: this.globals.nodeLocations[i],
-//                 yOffset: 10,
-//                 globals: this.globals,
-//                 color: '--color2',
-//                 target: this.target
-//             };
-//             nodes.push(new PermutationNode(permutationNodeData, this.target));
-//         }
-
-//         return nodes;
-//     }
-
-//     interpolate(t) {
-//         this.nodes.forEach(node => {
-//             node.shift(t, true);
-//         });
-//     }
-
-//     update() {
-//         this.cycleLabel1.innerHTML = cycleNotation(this.globals.cycle);
-//         this.cycleLabel2.innerHTML = cycleNotation(this.globals.currentLinkedPermutation);
-
-//         this.globals.currentPhi = Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, this.globals.cycle[i]]));
-//         this.globals.currentPhiInverse = Object.fromEntries(Array.from({ length: this.n }, (_, i) => [i, this.globals.cycle.indexOf(i)]));
-//         this.globals.cycleInverse = Array.from({ length: this.n }, (_, i) => this.globals.cycle.indexOf(i));
-//         this.globals.selectedNodeIndices = [];
-//         document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
-//     }
-
-//     animate(t) {
-        
-//         if (this.animStart === undefined) {
-//             this.animStart = t;
-//         }
-//         const elapsed = t - this.animStart;
-//         const shift = Math.min(elapsed / 600, 1);
-//         if (shift < 1) {
-//             let t = easeInOutCubic(shift);
-//             this.interpolate(t);
-//             requestAnimationFrame(this.animate.bind(this));
-//         } else {
-//             this.animStart = undefined;
-//             this.update();
-//         }
-//     }
-// }
