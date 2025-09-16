@@ -356,6 +356,10 @@ text.duad {
     stroke-width: 0.25;
 }
 
+.pentad>.syntheme {
+    cursor: pointer;
+}
+
 /* .duad>.arc>.outline {
     stroke: var(--color4-dark);
 } */

@@ -455,7 +455,7 @@ class PermutationComposer extends BaseComposer{
             location: new Location('origin', new Coords(0,0)),
             interactionHandler: this.interactionHandler.bind(this),
             globals: this.globals,
-        }, {padding: 15}, this.target, {});
+        }, {padding: 15, color: '--color2'}, this.target, {});
         
     }
     
@@ -503,21 +503,56 @@ class LinkedPermutationComposer extends BaseComposer {
             currentPhi: new Permutation(config.n),
             currentPsi: new Permutation(config.n),
             psi: {                
-                '01': {0: 1, 1: 0, 2: 5, 3: 4, 4: 3, 5: 2},
-                '02': {0: 2, 1: 3, 2: 0, 3: 1, 4: 5, 5: 4},
-                '03': {0: 3, 1: 5, 2: 4, 3: 0, 4: 2, 5: 1},
-                '04': {0: 4, 1: 2, 2: 1, 3: 5, 4: 0, 5: 3},
-                '05': {0: 5, 1: 4, 2: 3, 3: 2, 4: 1, 5: 0},
-                '12': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1},
-                '13': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3},
-                '41': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0},
-                '51': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4},
-                '23': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0},
-                '24': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2},
-                '52': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3},
-                '34': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4},
-                '35': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2},
-                '45': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1},
+
+                '01': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1},
+                '02': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3},
+                '03': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0},
+                '04': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4},                
+                '05': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0},
+                '12': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2},
+                '13': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3},
+                '41': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4},
+                '51': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2},
+                '23': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1},
+                '24': {0: 1, 1: 4, 2: 0, 3: 5, 4: 2, 5: 3},
+                '52': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0},
+                '34': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4},
+                '35': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0},
+                '45': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2}
+        
+
+                // '01': {0: 1, 1: 0, 2: 5, 3: 4, 4: 3, 5: 2},
+                // '02': {0: 2, 1: 3, 2: 0, 3: 1, 4: 5, 5: 4},
+                // '03': {0: 3, 1: 5, 2: 4, 3: 0, 4: 2, 5: 1},
+                // '04': {0: 4, 1: 2, 2: 1, 3: 5, 4: 0, 5: 3},
+                // '05': {0: 5, 1: 4, 2: 3, 3: 2, 4: 1, 5: 0},
+                // '12': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1},
+                // '13': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3},
+                // '41': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0},
+                // '51': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4},
+                // '23': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0},
+                // '24': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2},
+                // '52': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3},
+                // '34': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4},
+                // '35': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2},
+                // '45': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1},
+
+
+                // '01': {0: 1, 1: 0, 2: 5, 3: 4, 4: 3, 5: 2},
+                // '02': {0: 2, 1: 3, 2: 0, 3: 1, 4: 5, 5: 4},
+                // '03': {0: 3, 1: 5, 2: 4, 3: 0, 4: 2, 5: 1},
+                // '04': {0: 4, 1: 2, 2: 1, 3: 5, 4: 0, 5: 3},
+                // '05': {0: 5, 1: 4, 2: 3, 3: 2, 4: 1, 5: 0},
+                // '12': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1},
+                // '13': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3},
+                // '41': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0},
+                // '51': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4},
+                // '23': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0},
+                // '24': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2},
+                // '52': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3},
+                // '34': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4},
+                // '35': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2},
+                // '45': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1},
             },
         }
         super(data, config, target, {
@@ -540,7 +575,7 @@ class LinkedPermutationComposer extends BaseComposer {
                 location: new Location('origin', new Coords(0, -17.5)),
                 interactionHandler: this.interactionHandler.bind(this),
                 globals: this.globals,
-            }, {padding: 15, color: '--color2', input: true}, this.target, {}),
+            }, {padding: 15, color: '--color3', input: true}, this.target, {}),
             new PermutationComponent({
                 id: 'permutation-component',
                 n: this.config.n,
@@ -548,7 +583,7 @@ class LinkedPermutationComposer extends BaseComposer {
                 interactionHandler: this.interactionHandler.bind(this),
                 globals: this.globals,
                 labels: ['A', 'B', 'C', 'D', 'E', 'F']
-            }, {padding: 15, color: '--color1', output: true}, this.target, {})    
+            }, {padding: 15, color: '--color4', output: true}, this.target, {})    
         ]
         return components;  
     }
@@ -605,7 +640,7 @@ class LinkedPermutationComposer extends BaseComposer {
 }
 
 class PentadComposer extends BaseComposer {
-    constructor(data, config, target) {
+    constructor(data, config, target, extendsions = {}) {
         let pentadLocations = [
             new Location('top left', new Coords(-30, -5)),
             new Location('top center', new Coords(0, -5)),
@@ -614,11 +649,17 @@ class PentadComposer extends BaseComposer {
             new Location('bottom center', new Coords(0, 30)),
             new Location('bottom right', new Coords(30, 30))
         ]
-
+        let globals =  {
+            selectedNodeIndices: [],
+            currentPhi: new Permutation(6),
+            currentPsi: new Permutation(6),
+            swap: null,
+            psiOfSwap: null
+        };
         super(data, config, target, {
             pentadLocations: pentadLocations,
+            globals: globals
         });
-        this.pentads = this.createComponents();
     }
 
     createComponents() {
@@ -630,6 +671,7 @@ class PentadComposer extends BaseComposer {
                 '5-cycle': pentad['5-cycle'],
                 synthemes: pentad.synthemes,
                 location: location,
+                interactionHandler: this.interactionHandler.bind(this),
             };
             const pentadConfig = {};
             const pentadElement = new Pentad(pentadData, pentadConfig, this.target);
@@ -637,4 +679,29 @@ class PentadComposer extends BaseComposer {
         });
         return pentads;
     }
+
+    interactionHandler(event, that) {
+        let nodeIdx = +that.id;
+        let nodes = Array.from(that.target.getElementsByClassName('syntheme')).filter(el => el.id == nodeIdx);
+        if (this.globals.selectedNodeIndices.includes(nodeIdx) || this.globals.selectedNodeIndices.length < 2)
+        {            
+            nodes.forEach(n => n.classList.toggle('selected'));
+        }        
+        if (nodes[0].classList.contains('selected') && this.globals.selectedNodeIndices.length < 2) {
+            this.globals.selectedNodeIndices.push(nodeIdx);
+        } else {
+            this.globals.selectedNodeIndices = this.globals.selectedNodeIndices.filter(n => n !== nodeIdx);
+        }
+        if (this.globals.selectedNodeIndices.length === 2) {
+            let duad = this.globals.selectedNodeIndices.join('');
+            let swap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]});
+            this.globals.swap = swap;
+            this.globals.psiOfSwap = new Permutation(this.globals.psi[clockwiseForm(duad)]);
+
+            requestAnimationFrame(this.animate.bind(this));
+        } else {
+            document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
+        }            
+    }
+    
 }

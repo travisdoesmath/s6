@@ -710,7 +710,7 @@ class PermutationComponent extends BaseComponent {
         const label = createElement('text', {
             x: 0,
             y: 10,
-            fill: `var(${this.config.color3}-dark)`,
+            fill: `var(${this.config.color}-dark)`,
             'font-size': 7,
             'text-anchor': 'middle',
             'dominant-baseline': 'central',
@@ -864,16 +864,17 @@ class Syntheme extends BaseComponent{
     constructor(data, config, target, extensions = {}) {
         super(data, config, target, {
             id: data.id,
-            class: 'syntheme',
+            type: 'syntheme',
             location: data.location,
             duads: data.duads,
             ...extensions
         });
+
+        this.group.addEventListener('click', (event) => data.interactionHandler(event, this) );
     }
 
     createSubcomponents() {
         const synthemeElement = createElement('g', { 
-            class: 'syntheme', 
             transform: `translate(3, ${-10 + 5 * this.id})`,
             parent: this.group
         });
@@ -925,6 +926,7 @@ class Pentad extends BaseComponent {
     constructor(data, config, target) {
         super(data, config, target, {
             id: data.id,
+            type: 'pentad',
             location: data.location,
             locationCoords: data.locationCoords,
         });
@@ -945,6 +947,7 @@ class Pentad extends BaseComponent {
             const synthemeData = {
                 id: i,
                 duads: syntheme,
+                interactionHandler: this.data.interactionHandler,
             }
             new Syntheme(synthemeData, {}, this.group);
         });
