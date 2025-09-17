@@ -360,6 +360,14 @@ text.duad {
     cursor: pointer;
 }
 
+.pentad>.syntheme.selected>*>rect.border {
+    stroke: white;
+}
+
+.pentad>.syntheme>*>.duad {
+    stroke: none;
+}
+
 /* .duad>.arc>.outline {
     stroke: var(--color4-dark);
 } */

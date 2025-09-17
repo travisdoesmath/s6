@@ -889,15 +889,26 @@ class Syntheme extends BaseComponent{
             parent: this.group
         });
         const synthemeBorder = createElement('rect', {
+            class: 'border',
+            x: -14.5,
+            y: -2.5,
+            width: 23,
+            height: 5,
+            fill: 'none',
+            rx: 2.5,
+            ry: 2.5,
+            parent: synthemeElement
+        });
+        const synthemeBackground = createElement('rect', {
             x: -14.5,
             y: -2.5,
             width: 23,
             height: 5,
             fill: `var(--color${this.id + 1})`,
-            opacity: 0.25,   
             rx: 2.5,
             ry: 2.5,
-            parent: synthemeElement
+            parent: synthemeElement,
+            opacity: 0.25
         });
         const synthemeLabel = createElement('g', {
             class: 'syntheme-label',
@@ -935,7 +946,7 @@ class Syntheme extends BaseComponent{
             const duadData = {
                 id: this.id,
                 duad: duad,
-                location: new Location(i, new Coords(-5 + 5 * i, 0)),
+                location: new Location(i, new Coords(-6 + 6 * i, 0)),
                 bgColor: `var(--color${this.id + 1})`,
                 textColor: `var(--color${this.id + 1}-dark)`,
                 strokeColor: `var(--color${this.id + 1})`,
