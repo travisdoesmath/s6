@@ -35,9 +35,10 @@ class BaseComposer {
         const newState = {
             componentLocations: [...new Array(this.componentLocations.length).keys()].map(i => this.componentLocations[this.psiOfSwap.map(this.currentPsi.map(i))]),
             subcomponentLocations: [...new Array(this.subcomponentLocations.length).keys()].map(i => this.subcomponentLocations[this.swap.map(this.currentPhi.map(i))]),
-            psi: this.psiOfSwap,
-            phi: this.swap
-
+            swap: this.swap,
+            psiOfSwap: this.psiOfSwap,
+            phi: this.currentPhi.compose(this.swap),
+            psi: this.currentPsi.compose(this.psiOfSwap)
         }
         if (multiStage) {
             if (t < 0.5) {
@@ -102,49 +103,44 @@ class BaseComposer {
 
 class BaseStarComposer extends BaseComposer {
     constructor(data, config, target, extensions = {}) {
-        let duadList =  ['05','04','03','02','01','12','23','34','45','51','13','24','35','41','52']
-        let clockwiseForm = [...Array(6).keys()]
-            .map(i => [...Array(6).keys()]
-                .map(j => [i, j])
-                .filter(([i, j]) => i !== j)
-            )
-            .reduce((acc, elem) => acc.concat(elem), [])
-            .reduce((acc, [i, j]) => {
-                acc[`${i}${j}`] = duadList.includes(`${i}${j}`) ? `${i}${j}` : `${j}${i}`;
-                return acc;
-            }, {});
+        let duadList = ['01', '12', '23', '34', '40', '02', '13', '24', '30', '41', '05', '15', '25', '35', '45'];
         let phi = {
-            '12': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1},
-            '13': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3},
-            '41': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0},
-            '51': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4},
+            '01': {0: 4, 1: 2, 2: 1, 3: 5, 4: 0, 5: 3},
+            '12': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4},
             '23': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0},
-            '24': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2},
-            '52': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3},
-            '34': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4},
-            '35': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2},
-            '45': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1}
+            '34': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1},
+            '40': {0: 1, 1: 0, 2: 5, 3: 4, 4: 2, 5: 2},
+
+            '02': {0: 3, 1: 5, 2: 4, 3: 0, 4: 2, 5: 1},
+            '13': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2},
+            '14': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0},
+            '24': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3},
+            '30': {0: 2, 1: 3, 2: 0, 3: 1, 4: 5, 5: 4},
+            '41': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0}
+ 
         }
         let psi = {
-            '01': {0: 1, 1: 0, 2: 5, 3: 4, 4: 3, 5: 2},
-            '02': {0: 2, 1: 3, 2: 0, 3: 1, 4: 5, 5: 4},
-            '03': {0: 3, 1: 5, 2: 4, 3: 0, 4: 2, 5: 1},
-            '04': {0: 4, 1: 2, 2: 1, 3: 5, 4: 0, 5: 3},
             '05': {0: 5, 1: 4, 2: 3, 3: 2, 4: 1, 5: 0},
-            '12': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1},
-            '13': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3},
-            '41': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0},
-            '51': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4},
+            '15': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1},
+            '25': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2},
+            '35': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3},
+            '45': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4},
+
+            '01': {0: 4, 1: 2, 2: 1, 3: 5, 4: 0, 5: 3},
+            '12': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4},
             '23': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0},
-            '24': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2},
-            '52': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3},
-            '34': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4},
-            '35': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2},
-            '45': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1},
+            '34': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1},
+            '40': {0: 1, 1: 0, 2: 5, 3: 4, 4: 2, 5: 2},
+
+            '02': {0: 3, 1: 5, 2: 4, 3: 0, 4: 2, 5: 1},
+            '13': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2},
+            '14': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0},
+            '24': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3},
+            '30': {0: 2, 1: 3, 2: 0, 3: 1, 4: 5, 5: 4},
+            '41': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0}
         }
         let globals = {
             duadList: duadList,
-            clockwiseForm: clockwiseForm,
             phi: phi,
             psi: psi
         }
@@ -178,12 +174,12 @@ class BaseStarComposer extends BaseComposer {
 class StarComposer extends BaseStarComposer {
     constructor(data, config, target, extensions = {}) {
         let starCoords = {
-            'center': new Coords(0, 0),
             'top': new Coords(Math.sin(10 * Math.PI / 5), -Math.cos(10 * Math.PI / 5)),
             'top right': new Coords(Math.sin(2 * Math.PI / 5), -Math.cos(2 * Math.PI / 5)),
             'bottom right': new Coords(Math.sin(4 * Math.PI / 5), -Math.cos(4 * Math.PI / 5)),
             'bottom left': new Coords(Math.sin(6 * Math.PI / 5), -Math.cos(6 * Math.PI / 5)),
-            'top left': new Coords(Math.sin(8 * Math.PI / 5), -Math.cos(8 * Math.PI / 5))
+            'top left': new Coords(Math.sin(8 * Math.PI / 5), -Math.cos(8 * Math.PI / 5)),
+            'center': new Coords(0, 0),
         }
 
         let componentLocations = Object.entries(starCoords)
@@ -216,11 +212,11 @@ class StarComposer extends BaseStarComposer {
         const backgroundData = {
             id: 0,
             synthemes: [
-                ['01', '52', '34'],
-                ['02', '13', '45'],
-                ['03', '24', '51'],
-                ['04', '12', '35'],
-                ['05', '41', '23']
+                ['05', '41', '23'],
+                ['15', '02', '34'],
+                ['25', '40', '13'],
+                ['35', '01', '24'],
+                ['45', '30', '12']
             ],
             r: this.config.R,
             subcomponentLocations: this.componentLocations,
@@ -278,7 +274,8 @@ class StarComposer extends BaseStarComposer {
             this.globals.selectedNodeIndices = this.globals.selectedNodeIndices.filter(n => n !== nodeIdx);
         }
         if (this.globals.selectedNodeIndices.length === 2) {
-            let duad = this.globals.clockwiseForm[this.globals.selectedNodeIndices.map(x => this.currentPhi.map(x)).join('')];
+            console.log(this.globals.selectedNodeIndices);
+            let duad = clockwiseForm(this.globals.selectedNodeIndices.map(x => this.currentPhi.map(x)).join(''));
             this.swap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]});
             this.psiOfSwap = new Permutation(this.globals.psi[duad]);
 
@@ -288,6 +285,31 @@ class StarComposer extends BaseStarComposer {
             document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
         }            
     }
+
+    // interactionHandler(event, that) {
+    //     // let nodeIdx = this.currentPhi.inverse(that.group.getAttribute('id').split('-')[2]);
+    //     let nodeIdx = that.group.getAttribute('id').split('-')[2];
+    //     let nodes = this.target.querySelectorAll(`.node-${nodeIdx}`);
+    //     if (this.globals.selectedNodeIndices.includes(nodeIdx) || this.globals.selectedNodeIndices.length < 2)
+    //     {            
+    //         nodes.forEach(n => n.classList.toggle('selected'));
+    //     }        
+    //     if (nodes[0].classList.contains('selected') && this.globals.selectedNodeIndices.length < 2) {
+    //         this.globals.selectedNodeIndices.push(nodeIdx);
+    //     } else {
+    //         this.globals.selectedNodeIndices = this.globals.selectedNodeIndices.filter(n => n !== nodeIdx);
+    //     }
+    //     if (this.globals.selectedNodeIndices.length === 2) {
+    //         let duad = clockwiseForm(this.globals.selectedNodeIndices.map(x => this.currentPhi.map(x)).join(''));
+    //         this.swap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]});
+    //         this.psiOfSwap = new Permutation(this.globals.psi[duad]);
+
+    //         requestAnimationFrame(this.animate.bind(this));
+            
+    //     } else {
+    //         document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
+    //     }            
+    // }
     
     morph(oldState, newState, t) {
         this.background.morph(oldState, newState, t);
@@ -301,12 +323,13 @@ class StarComposer extends BaseStarComposer {
 class MysticStarComposer extends BaseStarComposer {
     constructor(data, config, target, extensions = {}) {
         let starCoords = [
-            new Location('center', new Coords(0, 0)),
             new Location('top', new Coords(Math.sin(10 * Math.PI / 5), -Math.cos(10 * Math.PI / 5))),
             new Location('top right', new Coords(Math.sin(2 * Math.PI / 5), -Math.cos(2 * Math.PI / 5))),
             new Location('bottom right', new Coords(Math.sin(4 * Math.PI / 5), -Math.cos(4 * Math.PI / 5))),
             new Location('bottom left', new Coords(Math.sin(6 * Math.PI / 5), -Math.cos(6 * Math.PI / 5))),
-            new Location('top left', new Coords(Math.sin(8 * Math.PI / 5), -Math.cos(8 * Math.PI / 5)))
+            new Location('top left', new Coords(Math.sin(8 * Math.PI / 5), -Math.cos(8 * Math.PI / 5))),
+            new Location('center', new Coords(0, 0)),
+
         ]
         let componentLocations;
         if (config.configuration === 'rectangle') {
@@ -314,9 +337,9 @@ class MysticStarComposer extends BaseStarComposer {
                 new Location('top left', new Coords(-25, -12.5)),
                 new Location('top center', new Coords(0, -12.5)),
                 new Location('top right', new Coords(25, -12.5)),
-                new Location('bottom right', new Coords(25, 12.5)),
-                new Location('bottom center', new Coords(0, 12.5)),
                 new Location('bottom left', new Coords(-25, 12.5)),
+                new Location('bottom center', new Coords(0, 12.5)),
+                new Location('bottom right', new Coords(25, 12.5)),
             ]
         }
         if (config.configuration === 'star') {
@@ -405,7 +428,7 @@ class MysticStarComposer extends BaseStarComposer {
             this.globals.selectedNodeIndices = this.globals.selectedNodeIndices.filter(n => n !== nodeIdx);
         }
         if (this.globals.selectedNodeIndices.length === 2) {
-            let duad = this.globals.clockwiseForm[this.globals.selectedNodeIndices.map(x => this.currentPhi.map(x)).join('')];
+            let duad = clockwiseForm(this.globals.selectedNodeIndices.map(x => this.currentPhi.map(x)).join(''));
             this.swap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]});
             this.psiOfSwap = new Permutation(this.globals.psi[duad]);
 
@@ -508,74 +531,26 @@ class LinkedPermutationComposer extends BaseComposer {
             selectedOutNodeIndices: [],
             currentPhi: new Permutation(config.n),
             currentPsi: new Permutation(config.n),
-            psi: {                
-
-                '01': {0: 4, 1: 2, 2: 1, 3: 5, 4: 0, 5: 3},
-                '02': {0: 3, 1: 5, 2: 4, 3: 0, 4: 2, 5: 1},
-                '03': {0: 2, 1: 3, 2: 0, 3: 1, 4: 5, 5: 4},
-                '04': {0: 1, 1: 0, 2: 5, 3: 4, 4: 3, 5: 2},
-                '05': {0: 5, 1: 4, 2: 3, 3: 2, 4: 1, 5: 0}, // (AF)(BE)(CD)
-                '12': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4},
-                '13': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2},
-                '41': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0},
-                '51': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1}, // (AC)(BF)(DE)
-                '23': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0},
-                '24': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3},
-                '52': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2}, // (AE)(BD)(CF)
-                '34': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1},
-                '35': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3}, // (AB)(CE)(DF)
-                '45': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4} // (AD)(BC)(EF)
-
-                // '01': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1},
-                // '02': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3},
-                // '03': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0},
-                // '04': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4},                
-                // '05': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0},
-                // '12': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2},
-                // '13': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3},
-                // '41': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4},
-                // '51': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2},
-                // '23': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1},
-                // '24': {0: 1, 1: 4, 2: 0, 3: 5, 4: 2, 5: 3},
-                // '52': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0},
-                // '34': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4},
-                // '35': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0},
-                // '45': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2}
-        
-
-                // '01': {0: 1, 1: 0, 2: 5, 3: 4, 4: 3, 5: 2},
-                // '02': {0: 2, 1: 3, 2: 0, 3: 1, 4: 5, 5: 4},
-                // '03': {0: 3, 1: 5, 2: 4, 3: 0, 4: 2, 5: 1},
-                // '04': {0: 4, 1: 2, 2: 1, 3: 5, 4: 0, 5: 3},
-                // '05': {0: 5, 1: 4, 2: 3, 3: 2, 4: 1, 5: 0},
-                // '12': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1},
-                // '13': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3},
-                // '41': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0},
-                // '51': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4},
-                // '23': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0},
-                // '24': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2},
-                // '52': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3},
-                // '34': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4},
-                // '35': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2},
-                // '45': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1},
-
-
-                // '01': {0: 1, 1: 0, 2: 5, 3: 4, 4: 3, 5: 2},
-                // '02': {0: 2, 1: 3, 2: 0, 3: 1, 4: 5, 5: 4},
-                // '03': {0: 3, 1: 5, 2: 4, 3: 0, 4: 2, 5: 1},
-                // '04': {0: 4, 1: 2, 2: 1, 3: 5, 4: 0, 5: 3},
-                // '05': {0: 5, 1: 4, 2: 3, 3: 2, 4: 1, 5: 0},
-                // '12': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1},
-                // '13': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3},
-                // '41': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0},
-                // '51': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4},
-                // '23': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0},
-                // '24': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2},
-                // '52': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3},
-                // '34': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4},
-                // '35': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2},
-                // '45': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1},
+            psi: {
+                '01': {0: 4, 1: 2, 2: 1, 3: 5, 4: 0, 5: 3}, // (12) -> (AE)(BC)(DF), (AB) -> (15)(23)(46)
+                '02': {0: 3, 1: 5, 2: 4, 3: 0, 4: 2, 5: 1}, // (13) -> (AD)(BF)(CE), (AC) -> (14)(26)(35)
+                '03': {0: 2, 1: 3, 2: 0, 3: 1, 4: 5, 5: 4}, // (14) -> (AC)(BD)(EF), (AD) -> (13)(24)(56)
+                '04': {0: 1, 1: 0, 2: 5, 3: 4, 4: 3, 5: 2}, // (15) -> (AB)(CF)(DE), (AE) -> (12)(36)(45)
+                '05': {0: 5, 1: 4, 2: 3, 3: 2, 4: 1, 5: 0}, // (16) -> (AF)(BE)(CD), (AF) -> (16)(25)(34)
+                '12': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4}, // (23) -> (AB)(CD)(EF), (BC) -> (12)(34)(56)
+                '13': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2}, // (24) -> (AD)(BE)(CF), (BD) -> (14)(25)(36)
+                '14': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0}, // (25) -> (AF)(BD)(CE), (BE) -> (16)(24)(35)
+                '15': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1}, // (26) -> (AC)(BF)(DE), (BF) -> (13)(26)(45)
+                '23': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0}, // (34) -> (AF)(BC)(DE), (CD) -> (16)(23)(45)
+                '24': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3}, // (35) -> (AC)(BE)(DF), (CE) -> (13)(25)(46)
+                '25': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2}, // (36) -> (AE)(BD)(CF), (CF) -> (15)(24)(36)
+                '34': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1}, // (45) -> (AE)(BF)(CD), (DE) -> (15)(26)(34)
+                '35': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3}, // (46) -> (AB)(CE)(DF), (DF) -> (12)(35)(46)
+                '45': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4}, // (56) -> (AD)(BC)(EF), (EF) -> (14)(23)(56)
             },
+
+            // (12) -> (AE)(BF)(CD), (AE) -> (14)(23)(56), (BF) -> (13)(25)(46), (CD) -> (12)(34)(56)
+            // (12) -> (14)(23)(56) (13)(25)(46) (12)(34)(56) = (1536)()
         }
         super(data, config, target, {
             globals: globals,
@@ -638,11 +613,11 @@ class LinkedPermutationComposer extends BaseComposer {
         if (selectedNodeIndices.length === 2) {
             let duad = selectedNodeIndices.join('');
             if (out) {
-                this.psiOfSwap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]}, labels=['A', 'B', 'C', 'D', 'E', 'F']);
-                this.swap = new Permutation(this.globals.psi[clockwiseForm(duad)]);
+                this.psiOfSwap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]}, labels=['A','B','C','D','E','F']);
+                this.swap = new Permutation(this.globals.psi[sortedForm(duad)]);
             } else {
                 this.swap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]});
-                this.psiOfSwap = new Permutation(this.globals.psi[clockwiseForm(duad)], labels=['A', 'B', 'C', 'D', 'E', 'F']);
+                this.psiOfSwap = new Permutation(this.globals.psi[sortedForm(duad)], labels=['A','B','C','D','E','F']);
             }
 
             requestAnimationFrame(this.animate.bind(this));
@@ -669,27 +644,28 @@ class PentadComposer extends BaseComposer {
             new Location('top right', new Coords(30, -5)),
             new Location('bottom left', new Coords(-30, 30)),
             new Location('bottom center', new Coords(0, 30)),
-            new Location('bottom right', new Coords(30, 30))
+            new Location('bottom right', new Coords(30, 30)),
         ]
         let globals =  {
             selectedNodeIndices: [],
-            psi: {                
-                '01': {0: 1, 1: 0, 2: 5, 3: 4, 4: 3, 5: 2},
-                '02': {0: 2, 1: 3, 2: 0, 3: 1, 4: 5, 5: 4},
-                '03': {0: 3, 1: 5, 2: 4, 3: 0, 4: 2, 5: 1},
-                '04': {0: 4, 1: 2, 2: 1, 3: 5, 4: 0, 5: 3},
-                '05': {0: 5, 1: 4, 2: 3, 3: 2, 4: 1, 5: 0},
-                '12': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1},
-                '13': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3},
-                '41': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0},
-                '51': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4},
-                '23': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0},
-                '24': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2},
-                '52': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3},
-                '34': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4},
-                '35': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2},
-                '45': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1},      
+            psi: {
+                '01': {0: 4, 1: 2, 2: 1, 3: 5, 4: 0, 5: 3}, // (12) -> (AE)(BC)(DF), (AB) -> (15)(23)(46)
+                '02': {0: 3, 1: 5, 2: 4, 3: 0, 4: 2, 5: 1}, // (13) -> (AD)(BF)(CE), (AC) -> (14)(26)(35)
+                '03': {0: 2, 1: 3, 2: 0, 3: 1, 4: 5, 5: 4}, // (14) -> (AC)(BD)(EF), (AD) -> (13)(24)(56)
+                '04': {0: 1, 1: 0, 2: 5, 3: 4, 4: 3, 5: 2}, // (15) -> (AB)(CF)(DE), (AE) -> (12)(36)(45)
+                '05': {0: 5, 1: 4, 2: 3, 3: 2, 4: 1, 5: 0}, // (16) -> (AF)(BE)(CD), (AF) -> (16)(25)(34)
+                '12': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4}, // (23) -> (AB)(CD)(EF), (BC) -> (12)(34)(56)
+                '13': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2}, // (24) -> (AD)(BE)(CF), (BD) -> (14)(25)(36)
+                '14': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0}, // (25) -> (AF)(BD)(CE), (BE) -> (16)(24)(35)
+                '15': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1}, // (26) -> (AC)(BF)(DE), (BF) -> (13)(26)(45)
+                '23': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0}, // (34) -> (AF)(BC)(DE), (CD) -> (16)(23)(45)
+                '24': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3}, // (35) -> (AC)(BE)(DF), (CE) -> (13)(25)(46)
+                '25': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2}, // (36) -> (AE)(BD)(CF), (CF) -> (15)(24)(36)
+                '34': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1}, // (45) -> (AE)(BF)(CD), (DE) -> (15)(26)(34)
+                '35': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3}, // (46) -> (AB)(CE)(DF), (DF) -> (12)(35)(46)
+                '45': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4}, // (56) -> (AD)(BC)(EF), (EF) -> (14)(23)(56)
             },
+
         };
         super(data, config, target, {
             componentLocations: pentadLocations,
@@ -734,7 +710,7 @@ class PentadComposer extends BaseComposer {
         if (this.globals.selectedNodeIndices.length === 2) {
             let duad = this.globals.selectedNodeIndices.join('');
             this.swap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]});
-            this.psiOfSwap = new Permutation(this.globals.psi[clockwiseForm(duad)]);
+            this.psiOfSwap = new Permutation(this.globals.psi[sortedForm(duad)]);
 
             requestAnimationFrame(this.animate.bind(this));
         } else {

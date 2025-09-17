@@ -137,11 +137,11 @@ line.outline[data-id='-1'] {
     cursor: pointer;
 }
 
-.node-1 .node-syntheme-line { stroke: var(--color1-light); }
-.node-2 .node-syntheme-line { stroke: var(--color2-light); }
-.node-3 .node-syntheme-line { stroke: var(--color3-light); }
-.node-4 .node-syntheme-line { stroke: var(--color4-light); }
-.node-5 .node-syntheme-line { stroke: var(--color5-light); }
+.node-0 .node-syntheme-line { stroke: var(--color1-light); }
+.node-1 .node-syntheme-line { stroke: var(--color2-light); }
+.node-2 .node-syntheme-line { stroke: var(--color3-light); }
+.node-3 .node-syntheme-line { stroke: var(--color4-light); }
+.node-4 .node-syntheme-line { stroke: var(--color5-light); }
 
 
 

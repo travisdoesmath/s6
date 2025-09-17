@@ -245,14 +245,14 @@ class StarNode extends BaseComponent {
                 class: 'syntheme',
                 parent: this.group
             });
-            this.nodeCircle.setAttribute('fill', `var(--color${this.id.split('-')[2]}-dark)`);
+            this.nodeCircle.setAttribute('fill', `var(--color${+this.id.split('-')[2] + 1}-dark)`);
             this.syntheme.forEach(duad => {
                 const duadGroup = createElement('g', {
                     class: 'duad',
                     'data-id': duad,
                     parent: synthemeGroup
                 });
-                let [left, right] = this.globals.clockwiseForm[duad].split('');
+                let [left, right] = clockwiseForm(duad).split('');
                 let locations = Object.entries(this.data.starCoords).map(([key, value]) => new Location(key, value.multiply(this.data.r - this.data.padding)));
                 const { arcStart, arcMiddle, arcEnd } = getArcData(locations, left, right);
                 const arcData = {
@@ -263,7 +263,7 @@ class StarNode extends BaseComponent {
                     arcStart: arcStart,
                     arcMiddle: arcMiddle,
                     arcEnd: arcEnd,
-                    colorIndex: this.id.split('-')[2]
+                    colorIndex: +this.id.split('-')[2] + 1
                 }
                 const arcConfig = {
                     hasOutline: false,
@@ -273,12 +273,12 @@ class StarNode extends BaseComponent {
                 this.arcs.push(arc);
 
                 const starCoords = Object.values(this.data.starCoords);
-                const i = this.id.split('-')[2];
+                const i = +this.id.split('-')[2];
                 const circle1 = createElement('circle', {
                     cx: `${(this.data.r - this.data.padding) * starCoords[left].x}`,
                     cy: `${(this.data.r - this.data.padding) * starCoords[left].y}`,
                     r: `${this.data.r/10}`,
-                    fill: `var(--color${i}-light)`,
+                    fill: `var(--color${i + 1}-light)`,
                     stroke: 'none',
                     parent: duadGroup
                 });
@@ -287,7 +287,7 @@ class StarNode extends BaseComponent {
                     cx: `${(this.data.r - this.data.padding) * starCoords[right].x}`,
                     cy: `${(this.data.r - this.data.padding) * starCoords[right].y}`,
                     r: `${this.data.r/10}`,
-                    fill: `var(--color${i}-light)`,
+                    fill: `var(--color${i + 1}-light)`,
                     stroke: 'none',
                     parent: duadGroup
                 });
@@ -364,7 +364,7 @@ class BaseStar extends BaseComponent{
         if (this.config.useArcs) {
             this.synthemes.forEach((syntheme, i) => {
                 syntheme.forEach(duad => {
-                    let [left, right] = this.globals.clockwiseForm[duad].split('');
+                    let [left, right] = clockwiseForm(duad).split('');
                     [left, right] = [+left, +right]
                     
                     let locations = this.data.subcomponentLocations;
@@ -396,14 +396,14 @@ class BaseStar extends BaseComponent{
         if (this.config.useLines) {
             this.synthemes.forEach((syntheme, i) => {
                 syntheme.forEach(duad => {
-                    let [left, right] = this.globals.clockwiseForm[duad].split('');
+                    let [left, right] = clockwiseForm(duad).split('');
                     [left, right] = [+left, +right]
-                    if (left !== 0) {
+                    if (left !== 5 && right !== 5) {
                         let startCoords = this.data.subcomponentLocations[left];
                         let endCoords = this.data.subcomponentLocations[right];
                         let starCycle = this.data.fiveCycle.map((v, i, arr) => {
-                            let d = [v, arr[(i+1) % arr.length]].join(''); 
-                            return this.globals.clockwiseForm[d];
+                            let d = [v, arr[(i+1) % arr.length]].join('');
+                            return clockwiseForm(d);
                         })
                         let inCycle  = starCycle.includes(duad);
                         const lineData = {
@@ -563,8 +563,8 @@ class ForegroundStar extends BaseStar {
         let nodes = [];
         starLocations.forEach((location, i) => {
             const nodeData = {
-                id: `node-${this.id}-${i + 1}`,
-                class: `node-${i+1}`,
+                id: `node-${this.id}-${i}`,
+                class: `node-${i}`,
                 syntheme: this.synthemes[i],
                 R: this.data.r,
                 r: this.data.nodeR,
@@ -636,10 +636,10 @@ class MysticStar extends BaseStar {
     createNodes() {
         let nodes = [];
         this.data.subcomponentLocations.forEach((location, i) => {
-            if (i !== 0) {
+            if (i !== 5) {
                 const nodeData = {
                     id: `node-${this.id}-${i}`,
-                    label: i,   
+                    label: i + 1,   
                     class: `node-${i}`,
                     location: location,
                     R: this.data.r,
@@ -659,8 +659,6 @@ class MysticStar extends BaseStar {
                 nodes.push(node);
 
             }
-
-
         })
         return nodes;
     }
@@ -860,13 +858,14 @@ class Duad extends BaseComponent {
             fill: this.textColor,
             parent: this.group
         });
-        duadText.innerHTML = this.duad.split('').map(x => x == '0' ? 6 : +x).sort().join('');
+        //duadText.innerHTML = this.duad.split('').map(x => x == '0' ? 6 : +x).sort().join('');
+        duadText.innerHTML = this.duad.split('').map(x => +x + 1).sort().join('');
         return {background: duadBg, text: duadText}
     }
 
     morph(oldState, newState, t) {
-        let newText = this.duad.split('').map(x => x == '0' ? 6 : +x).map(x => newState.phi.map(x)).sort().join('')
-        console.log(newState.phi, this.duad, this.subcomponents.text.innerHTML, newText)
+        
+        let newText = this.duad.split('').map(x => newState.phi.map(x) + 1).sort().join('')
         this.subcomponents.text.innerHTML = newText;
     }
 }
@@ -983,7 +982,7 @@ class Pentad extends BaseComponent {
         this.subcomponents.synthemes.forEach(syntheme => {
             let oldLocation = oldState.subcomponentLocations[syntheme.id];
             let newLocation = newState.subcomponentLocations[syntheme.id];
-            // syntheme.shift(oldLocation, newLocation, t);
+            syntheme.shift(oldLocation, newLocation, t);
             syntheme.morph(oldState, newState, t)
         })
     }
