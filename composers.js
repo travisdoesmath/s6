@@ -31,6 +31,7 @@ class BaseComposer {
             psi: this.psi,
             phi: this.phi
         }
+
         const newState = {
             componentLocations: [...new Array(this.componentLocations.length).keys()].map(i => this.componentLocations[this.psiOfSwap.map(this.currentPsi.map(i))]),
             subcomponentLocations: [...new Array(this.subcomponentLocations.length).keys()].map(i => this.subcomponentLocations[this.swap.map(this.currentPhi.map(i))]),
@@ -55,7 +56,7 @@ class BaseComposer {
     }
 
     interactionHandler() {
-
+        throw new Error("interactionHandler not implemented")
     }
 
     update() {
@@ -70,8 +71,15 @@ class BaseComposer {
     }
 
     updateState() {
-
+        throw new Error("updateState not implemented")
     }
+
+    morph(oldState, newState, t) {
+        this.components.forEach(component => {
+            component.morph(oldState, newState, t);
+        });
+    }
+
 
     animate(t) {
         if (this.animStart === undefined) {
@@ -415,7 +423,6 @@ class PermutationComposer extends BaseComposer{
     constructor(data, config, target, extensions = {}) {
         let globals =  {
             selectedNodeIndices: [],
-            currentPhi: new Permutation(config.n),
             psi: {
                 '01': {0: 1, 1: 0, 2: 5, 3: 4, 4: 3, 5: 2}, // (12)(36)(45)
                 '02': {0: 2, 1: 3, 2: 0, 3: 1, 4: 5, 5: 4}, // (13)(24)(56)
@@ -435,11 +442,11 @@ class PermutationComposer extends BaseComposer{
             },
         }
         super(data, config, target, {
-            globals: globals,    
+            globals: globals,   
             ...extensions
         });
         if (config.permutation) {
-            this.globals.currentPhi = config.permutation;
+            this.currentPhi = config.permutation;
         }
     }
 
@@ -455,12 +462,12 @@ class PermutationComposer extends BaseComposer{
             location: new Location('origin', new Coords(0,0)),
             interactionHandler: this.interactionHandler.bind(this),
             globals: this.globals,
-        }, {padding: 15, color: '--color2'}, this.target, {});
+        }, {padding: 15, color: '--color2'}, this.target, {composer: this});
         
     }
     
     interpolate(t) {
-        this.components.forEach(component => component.interpolate(t, this.globals.currentPhi, this.globals.swap));
+        this.components.forEach(component => component.interpolate(t));
     }
 
     interactionHandler(event, that) {
@@ -478,8 +485,8 @@ class PermutationComposer extends BaseComposer{
         if (this.globals.selectedNodeIndices.length === 2) {
             let duad = this.globals.selectedNodeIndices.join('');
             let swap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]});
-            this.globals.swap = swap;
-            this.globals.psiOfSwap = new Permutation(this.globals.psi[clockwiseForm(duad)]);
+            this.swap = swap;
+            this.psiOfSwap = new Permutation(this.globals.psi[clockwiseForm(duad)]);
 
             requestAnimationFrame(this.animate.bind(this));
         } else {
@@ -488,7 +495,7 @@ class PermutationComposer extends BaseComposer{
     }
 
     update() {
-        this.globals.currentPhi = this.globals.swap.compose(this.globals.currentPhi);
+        // this.currentPhi = this.swap.compose(this.currentPhi);
         this.components.forEach(component => component.update())
         this.globals.selectedNodeIndices = [];
         this.target.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
@@ -504,21 +511,37 @@ class LinkedPermutationComposer extends BaseComposer {
             currentPsi: new Permutation(config.n),
             psi: {                
 
-                '01': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1},
-                '02': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3},
-                '03': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0},
-                '04': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4},                
-                '05': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0},
-                '12': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2},
-                '13': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3},
-                '41': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4},
-                '51': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2},
-                '23': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1},
-                '24': {0: 1, 1: 4, 2: 0, 3: 5, 4: 2, 5: 3},
-                '52': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0},
-                '34': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4},
-                '35': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0},
-                '45': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2}
+                '01': {0: 4, 1: 2, 2: 1, 3: 5, 4: 0, 5: 3},
+                '02': {0: 3, 1: 5, 2: 4, 3: 0, 4: 2, 5: 1},
+                '03': {0: 2, 1: 3, 2: 0, 3: 1, 4: 5, 5: 4},
+                '04': {0: 1, 1: 0, 2: 5, 3: 4, 4: 3, 5: 2},
+                '05': {0: 5, 1: 4, 2: 3, 3: 2, 4: 1, 5: 0}, // (AF)(BE)(CD)
+                '12': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4},
+                '13': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2},
+                '41': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0},
+                '51': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1}, // (AC)(BF)(DE)
+                '23': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0},
+                '24': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3},
+                '52': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2}, // (AE)(BD)(CF)
+                '34': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1},
+                '35': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3}, // (AB)(CE)(DF)
+                '45': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4} // (AD)(BC)(EF)
+
+                // '01': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1},
+                // '02': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3},
+                // '03': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0},
+                // '04': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4},                
+                // '05': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0},
+                // '12': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2},
+                // '13': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3},
+                // '41': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4},
+                // '51': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2},
+                // '23': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1},
+                // '24': {0: 1, 1: 4, 2: 0, 3: 5, 4: 2, 5: 3},
+                // '52': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0},
+                // '34': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4},
+                // '35': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0},
+                // '45': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2}
         
 
                 // '01': {0: 1, 1: 0, 2: 5, 3: 4, 4: 3, 5: 2},
@@ -556,14 +579,14 @@ class LinkedPermutationComposer extends BaseComposer {
             },
         }
         super(data, config, target, {
-            globals: globals,    
+            globals: globals,
             ...extensions
         });
         if (config.phi) {
-            this.globals.currentPhi = config.phi;
+            this.currentPhi = config.phi;
         }
         if (config.psi) {
-            this.globals.currentPsi = config.psi; 
+            this.currentPsi = config.psi; 
         }
     }
 
@@ -575,22 +598,24 @@ class LinkedPermutationComposer extends BaseComposer {
                 location: new Location('origin', new Coords(0, -17.5)),
                 interactionHandler: this.interactionHandler.bind(this),
                 globals: this.globals,
-            }, {padding: 15, color: '--color3', input: true}, this.target, {}),
+                
+            }, {padding: 15, color: '--color3', input: true}, this.target, {composer: this}),
             new PermutationComponent({
                 id: 'permutation-component',
                 n: this.config.n,
                 location: new Location('origin', new Coords(0, 7.5)),
                 interactionHandler: this.interactionHandler.bind(this),
                 globals: this.globals,
-                labels: ['A', 'B', 'C', 'D', 'E', 'F']
-            }, {padding: 15, color: '--color4', output: true}, this.target, {})    
+                labels: ['A', 'B', 'C', 'D', 'E', 'F'],
+                
+            }, {padding: 15, color: '--color4', output: true}, this.target, {composer: this})    
         ]
         return components;  
     }
     
     interpolate(t) {
-        this.components[0].interpolate(t, this.globals.currentPhi, this.globals.swap);
-        this.components[1].interpolate(t, this.globals.currentPsi, this.globals.psiOfSwap);
+        this.components[0].interpolate(t, this.swap);
+        this.components[1].interpolate(t, this.psiOfSwap);
     }
 
     interactionHandler(event, that) {
@@ -614,11 +639,11 @@ class LinkedPermutationComposer extends BaseComposer {
         if (selectedNodeIndices.length === 2) {
             let duad = selectedNodeIndices.join('');
             if (out) {
-                this.globals.psiOfSwap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]}, labels=['A', 'B', 'C', 'D', 'E', 'F']);
-                this.globals.swap = new Permutation(this.globals.psi[clockwiseForm(duad)]);
+                this.psiOfSwap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]}, labels=['A', 'B', 'C', 'D', 'E', 'F']);
+                this.swap = new Permutation(this.globals.psi[clockwiseForm(duad)]);
             } else {
-                this.globals.swap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]});
-                this.globals.psiOfSwap = new Permutation(this.globals.psi[clockwiseForm(duad)], labels=['A', 'B', 'C', 'D', 'E', 'F']);
+                this.swap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]});
+                this.psiOfSwap = new Permutation(this.globals.psi[clockwiseForm(duad)], labels=['A', 'B', 'C', 'D', 'E', 'F']);
             }
 
             requestAnimationFrame(this.animate.bind(this));
@@ -629,10 +654,8 @@ class LinkedPermutationComposer extends BaseComposer {
     }
 
     update() {
-        this.globals.currentPhi = this.globals.swap.compose(this.globals.currentPhi);
-        this.globals.currentPsi = this.globals.psiOfSwap.compose(this.globals.currentPsi);
-        this.components[0].update(this.globals.currentPhi);
-        this.components[1].update(this.globals.currentPsi);
+        this.components[0].update(true);
+        this.components[1].update(false);
         this.globals.selectedNodeIndices = [];
         this.globals.selectedOutNodeIndices = [];
         document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
@@ -651,13 +674,30 @@ class PentadComposer extends BaseComposer {
         ]
         let globals =  {
             selectedNodeIndices: [],
-            currentPhi: new Permutation(6),
-            currentPsi: new Permutation(6),
-            swap: null,
-            psiOfSwap: null
+            psi: {                
+
+                '01': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1},
+                '02': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3},
+                '03': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0},
+                '04': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4},                
+                '05': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0},
+                '12': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2},
+                '13': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3},
+                '41': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4},
+                '51': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2},
+                '23': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1},
+                '24': {0: 1, 1: 4, 2: 0, 3: 5, 4: 2, 5: 3},
+                '52': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0},
+                '34': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4},
+                '35': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0},
+                '45': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2}            
+            },
         };
         super(data, config, target, {
-            pentadLocations: pentadLocations,
+            componentLocations: pentadLocations,
+            subcomponentLocations: [Array(6).keys()].map(i => new Location(i, new Coords(-6 + 6 * i, 0))),
+            currentPhi: new Permutation(6),
+            currentPsi: new Permutation(6),
             globals: globals
         });
     }
@@ -665,10 +705,11 @@ class PentadComposer extends BaseComposer {
     createComponents() {
         let pentads = []
         this.data.pentadData.forEach(pentad => {
-            const location = this.pentadLocations[pentad.id];
+            const location = this.componentLocations[pentad.id];
             const pentadData = {
                 id: pentad.id,
                 '5-cycle': pentad['5-cycle'],
+                subcomponentLocations: this.subcomponentLocations,
                 synthemes: pentad.synthemes,
                 location: location,
                 interactionHandler: this.interactionHandler.bind(this),
@@ -694,14 +735,25 @@ class PentadComposer extends BaseComposer {
         }
         if (this.globals.selectedNodeIndices.length === 2) {
             let duad = this.globals.selectedNodeIndices.join('');
-            let swap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]});
-            this.globals.swap = swap;
-            this.globals.psiOfSwap = new Permutation(this.globals.psi[clockwiseForm(duad)]);
+            this.swap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]});
+            this.psiOfSwap = new Permutation(this.globals.psi[clockwiseForm(duad)]);
 
             requestAnimationFrame(this.animate.bind(this));
         } else {
             document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
         }            
     }
+
+
+    update() {
+        this.currentPhi = this.swap.compose(this.currentPhi);
+        this.currentPsi = this.psiOfSwap.compose(this.currentPsi);
+        this.components[0].update(this.currentPhi);
+        this.components[1].update(this.currentPsi);
+        this.globals.selectedNodeIndices = [];
+        this.globals.selectedOutNodeIndices = [];
+        document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+    }
+    
     
 }

@@ -99,6 +99,7 @@ class Permutation {
 
     compose(thatPermutation) {
         let newPermutation = {};
+        // console.log(thatPermutation);
         Object.keys(thatPermutation.permutation)
             .filter(key => !Object.keys(this.permutation).includes(key))
             .forEach(key => {
@@ -110,4 +111,3 @@ class Permutation {
         return new Permutation(newPermutation, thatPermutation.labels);
     }
 }
-

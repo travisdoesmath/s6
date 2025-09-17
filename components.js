@@ -571,7 +571,7 @@ class ForegroundStar extends BaseStar {
                 padding: this.data.nodePadding,
                 star: this,
                 starCoords: this.data.starCoords,
-                subcomponentLocations:this.data.subcomponentLocations,
+                subcomponentLocations: this.data.subcomponentLocations,
                 group: this.layers.nodes,
                 location: location,
                 interactionHandler: this.data.interactionHandler.bind(this.data.composer)
@@ -682,14 +682,15 @@ class PermutationComponent extends BaseComponent {
             type: 'permutation-component',
             globals: data.globals,
             subcomponentLocations: [...Array(6).keys()].map(i => new Location(i, new Coords(config.padding*(i - 2 * data.n/(data.n - 1)), config.yOffset || 0))),
+            cycle: new Permutation(6),
             ...extensions
         });
         if (data.labels === undefined) {
             this.labels = [...Array(data.n).keys()].map(i => i + 1);
         } else {
-            this.globals.currentPhi;
-            this.globals.currentPsi.setLabels(data.labels);
+            this.cycle.setLabels(data.labels);
         }
+        console.log(this)
     }
     extendBase() {
         this.layers = {
@@ -716,7 +717,7 @@ class PermutationComponent extends BaseComponent {
             'dominant-baseline': 'central',
             parent: this.layers.labels
         });
-        label.innerHTML = this.globals.currentPhi.cycleNotation;
+        label.innerHTML = this.cycle.cycleNotation;
         return label
     }
 
@@ -737,18 +738,23 @@ class PermutationComponent extends BaseComponent {
         return nodes;
     }
 
-    interpolate(t, cycle=this.globals.currentPhi, swap=this.globals.swap) {
-        this.subcomponents.cycleLabel.innerHTML = cycle.cycleNotation + swap.cycleNotation;
+    interpolate(t, swap=this.composer.swap) {
+        this.subcomponents.cycleLabel.innerHTML = this.cycle.cycleNotation + swap.cycleNotation;
         this.subcomponents.nodes.forEach(node => {
-            let oldLocation = this.subcomponentLocations[cycle.map(node.id)];
-            let newLocation = this.subcomponentLocations[swap.compose(cycle).map(node.id)];
+            let oldLocation = this.subcomponentLocations[this.cycle.map(node.id)];
+            let newLocation = this.subcomponentLocations[swap.compose(this.cycle).map(node.id)];
             node.shift(oldLocation, newLocation, t, false);
         });
     }
 
-    update(phi=this.globals.currentPhi) {
-        this.subcomponents.cycleLabel.innerHTML = phi.cycleNotation;
-        this.subcomponentLocations.map((loc, i) => phi.map(i))
+    update(usePhi=true) {
+        if (usePhi) {
+            this.cycle = this.composer.swap.compose(this.cycle)
+        } else {
+            this.cycle = this.composer.psiOfSwap.compose(this.cycle)
+        }
+        this.subcomponents.cycleLabel.innerHTML = this.cycle.cycleNotation;
+        this.subcomponentLocations.map((loc, i) => this.cycle.map(i))
     }
 }
 
@@ -766,8 +772,7 @@ class PermutationNode extends BaseComponent {
         if (data.labels === undefined) {
             this.labels = [...Array(data.n).keys()].map(i => i + 1);
         } else {
-            this.globals.currentPhi;
-            this.globals.currentPsi.setLabels(data.labels);
+            this.currentPsi.setLabels(data.labels);
         }
         this.group.addEventListener('click', (event) => data.interactionHandler(event, this) );
     }
@@ -833,7 +838,7 @@ class Duad extends BaseComponent {
     constructor(data, config, target, extensions = {}) {
         super(data, config, target, {
             id: data.id,
-            class: 'duad',
+            type: 'duad',
             location: data.location,
             duad: data.duad,
             bgColor: data.bgColor,
@@ -912,7 +917,7 @@ class Syntheme extends BaseComponent{
             const duadData = {
                 id: this.id,
                 duad: duad,
-                location: new Location(duad, new Coords(-6 + 6 * i, 0)),
+                location: new Location(i, new Coords(-5 + 5 * i, 0)),
                 bgColor: `var(--color${this.id + 1})`,
                 textColor: `var(--color${this.id + 1}-dark)`,
                 strokeColor: `var(--color${this.id + 1})`,
@@ -928,7 +933,7 @@ class Pentad extends BaseComponent {
             id: data.id,
             type: 'pentad',
             location: data.location,
-            locationCoords: data.locationCoords,
+            // locationCoords: data.locationCoords,
         });
         this.label.innerHTML = ['A','B','C','D','E','F'][this.id];
     }
@@ -947,6 +952,7 @@ class Pentad extends BaseComponent {
             const synthemeData = {
                 id: i,
                 duads: syntheme,
+                subcomponentLocations: this.data.subcomponentLocations,
                 interactionHandler: this.data.interactionHandler,
             }
             new Syntheme(synthemeData, {}, this.group);
