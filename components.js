@@ -861,14 +861,13 @@ class Duad extends BaseComponent {
             parent: this.group
         });
         duadText.innerHTML = this.duad.split('').map(x => x == '0' ? 6 : +x).sort().join('');
+        return {background: duadBg, text: duadText}
     }
 
     morph(oldState, newState, t) {
-
-    }
-
-    shift(oldLocation, newLocation, t) {
-
+        let newText = this.duad.split('').map(x => x == '0' ? 6 : +x).map(x => newState.phi.map(x)).sort().join('')
+        console.log(newState.phi, this.duad, this.subcomponents.text.innerHTML, newText)
+        this.subcomponents.text.innerHTML = newText;
     }
 }
 
@@ -920,6 +919,7 @@ class Syntheme extends BaseComponent{
             parent: synthemeLabel
         })
         synthemeLabelText.innerHTML = this.duads.filter(x => x.startsWith('0')).map(x => x.split('')[1])
+        let duads = []
         this.duads.map(x => x.split('').sort().join('')).sort().forEach((duad, i) => {
             const duadData = {
                 id: this.id,
@@ -929,8 +929,16 @@ class Syntheme extends BaseComponent{
                 textColor: `var(--color${this.id + 1}-dark)`,
                 strokeColor: `var(--color${this.id + 1})`,
             }
-            new Duad(duadData, {}, synthemeElement);
+            duads.push(new Duad(duadData, {}, synthemeElement));
         });
+        return {border: synthemeBorder, label: synthemeLabel, duads: duads}
+    }
+
+    morph(oldState, newState, t) {
+        this.subcomponents.duads.forEach(duad => {
+            duad.morph(oldState, newState, t)
+            // duad.shift()
+        })
     }
 }
 
@@ -975,7 +983,7 @@ class Pentad extends BaseComponent {
         this.subcomponents.synthemes.forEach(syntheme => {
             let oldLocation = oldState.subcomponentLocations[syntheme.id];
             let newLocation = newState.subcomponentLocations[syntheme.id];
-            syntheme.shift(oldLocation, newLocation, t);
+            // syntheme.shift(oldLocation, newLocation, t);
             syntheme.morph(oldState, newState, t)
         })
     }
