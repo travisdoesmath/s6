@@ -71,7 +71,8 @@ class BaseComposer {
     }
 
     updateState() {
-        throw new Error("updateState not implemented")
+        this.currentPhi = this.currentPhi.compose(this.swap);
+        this.currentPsi = this.currentPsi.compose(this.psiOfSwap);
     }
 
     morph(oldState, newState, t) {
@@ -153,7 +154,7 @@ class BaseStarComposer extends BaseComposer {
         });
     }
 
-    updateState() {
+    updateComponents() {
         if (this.background) {
             this.background.update();
         }
@@ -171,8 +172,6 @@ class BaseStarComposer extends BaseComposer {
         });
         // this.componentLocations = this.componentLocations.map((loc, i) => this.componentLocations[this.psiOfSwap.map(i)]);
         // this.subcomponentLocations = this.subcomponentLocations.map((loc, i) => this.subcomponentLocations[this.swap.map(i + 1) - 1]);
-        this.currentPhi = this.currentPhi.compose(this.swap);
-        this.currentPsi = this.currentPsi.compose(this.psiOfSwap);
     }
 }
 
@@ -675,27 +674,26 @@ class PentadComposer extends BaseComposer {
         let globals =  {
             selectedNodeIndices: [],
             psi: {                
-
-                '01': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1},
-                '02': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3},
-                '03': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0},
-                '04': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4},                
-                '05': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0},
-                '12': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2},
-                '13': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3},
-                '41': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4},
-                '51': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2},
-                '23': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1},
-                '24': {0: 1, 1: 4, 2: 0, 3: 5, 4: 2, 5: 3},
-                '52': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0},
-                '34': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4},
-                '35': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0},
-                '45': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2}            
+                '01': {0: 4, 1: 2, 2: 1, 3: 5, 4: 0, 5: 3},
+                '02': {0: 3, 1: 5, 2: 4, 3: 0, 4: 2, 5: 1},
+                '03': {0: 2, 1: 3, 2: 0, 3: 1, 4: 5, 5: 4},
+                '04': {0: 1, 1: 0, 2: 5, 3: 4, 4: 3, 5: 2},
+                '05': {0: 5, 1: 4, 2: 3, 3: 2, 4: 1, 5: 0}, // (AF)(BE)(CD)
+                '12': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4},
+                '13': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2},
+                '41': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0},
+                '51': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1}, // (AC)(BF)(DE)
+                '23': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0},
+                '24': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3},
+                '52': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2}, // (AE)(BD)(CF)
+                '34': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1},
+                '35': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3}, // (AB)(CE)(DF)
+                '45': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4} // (AD)(BC)(EF)       
             },
         };
         super(data, config, target, {
             componentLocations: pentadLocations,
-            subcomponentLocations: [Array(6).keys()].map(i => new Location(i, new Coords(-6 + 6 * i, 0))),
+            subcomponentLocations: [...Array(6).keys()].map(i => new Location(i, new Coords(0, -10 + 5 * i))),
             currentPhi: new Permutation(6),
             currentPsi: new Permutation(6),
             globals: globals
@@ -744,10 +742,7 @@ class PentadComposer extends BaseComposer {
         }            
     }
 
-
-    update() {
-        this.currentPhi = this.swap.compose(this.currentPhi);
-        this.currentPsi = this.psiOfSwap.compose(this.currentPsi);
+    updateComponents() {
         this.components[0].update(this.currentPhi);
         this.components[1].update(this.currentPsi);
         this.globals.selectedNodeIndices = [];

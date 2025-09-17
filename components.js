@@ -667,8 +667,8 @@ class MysticStar extends BaseStar {
     
     morph(oldState, newState, t) {
         super.morph(oldState, newState, t);
-        this.subcomponents.nodes.forEach(node => node.morph(oldState, newState, t));
         this.subcomponents.nodes.forEach(node => {
+            node.morph(oldState, newState, t);
             let oldLocation = oldState.subcomponentLocations[node.id.split('-')[2]];
             let newLocation = newState.subcomponentLocations[node.id.split('-')[2]];
             node.shift(oldLocation, newLocation, t)
@@ -690,7 +690,6 @@ class PermutationComponent extends BaseComponent {
         } else {
             this.cycle.setLabels(data.labels);
         }
-        console.log(this)
     }
     extendBase() {
         this.layers = {
@@ -863,6 +862,14 @@ class Duad extends BaseComponent {
         });
         duadText.innerHTML = this.duad.split('').map(x => x == '0' ? 6 : +x).sort().join('');
     }
+
+    morph(oldState, newState, t) {
+
+    }
+
+    shift(oldLocation, newLocation, t) {
+
+    }
 }
 
 class Syntheme extends BaseComponent{
@@ -880,7 +887,7 @@ class Syntheme extends BaseComponent{
 
     createSubcomponents() {
         const synthemeElement = createElement('g', { 
-            transform: `translate(3, ${-10 + 5 * this.id})`,
+            transform: `translate(3, 0)`,
             parent: this.group
         });
         const synthemeBorder = createElement('rect', {
@@ -935,27 +942,41 @@ class Pentad extends BaseComponent {
             location: data.location,
             // locationCoords: data.locationCoords,
         });
-        this.label.innerHTML = ['A','B','C','D','E','F'][this.id];
+        
     }
 
     createSubcomponents() {
-        this.label = createElement('text', {
+        let subcomponents = {}
+        subcomponents.label = createElement('text', {
             class: 'pentad-label',
             parent: this.group,
         })
-
-        this.createSynthemes();
+        subcomponents.label.innerHTML = ['A','B','C','D','E','F'][this.id];
+        subcomponents.synthemes = this.createSynthemes();
+        return subcomponents
     }
 
     createSynthemes() {
+        let synthemes = [];
         this.data.synthemes.forEach((syntheme, i) => {
             const synthemeData = {
                 id: i,
                 duads: syntheme,
-                subcomponentLocations: this.data.subcomponentLocations,
+                location: this.data.subcomponentLocations[i],
+                subcomponentLocations: [Array(6).keys()].map(i => new Location(i, new Coords(-6 + 6 * i, 0))),
                 interactionHandler: this.data.interactionHandler,
             }
-            new Syntheme(synthemeData, {}, this.group);
+            synthemes.push(new Syntheme(synthemeData, {}, this.group));
         });
+        return synthemes;
+    }
+
+    morph(oldState, newState, t) {
+        this.subcomponents.synthemes.forEach(syntheme => {
+            let oldLocation = oldState.subcomponentLocations[syntheme.id];
+            let newLocation = newState.subcomponentLocations[syntheme.id];
+            syntheme.shift(oldLocation, newLocation, t);
+            syntheme.morph(oldState, newState, t)
+        })
     }
 }
