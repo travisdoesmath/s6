@@ -917,9 +917,21 @@ class Syntheme extends BaseComponent{
             'font-size': '2.5px',
             parent: synthemeLabel
         })
-        synthemeLabelText.innerHTML = this.duads.filter(x => x.startsWith('0')).map(x => x.split('')[1])
+        synthemeLabelText.innerHTML = this.id + 1; 
         let duads = []
-        this.duads.map(x => x.split('').sort().join('')).sort().forEach((duad, i) => {
+        this.duads.map(x => x.split('').sort().map(x => x).join('')).sort((x, y) => 
+            {
+            if (x[1] == '5') {
+                if (y[1] == '5') {
+                    return x[0] - y[0]
+                }
+                return -1
+            }
+            if (y[1] == '5') {
+                return 1
+            }
+            return x[0] - y[0]
+        }).forEach((duad, i) => {
             const duadData = {
                 id: this.id,
                 duad: duad,
@@ -930,10 +942,11 @@ class Syntheme extends BaseComponent{
             }
             duads.push(new Duad(duadData, {}, synthemeElement));
         });
-        return {border: synthemeBorder, label: synthemeLabel, duads: duads}
+        return {border: synthemeBorder, labelText: synthemeLabelText, duads: duads}
     }
 
     morph(oldState, newState, t) {
+        // this.subcomponents.labelText.innerHTML = newState.phi.map(this.id) + 1;
         this.subcomponents.duads.forEach(duad => {
             duad.morph(oldState, newState, t)
             // duad.shift()

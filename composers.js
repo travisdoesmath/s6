@@ -130,11 +130,10 @@ class BaseStarComposer extends BaseComposer {
             '12': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4},
             '23': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0},
             '34': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1},
-            '40': {0: 1, 1: 0, 2: 5, 3: 4, 4: 2, 5: 2},
+            '40': {0: 1, 1: 0, 2: 5, 3: 4, 4: 3, 5: 2},
 
             '02': {0: 3, 1: 5, 2: 4, 3: 0, 4: 2, 5: 1},
             '13': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2},
-            '14': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0},
             '24': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3},
             '30': {0: 2, 1: 3, 2: 0, 3: 1, 4: 5, 5: 4},
             '41': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0}
@@ -645,26 +644,29 @@ class PentadComposer extends BaseComposer {
             new Location('bottom left', new Coords(-30, 30)),
             new Location('bottom center', new Coords(0, 30)),
             new Location('bottom right', new Coords(30, 30)),
+            
         ]
         let globals =  {
             selectedNodeIndices: [],
             psi: {
-                '01': {0: 4, 1: 2, 2: 1, 3: 5, 4: 0, 5: 3}, // (12) -> (AE)(BC)(DF), (AB) -> (15)(23)(46)
-                '02': {0: 3, 1: 5, 2: 4, 3: 0, 4: 2, 5: 1}, // (13) -> (AD)(BF)(CE), (AC) -> (14)(26)(35)
-                '03': {0: 2, 1: 3, 2: 0, 3: 1, 4: 5, 5: 4}, // (14) -> (AC)(BD)(EF), (AD) -> (13)(24)(56)
-                '04': {0: 1, 1: 0, 2: 5, 3: 4, 4: 3, 5: 2}, // (15) -> (AB)(CF)(DE), (AE) -> (12)(36)(45)
-                '05': {0: 5, 1: 4, 2: 3, 3: 2, 4: 1, 5: 0}, // (16) -> (AF)(BE)(CD), (AF) -> (16)(25)(34)
-                '12': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4}, // (23) -> (AB)(CD)(EF), (BC) -> (12)(34)(56)
-                '13': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2}, // (24) -> (AD)(BE)(CF), (BD) -> (14)(25)(36)
-                '14': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0}, // (25) -> (AF)(BD)(CE), (BE) -> (16)(24)(35)
-                '15': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1}, // (26) -> (AC)(BF)(DE), (BF) -> (13)(26)(45)
-                '23': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0}, // (34) -> (AF)(BC)(DE), (CD) -> (16)(23)(45)
-                '24': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3}, // (35) -> (AC)(BE)(DF), (CE) -> (13)(25)(46)
-                '25': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2}, // (36) -> (AE)(BD)(CF), (CF) -> (15)(24)(36)
-                '34': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1}, // (45) -> (AE)(BF)(CD), (DE) -> (15)(26)(34)
-                '35': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3}, // (46) -> (AB)(CE)(DF), (DF) -> (12)(35)(46)
-                '45': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4}, // (56) -> (AD)(BC)(EF), (EF) -> (14)(23)(56)
-            },
+                '05': {0: 5, 1: 4, 2: 3, 3: 2, 4: 1, 5: 0},
+                '15': {0: 2, 1: 5, 2: 0, 3: 4, 4: 3, 5: 1},
+                '25': {0: 4, 1: 3, 2: 5, 3: 1, 4: 0, 5: 2},
+                '35': {0: 1, 1: 0, 2: 4, 3: 5, 4: 2, 5: 3},
+                '45': {0: 3, 1: 2, 2: 1, 3: 0, 4: 5, 5: 4},
+
+                '01': {0: 4, 1: 2, 2: 1, 3: 5, 4: 0, 5: 3},
+                '12': {0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4},
+                '23': {0: 5, 1: 2, 2: 1, 3: 4, 4: 3, 5: 0},
+                '34': {0: 4, 1: 5, 2: 3, 3: 2, 4: 0, 5: 1},
+                '04': {0: 1, 1: 0, 2: 5, 3: 4, 4: 3, 5: 2},
+
+                '02': {0: 3, 1: 5, 2: 4, 3: 0, 4: 2, 5: 1},
+                '13': {0: 3, 1: 4, 2: 5, 3: 0, 4: 1, 5: 2},
+                '24': {0: 2, 1: 4, 2: 0, 3: 5, 4: 1, 5: 3},
+                '03': {0: 2, 1: 3, 2: 0, 3: 1, 4: 5, 5: 4},
+                '14': {0: 5, 1: 3, 2: 4, 3: 1, 4: 2, 5: 0}
+            }
 
         };
         super(data, config, target, {
@@ -694,8 +696,8 @@ class PentadComposer extends BaseComposer {
         });
         return pentads;
     }
-
     interactionHandler(event, that) {
+        // let nodeIdx = this.currentPhi.inverse(that.group.getAttribute('id').split('-')[2]);
         let nodeIdx = +that.id;
         let nodes = Array.from(that.target.getElementsByClassName('syntheme')).filter(el => el.id == nodeIdx);
         if (this.globals.selectedNodeIndices.includes(nodeIdx) || this.globals.selectedNodeIndices.length < 2)
@@ -708,11 +710,12 @@ class PentadComposer extends BaseComposer {
             this.globals.selectedNodeIndices = this.globals.selectedNodeIndices.filter(n => n !== nodeIdx);
         }
         if (this.globals.selectedNodeIndices.length === 2) {
-            let duad = this.globals.selectedNodeIndices.join('');
+            let duad = sortedForm(this.globals.selectedNodeIndices.map(x => this.currentPhi.map(x)).join(''));
             this.swap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]});
-            this.psiOfSwap = new Permutation(this.globals.psi[sortedForm(duad)]);
+            this.psiOfSwap = new Permutation(this.globals.psi[duad]);
 
             requestAnimationFrame(this.animate.bind(this));
+            
         } else {
             document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
         }            
@@ -724,7 +727,6 @@ class PentadComposer extends BaseComposer {
         this.globals.selectedNodeIndices = [];
         this.globals.selectedOutNodeIndices = [];
         document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
-    }
-    
+    }  
     
 }
