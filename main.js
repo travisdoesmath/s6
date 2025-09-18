@@ -100,6 +100,8 @@ const linkedPermutationComposerConfig =  {
     psi: new Permutation(6, labels=['A', 'B', 'C', 'D', 'E', 'F'])
 }
 
+
+
 let starCoords = {
             'center': new Coords(0, 0),
             'top': new Coords(Math.sin(10 * Math.PI / 5), -Math.cos(10 * Math.PI / 5)),
@@ -109,9 +111,9 @@ let starCoords = {
             'top left': new Coords(Math.sin(8 * Math.PI / 5), -Math.cos(8 * Math.PI / 5))
         }
 
-const composer = new StarComposer(composerData, composerConfig, document.getElementById('main'));
+const permutationComposer = new PermutationComposer({}, {n: 6}, document.getElementById('permutations'));
+const triangleComposer = new TriangleComposer({}, {r: 80}, document.getElementById('triangles'));
+const linkedPermutationComposer = new LinkedPermutationComposer({}, linkedPermutationComposerConfig, document.getElementById('linked-permutations'));const pentadComposer = new PentadComposer(composerData, {}, document.getElementById('pentads'));
 const mysticComposer = new MysticStarComposer(composerData, mysticComposerConfig, document.getElementById('mystic'));
 const mysticComposer2 = new MysticStarComposer(composerData, mysticComposerConfig2, document.getElementById('mystic2')); 
-const pentadComposer = new PentadComposer(composerData, {}, document.getElementById('pentads'));
-const permutationComposer = new PermutationComposer({}, {n: 6}, document.getElementById('permutations'));
-const linkedPermutationComposer = new LinkedPermutationComposer({}, linkedPermutationComposerConfig, document.getElementById('linked-permutations'));
+const composer = new StarComposer(composerData, composerConfig, document.getElementById('main'));

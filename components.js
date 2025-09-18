@@ -1079,3 +1079,38 @@ class Pentad extends BaseComponent {
         })
     }
 }
+
+class TriangleComponent extends BaseComponent {
+    constructor(data, config, target, extensions = {}) {
+        super(data, config, target, {
+            id: data.id,
+            type: 'triangle',
+            location: data.location,
+            vertices: [0, 1, 2].map(i => new Coords(Math.cos(Math.PI/2 + i * 2 * Math.PI / 3), Math.sin(-Math.PI/2 + i * 2 * Math.PI / 3)).multiply(config.r)) ,
+            ...extensions
+        });
+    }
+
+    createSubcomponents() {
+        let subcomponents = {};
+        const triangleGroup = createElement('g', {
+            class: 'triangle-group',
+            parent: this.group
+        });
+        subcomponents.group = triangleGroup;
+        const triangle = createElement('polygon', {
+            points: this.vertices.map(v => `${v.x},${v.y}`).join(' '),
+            fill: this.data.color,
+            class: `triangle ${this.data.operation}`,
+            // stroke: 'var(--color2-dark)',
+            'stroke-width': 0.5,
+            parent: triangleGroup
+        });
+        subcomponents.triangle = triangle;
+        return subcomponents;
+    }
+
+    morph(oldState, newState, t) {
+        // currently static
+    }
+}

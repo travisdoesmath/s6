@@ -709,3 +709,42 @@ class PentadComposer extends BaseComposer {
     }  
     
 }
+
+class TriangleComposer extends BaseComposer {
+    constructor(data, config, target, extensions = {}) {
+        let globals = {};
+        super(data, config, target, {
+            globals: globals,
+            ...extensions
+        });
+        console.log(this);
+    }
+    
+    createComponents() {
+        let components = this.createTriangleComponents();
+        return components;  
+    }
+
+    createTriangleComponents() {
+        let components = [];
+        let triangleData = [
+            {x: -300, y: -100, operation: 'identity'},
+            {x: 0, y: -100, operation: 'rotate120'},
+            {x: 300, y: -100, operation: 'rotate240'},
+            {x: -300, y: 150, operation: 'reflect' },
+            {x: 0, y: 150, operation: 'reflectRotate120'},
+            {x: 300, y: 150, operation: 'reflectRotate240'},
+        ]
+        triangleData.forEach((data, i) => {
+            components.push(new TriangleComponent({
+                id: `triangle-component-${i}`,
+                location: new Location('origin', new Coords(data.x, data.y)),
+                operation: data.operation,
+                composer: this,
+                color: `var(--color${5})`
+            }, {r: this.config.r}, this.target));
+        });
+
+        return components;  
+    }
+}
