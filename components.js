@@ -232,6 +232,7 @@ class StarNode extends BaseComponent {
             this.nodeCircle.setAttribute('fill', `var(--color1)`);
             this.nodeCircle.setAttribute('stroke', `var(--color1-dark)`);
             this.nodeCircle.setAttribute('stroke-width', `0.4`);
+            this.nodeCircle.classList.add('glow');
             let text = createElement('text', {
                 class: 'mystic-star-label',
                 parent: labelGroup,

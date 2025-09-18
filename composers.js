@@ -189,6 +189,7 @@ class BaseStarComposer extends BaseComposer {
 
         document.querySelectorAll('.node.selected').forEach(node => {
             node.classList.toggle('selected');
+            node.classList.toggle('glow');
         });
         document.querySelectorAll('.highlight').forEach(highlight => {
             highlight.classList.toggle('highlight');
