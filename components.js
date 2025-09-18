@@ -547,17 +547,17 @@ class ForegroundStar extends BaseStar {
         const labelBg = createElement('circle', {
             cx: '0',
             cy: '0',
-            r: '3',
-            fill: this.id === 0 ? '#ddd' : `var(--color${this.id})`,
+            r: '2',
+            fill: this.id === 5 ? '#888' : `var(--color${this.id + 1})`,
             parent: labelGroup
         });
         let text = createElement('text', {
             class: 'star-label',
             parent: labelGroup,
-            fill: this.id === 0 ? '#666' : `var(--color${this.id}-dark)`,
+            fill: this.id === 5 ? '#666' : `var(--color${this.id + 1}-dark)`,
             opacity: 0.5    
         });
-        text.innerHTML = ['A','B','C','D','E','F'][this.id];
+        // text.innerHTML = ['A','B','C','D','E','F'][this.id];
     }
     
     createNodes() {
