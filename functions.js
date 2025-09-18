@@ -19,31 +19,6 @@ function easeInOutSine(x) {
 return -(Math.cos(Math.PI * x) - 1) / 2;
 }
 
-// function cycleNotation(permutation) {
-//     elements = Object.keys(permutation);
-//     let visited = new Set();
-//     let cycles = [];
-
-//     elements.forEach(element => {
-//         if (!visited.has(element)) {
-//             let current = String(element);
-//             let cycle = [];
-
-//             while (!visited.has(current)) {
-//                 visited.add(current);
-//                 cycle.push(current);
-//                 current = String(permutation[current]);
-//             }
-
-//             if (cycle.length > 1) {
-//                 cycles.push(cycle);
-//             }
-//         }
-//     })
-
-//     return cycles.map(cycle => '(' + cycle.join(' ') + ')').join('');
-// }
-
 function sortedForm(a) {
     return a.split('').sort().join('');
 }
@@ -61,8 +36,6 @@ function clockwiseForm(a) {
             return acc;
         }, {});
 
-    // console.log(clockwiseMap, a)
-
     return clockwiseMap[a];
 
 }
@@ -73,7 +46,6 @@ function getArcData(locations, left, right, phi, verbose=false) {
     if (phi === undefined) {
         phi = new Permutation(6)
     }
-    // [phiLeft, phiRight] = clockwiseForm(phi.map(left), phi.map(right));
     phiLeft = phi.map(left)
     phiRight = phi.map(right)
     let arcStart = locations[left];

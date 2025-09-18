@@ -286,33 +286,6 @@ class StarComposer extends BaseStarComposer {
         });
         return stars;
     }
-
-
-
-    // interactionHandler(event, that) {
-    //     // let nodeIdx = this.currentPhi.inverse(that.group.getAttribute('id').split('-')[2]);
-    //     let nodeIdx = that.group.getAttribute('id').split('-')[2];
-    //     let nodes = this.target.querySelectorAll(`.node-${nodeIdx}`);
-    //     if (this.globals.selectedNodeIndices.includes(nodeIdx) || this.globals.selectedNodeIndices.length < 2)
-    //     {            
-    //         nodes.forEach(n => n.classList.toggle('selected'));
-    //     }        
-    //     if (nodes[0].classList.contains('selected') && this.globals.selectedNodeIndices.length < 2) {
-    //         this.globals.selectedNodeIndices.push(nodeIdx);
-    //     } else {
-    //         this.globals.selectedNodeIndices = this.globals.selectedNodeIndices.filter(n => n !== nodeIdx);
-    //     }
-    //     if (this.globals.selectedNodeIndices.length === 2) {
-    //         let duad = clockwiseForm(this.globals.selectedNodeIndices.map(x => this.currentPhi.map(x)).join(''));
-    //         this.swap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]});
-    //         this.psiOfSwap = new Permutation(this.globals.psi[duad]);
-
-    //         requestAnimationFrame(this.animate.bind(this));
-            
-    //     } else {
-    //         document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
-    //     }            
-    // }
     
     morph(oldState, newState, t) {
         this.background.morph(oldState, newState, t);

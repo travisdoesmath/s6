@@ -75,7 +75,7 @@ class Arc extends BaseComponent {
         this.pathElement.setAttribute('d', pathString);
         if (this.config.hasOutline) {
             this.outline.setAttribute('d', pathString);
-            if (!this.pathElement.classList.contains('outline') && this.inCycle) {
+            if (!this.pathElement.classList.contains('outline') && this.data.inCycle) {
                 this.pathElement.classList.add('in-cycle')
             }
         }
@@ -332,7 +332,6 @@ class BaseStar extends BaseComponent{
     constructor(data, config, target, extensions = {}) {
         super(data, config, target, {
             synthemes: data.synthemes,
-            fiveCycle: data['5-cycle'],
             composer: data.composer,
             r: data.r,
             globals: data.composer.globals,
@@ -341,10 +340,18 @@ class BaseStar extends BaseComponent{
     }
 
     extendBase() {
+        const backgroundGroup = createElement('g', { class: 'background', parent: this.group });
+        const linesGroup = createElement('g', { class: 'lines', parent: this.group });
+        const centerLinesGroup = createElement('g', { class: 'center-lines', parent: linesGroup });
+        const mainLinesGroup = createElement('g', { class: 'main-lines', parent: linesGroup });
+        const foregroundLinesGroup = createElement('g', { class: 'foreground-lines', parent: linesGroup });
+        const labelsGroup = createElement('g', { class: 'labels', parent: this.group });
+        
+
         this.layers = {
-            lines: createElement('g', { class: 'lines', parent: this.group }),
-            labels: createElement('g', { class: 'labels', parent: this.group }),
-            background: createElement('g', { class: 'background', parent: this.group })
+            background: backgroundGroup,
+            lines: {center: centerLinesGroup, main: mainLinesGroup, foreground: foregroundLinesGroup},
+            labels: labelsGroup
         };
     }
 
@@ -354,12 +361,30 @@ class BaseStar extends BaseComponent{
             'edges': []
         };
         let duadList = this.globals.duadList;
-        
+
+        let inCycle = false;
+        let starCycle = [];
+        if (this.config.showCycle) {
+            starCycle = this.data.fiveCycle.map((v, i, arr) => {
+                let d = [v, arr[(i+1) % arr.length]].join('');
+                return clockwiseForm(d);
+            })
+        }
+
         duadList.forEach(duad => {
+            inCycle = starCycle.includes(duad);
+            let parent = this.layers.lines.main;
+            if (duad[1] == '5') {
+                parent = this.layers.lines.center;
+            }
+            if (inCycle) {
+                parent = this.layers.lines.foreground;
+            }
+            
             const duadGroup = createElement('g', {
                 class: 'duad',
                 'data-id': duad,
-                parent: this.layers.lines
+                parent: parent
             });
         })
 
@@ -371,6 +396,14 @@ class BaseStar extends BaseComponent{
                     
                     let locations = this.data.subcomponentLocations;
                     const { arcStart, arcMiddle, arcEnd } = getArcData(locations, left, right);
+                    let inCycle = false;
+                    if (this.config.showCycle) {
+                        let starCycle = this.data.fiveCycle.map((v, i, arr) => {
+                                let d = [v, arr[(i+1) % arr.length]].join('');
+                                return clockwiseForm(d);
+                            })
+                        inCycle = starCycle.includes(duad);
+                    }
                     const arcData = {
                         id: duad,
                         duad: duad,
@@ -379,7 +412,8 @@ class BaseStar extends BaseComponent{
                         arcStart: arcStart,
                         arcMiddle: arcMiddle,
                         arcEnd: arcEnd,
-                        colorIndex: i + 1
+                        colorIndex: i + 1,
+                        inCycle: inCycle
                     }
                     const arcConfig = {
                         showCycle: true,
@@ -511,15 +545,24 @@ class ForegroundStar extends BaseStar {
             nodePadding: data.nodePadding,
             ...extensions
         });
+        this.subcomponents.background = this.createBackground();
         this.subcomponents.nodes = this.createNodes();
     }
     extendBase() {
+        const backgroundGroup = createElement('g', { class: 'background', parent: this.group });
+        const linesGroup = createElement('g', { class: 'lines', parent: this.group });
+        const centerLinesGroup = createElement('g', { class: 'center-lines', parent: linesGroup });
+        const mainLinesGroup = createElement('g', { class: 'main-lines', parent: linesGroup });
+        const foregroundLinesGroup = createElement('g', { class: 'foreground-lines', parent: linesGroup });
+        const nodesGroup = createElement('g', { class: 'nodes', parent: this.group });
+        const labelsGroup = createElement('g', { class: 'labels', parent: this.group });
+
         this.layers = {
-            background: createElement('g', {class: 'background', parent: this.group}),
-            lines: createElement('g', {class: 'lines', parent: this.group}),
-            nodes: createElement('g', {class: 'nodes', parent: this.group}),
-            labels: createElement('g', {class: 'labels', parent: this.group})
-        }
+            background: backgroundGroup,
+            lines: {center: centerLinesGroup, main: mainLinesGroup, foreground: foregroundLinesGroup},
+            labels: labelsGroup,
+            nodes: nodesGroup
+        };
     }
 
     morph(oldState, newState, t) {
@@ -558,6 +601,18 @@ class ForegroundStar extends BaseStar {
             opacity: 0.5    
         });
         // text.innerHTML = ['A','B','C','D','E','F'][this.id];
+    }
+
+    createBackground() {
+        const bgCircle = createElement('circle', {
+            cx: '0',
+            cy: '0',
+            r: this.data.r + 1,
+            fill: 'var(--bg-color)',
+            parent: this.layers.background
+        });
+
+        return bgCircle;
     }
     
     createNodes() {
@@ -604,12 +659,20 @@ class MysticStar extends BaseStar {
         this.subcomponents.nodes = this.createNodes();
     }
     extendBase() {
+        const linesGroup = createElement('g', { class: 'lines', parent: this.group });
+        const centerLinesGroup = createElement('g', { class: 'center-lines', parent: linesGroup });
+        const mainLinesGroup = createElement('g', { class: 'main-lines', parent: linesGroup });
+        const foregroundLinesGroup = createElement('g', { class: 'foreground-lines', parent: linesGroup });
+        const labelsGroup = createElement('g', { class: 'labels', parent: this.group });
+        const backgroundGroup = createElement('g', { class: 'background', parent: this.group });
+        const nodesGroup = createElement('g', { class: 'nodes', parent: this.group });
+
         this.layers = {
-            background: createElement('g', {class: 'background', parent: this.group}),
-            lines: createElement('g', {class: 'lines', parent: this.group}),
-            nodes: createElement('g', {class: 'nodes', parent: this.group}),
-            labels: createElement('g', {class: 'labels', parent: this.group})
-        }
+            background: backgroundGroup,
+            lines: {center: centerLinesGroup, main: mainLinesGroup, foreground: foregroundLinesGroup},
+            labels: labelsGroup,
+            nodes: nodesGroup
+        };
     }
 
     createLabel() {
