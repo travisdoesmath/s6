@@ -149,6 +149,34 @@ class BaseStarComposer extends BaseComposer {
         });
     }
 
+    interactionHandler(event, that) {
+        // let nodeIdx = this.currentPhi.inverse(that.group.getAttribute('id').split('-')[2]);
+        let nodeIdx = that.group.getAttribute('id').split('-')[2];
+        let nodes = this.target.querySelectorAll(`.node-${nodeIdx}`);
+        if (this.globals.selectedNodeIndices.includes(nodeIdx) || this.globals.selectedNodeIndices.length < 2)
+        {            
+            nodes.forEach(n => {
+                n.classList.toggle('selected');
+                n.classList.toggle('glow');
+            });
+        }        
+        if (nodes[0].classList.contains('selected') && this.globals.selectedNodeIndices.length < 2) {
+            this.globals.selectedNodeIndices.push(nodeIdx);
+        } else {
+            this.globals.selectedNodeIndices = this.globals.selectedNodeIndices.filter(n => n !== nodeIdx);
+        }
+        if (this.globals.selectedNodeIndices.length === 2) {
+            let duad = clockwiseForm(this.globals.selectedNodeIndices.map(x => this.currentPhi.map(x)).join(''));
+            this.swap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]});
+            this.psiOfSwap = new Permutation(this.globals.psi[duad]);
+
+            requestAnimationFrame(this.animate.bind(this));
+            
+        } else {
+            document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
+        }            
+    }
+
     updateComponents() {
         if (this.background) {
             this.background.update();
@@ -259,31 +287,7 @@ class StarComposer extends BaseStarComposer {
         return stars;
     }
 
-    interactionHandler(event, that) {
-        // let nodeIdx = this.currentPhi.inverse(that.group.getAttribute('id').split('-')[2]);
-        let nodeIdx = that.group.getAttribute('id').split('-')[2];
-        let nodes = this.target.querySelectorAll(`.node-${nodeIdx}`);
-        if (this.globals.selectedNodeIndices.includes(nodeIdx) || this.globals.selectedNodeIndices.length < 2)
-        {            
-            nodes.forEach(n => n.classList.toggle('selected'));
-        }        
-        if (nodes[0].classList.contains('selected') && this.globals.selectedNodeIndices.length < 2) {
-            this.globals.selectedNodeIndices.push(nodeIdx);
-        } else {
-            this.globals.selectedNodeIndices = this.globals.selectedNodeIndices.filter(n => n !== nodeIdx);
-        }
-        if (this.globals.selectedNodeIndices.length === 2) {
-            console.log(this.globals.selectedNodeIndices);
-            let duad = clockwiseForm(this.globals.selectedNodeIndices.map(x => this.currentPhi.map(x)).join(''));
-            this.swap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]});
-            this.psiOfSwap = new Permutation(this.globals.psi[duad]);
 
-            requestAnimationFrame(this.animate.bind(this));
-            
-        } else {
-            document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
-        }            
-    }
 
     // interactionHandler(event, that) {
     //     // let nodeIdx = this.currentPhi.inverse(that.group.getAttribute('id').split('-')[2]);
@@ -398,7 +402,8 @@ class MysticStarComposer extends BaseStarComposer {
                 showCycle: this.config.showCycle,
                 useLines: true,
                 nodeR: this.config.nodeR,
-                nodePadding: this.config.nodePadding
+                nodePadding: this.config.nodePadding,
+                showLabels: this.config.labels === undefined ? true : this.config.labels
             }
             const newStar = new MysticStar(pentadData, configData, this.target);
             stars.push(newStar);
@@ -413,30 +418,30 @@ class MysticStarComposer extends BaseStarComposer {
         });
     }
 
-    interactionHandler(event, that) {
-        // let nodeIdx = this.currentPhi.inverse(that.group.getAttribute('id').split('-')[2]);
-        let nodeIdx = that.group.getAttribute('id').split('-')[2];
-        let nodes = this.target.querySelectorAll(`.node-${nodeIdx}`);
-        if (this.globals.selectedNodeIndices.includes(nodeIdx) || this.globals.selectedNodeIndices.length < 2)
-        {            
-            nodes.forEach(n => n.classList.toggle('selected'));
-        }        
-        if (nodes[0].classList.contains('selected') && this.globals.selectedNodeIndices.length < 2) {
-            this.globals.selectedNodeIndices.push(nodeIdx);
-        } else {
-            this.globals.selectedNodeIndices = this.globals.selectedNodeIndices.filter(n => n !== nodeIdx);
-        }
-        if (this.globals.selectedNodeIndices.length === 2) {
-            let duad = clockwiseForm(this.globals.selectedNodeIndices.map(x => this.currentPhi.map(x)).join(''));
-            this.swap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]});
-            this.psiOfSwap = new Permutation(this.globals.psi[duad]);
+    // interactionHandler(event, that) {
+    //     // let nodeIdx = this.currentPhi.inverse(that.group.getAttribute('id').split('-')[2]);
+    //     let nodeIdx = that.group.getAttribute('id').split('-')[2];
+    //     let nodes = this.target.querySelectorAll(`.node-${nodeIdx}`);
+    //     if (this.globals.selectedNodeIndices.includes(nodeIdx) || this.globals.selectedNodeIndices.length < 2)
+    //     {            
+    //         nodes.forEach(n => n.classList.toggle('selected'));
+    //     }        
+    //     if (nodes[0].classList.contains('selected') && this.globals.selectedNodeIndices.length < 2) {
+    //         this.globals.selectedNodeIndices.push(nodeIdx);
+    //     } else {
+    //         this.globals.selectedNodeIndices = this.globals.selectedNodeIndices.filter(n => n !== nodeIdx);
+    //     }
+    //     if (this.globals.selectedNodeIndices.length === 2) {
+    //         let duad = clockwiseForm(this.globals.selectedNodeIndices.map(x => this.currentPhi.map(x)).join(''));
+    //         this.swap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]});
+    //         this.psiOfSwap = new Permutation(this.globals.psi[duad]);
 
-            requestAnimationFrame(this.animate.bind(this));
+    //         requestAnimationFrame(this.animate.bind(this));
             
-        } else {
-            document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
-        }            
-    }
+    //     } else {
+    //         document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
+    //     }            
+    // }
     
 }
 

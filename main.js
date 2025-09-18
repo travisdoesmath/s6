@@ -89,8 +89,9 @@ const mysticComposerConfig2 =  {
     showCycle: true,
     R: 35,
     r: 10,
-    nodeR: 2,
-    configuration: 'star'
+    nodeR: 1.5,
+    configuration: 'star',
+    labels: false
 
 }
 

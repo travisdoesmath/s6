@@ -230,13 +230,15 @@ class StarNode extends BaseComponent {
                 parent: this.group
             });
             this.nodeCircle.setAttribute('fill', `var(--color1)`);
+            this.nodeCircle.setAttribute('stroke', `var(--color1-dark)`);
+            this.nodeCircle.setAttribute('stroke-width', `0.4`);
             let text = createElement('text', {
                 class: 'mystic-star-label',
                 parent: labelGroup,
                 fill: `var(--color1-dark)`,
                 opacity: 0.5    
             });
-            text.innerHTML = this.label;
+            if (this.config.showLabels) { text.innerHTML = this.label; }
             subcomponents.push({labelGroup: labelGroup, text: text});
         }
         
@@ -611,6 +613,7 @@ class MysticStar extends BaseStar {
     }
 
     createLabel() {
+        if (!this.config.showLabels) {return};
         const labelGroup = createElement('g', {
             id: this.id,
             class: 'label',
@@ -649,10 +652,11 @@ class MysticStar extends BaseStar {
                     starCoords: this.data.starCoords,
                     subcomponentLocations: this.data.subcomponentLocations,
                     
+                    
                     interactionHandler: this.data.interactionHandler.bind(this.data.composer)
                 }
                 const nodeConfig = {
-
+                    showLabels: this.config.showLabels,
                 }
                 const node = new StarNode(nodeData, nodeConfig, this.layers.nodes);
 
