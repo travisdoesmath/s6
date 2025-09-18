@@ -72,24 +72,24 @@ const composerData = {
 
 const composerConfig =  {
     showCycle: true,
-    r: 10,
-    R: 35,
-    nodeR: 3,
-    nodePadding: 1.25
+    r: 100,
+    R: 350,
+    nodeR: 30,
+    nodePadding: 12.5
 }
 
 const mysticComposerConfig =  {
     showCycle: true,
-    r: 10,
-    nodeR: 2,
+    r: 100,
+    nodeR: 20,
     configuration: 'rectangle'
 }
 
 const mysticComposerConfig2 =  {
     showCycle: true,
-    R: 35,
-    r: 10,
-    nodeR: 1.5,
+    R: 350,
+    r: 100,
+    nodeR: 15,
     configuration: 'star',
     labels: false
 
@@ -99,8 +99,6 @@ const linkedPermutationComposerConfig =  {
     n: 6,
     psi: new Permutation(6, labels=['A', 'B', 'C', 'D', 'E', 'F'])
 }
-
-
 
 let starCoords = {
             'center': new Coords(0, 0),
@@ -113,6 +111,7 @@ let starCoords = {
 
 const permutationComposer = new PermutationComposer({}, {n: 6}, document.getElementById('permutations'));
 const triangleComposer = new TriangleComposer({}, {r: 80}, document.getElementById('triangles'));
+const trianglePermutationComposer = new TrianglePermutationComposer({}, {r: 160, n: 3}, document.getElementById('triangle-s3'));
 const linkedPermutationComposer = new LinkedPermutationComposer({}, linkedPermutationComposerConfig, document.getElementById('linked-permutations'));const pentadComposer = new PentadComposer(composerData, {}, document.getElementById('pentads'));
 const mysticComposer = new MysticStarComposer(composerData, mysticComposerConfig, document.getElementById('mystic'));
 const mysticComposer2 = new MysticStarComposer(composerData, mysticComposerConfig2, document.getElementById('mystic2')); 

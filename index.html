@@ -38,7 +38,7 @@
             can be achieved by a series of swaps (which are formerly called "transpositions"). 
         </p>
         <figure>
-            <svg id="permutations" viewBox="-50 -25 100 50">
+            <svg id="permutations" viewBox="-500 -250 1000 500">
             </svg>
             <figcaption>Permutations (click on any two numbers to swap them)</figcaption>
         </figure>
@@ -94,19 +94,22 @@
         <h2>Groups as Other Groups, Groups as Parts of Other Groups</h2>
         <p>
             Groups show up all over the place, and sometimes two different situations have the "same" group. For example, all of the ways
-            to flip and rotate a triangle acts the same as all of the ways to permute three items. To show two groups are the same, we
+            to to permute three items acts the same as all of the ways to flip and rotate a triangle. To show two groups are the same, we
             need to find a one-to-one correspondence between the elements of the two groups that preserves the group rules. So, if the 
             correspondence maps "2" to "B", then it must also map the inverse of "2" to the inverse of "B", and it must map "2 * 3" to 
-            "B * C". This is called an isomorphism. We can also find a group inside of another group. Think of permuting four objects: if 
-            you just ignore one item, then it's like there's a copy of the 3-object permutation group inside of the 4-object permutation group. 
-            This is called a subgroup.
+            "B * C". This is called an isomorphism. The following diagram shows the isomorphism between the permutation group on three items
+            and the symmetry group of an equilateral triangle, click on the permutation items to swap them and see how it swaps the labeled
+            corners of the triangle.
         </p>
         <figure>
-            <svg id="s3" viewBox="-50 -25 100 50">
+            <svg id="triangle-s3" viewBox="-500 -250 1000 500">
             </svg>
-            <figcaption>TODO: S_3 as symmetries of triangle</figcaption>
+            <figcaption>S_3 = Symmetries of an Equilateral Triangle</figcaption>
         </figure>
-
+        <p>
+            A group can also be a part of another group. For example, the symmetries of a triangle are a part of the symmetries of a square,
+            because any symmetry that works for the triangle will also work for the square. This is called a subgroup.
+        </p>
         <p>
             When we consider all of the ways to permute n items, we call that "the symmetric group on n items", and we write it as S_n.
             Every symmetric group has subgroups of all the smaller symmetric groups. Like our example above, S_4 contains S_3, which contains
@@ -132,7 +135,7 @@
             Click on any two items in either row to see how they affect the other row.
         </p>
         <figure>
-            <svg id="linked-permutations" viewBox="-50 -25 100 50">
+            <svg id="linked-permutations" viewBox="-500 -250 1000 500">
             </svg>
             <figcaption>Linked Permutations</figcaption>
         </figure>
@@ -209,7 +212,7 @@
             transposition acts on all six pentads, so this is a transitive embedding of S_5 into S_6.
         </p>
         <figure>
-            <svg id="pentads" viewBox="-50 -25 100 75">
+            <svg id="pentads" viewBox="-500 -250 1000 750">
             </svg>
             <figcaption>Pentads</figcaption>
         </figure>
@@ -258,7 +261,7 @@
             transposition acts on all six pentads, so this is a transitive embedding of S_5 into S_6.
         </p>
         <figure>
-            <svg id="mystic" viewBox="-50 -25 100 50">
+            <svg id="mystic" viewBox="-500 -250 1000 500">
             </svg>
             <figcaption>Mystic Pentagons</figcaption>
         </figure>
@@ -271,13 +274,13 @@
             There's one mystic pentagon that has 5-fold symmetry, and the rest only have bilateral symmetry. This suggests to me that we
             can make an arrangement five pentagons around one central pentagon. This is visualized in the following figure.
         <figure>
-            <svg id="mystic2" viewBox="-50 -50 100 100">
+            <svg id="mystic2" viewBox="-500 -500 1000 1000">
             </svg>
-            <figcaption>Mystic Pentagons</figcaption>
+            <figcaption>Mystic Pentagons in a Star Arrangement</figcaption>
         </figure>
         <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Voluptates rem ut non odio commodi illum magnam quisquam, architecto dolor maiores praesentium tenetur? Dolor perferendis perspiciatis sunt aperiam, aut sit dolores!  </p>
         <figure>
-            <svg id="main" viewBox="-50 -50 100 100">
+            <svg id="main" viewBox="-500 -500 1000 1000">
             </svg>
             <figcaption>Interactive S_5 -> S_6 Figure</figcaption>
         </figure>

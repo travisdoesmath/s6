@@ -190,17 +190,17 @@ line.outline[data-id='-1'] {
 }
 
 .center-lines>line[data-id] {
-    stroke-width: 0.5;
+    stroke-width: 5;
 }
 
 .duad-line {
-    stroke-width: 1;
+    stroke-width: 10;
     fill: none;
     stroke-linecap: round;
 }
 
 .mystic-line {
-    stroke-width: 1;
+    stroke-width: 10;
     fill: none;
     stroke-linecap: round;
 }
@@ -223,7 +223,7 @@ line.outline[data-id='-1'] {
 
 .outline {
     fill: none;
-    stroke-width: 2;
+    stroke-width: 20;
 }
 
 .outline[data-id='1'] { stroke: var(--color1-dark); }
@@ -313,11 +313,11 @@ h1, h2 {
 
 .selected {
     stroke: #fff;
-    stroke-width: 0.25;
+    stroke-width: 2.5;
 }
 
 .selected.glow {
-    filter: drop-shadow(0 0 0.5px #fff);
+    filter: drop-shadow(0 0 5px #fff);
 }
 
 figure {
@@ -411,7 +411,7 @@ img {
 
 .star-label {
     text-anchor: middle;
-    font-size: 5px;
+    font-size: 50px;
     dominant-baseline: central;
     cursor: pointer;
     stroke: none;
@@ -419,7 +419,7 @@ img {
 
 .mystic-star-label {
     text-anchor: middle;
-    font-size: 3px;
+    font-size: 30px;
     dominant-baseline: central;
     cursor: pointer;
     stroke: none;
@@ -427,7 +427,7 @@ img {
 
 .pentad-label {
     text-anchor: middle;
-    font-size: 4px;
+    font-size: 40px;
     dominant-baseline: central;
     transform: translate(0,-15px);
     stroke: none;
@@ -436,14 +436,14 @@ img {
 
 .syntheme-label {
     text-anchor: middle;
-    font-size: 4px;
+    font-size: 40px;
     dominant-baseline: central;
     stroke: none;
 }
 
 text.duad {
     text-anchor: middle;
-    font-size: 2.5px;
+    font-size: 25px;
     dominant-baseline: central;
 }
 
@@ -457,7 +457,7 @@ text.duad {
 
 .node>.syntheme>.duad>.arc>path {
     fill: none;
-    stroke-width: 0.25;
+    stroke-width: 2.5;
 }
 
 .pentad>.syntheme {
@@ -499,11 +499,7 @@ svg {
     stroke: var(--color4-dark);
 } */
 
-.triangle.identity {
-    animation: triangle-identity ease-in-out 2s infinite;
-}
-
-.triangle-group {
+.triangle-group.animated {
     animation: triangle-lift ease-in-out 2s infinite;
 }
 

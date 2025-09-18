@@ -231,7 +231,7 @@ class StarNode extends BaseComponent {
             });
             this.nodeCircle.setAttribute('fill', `var(--color1)`);
             this.nodeCircle.setAttribute('stroke', `var(--color1-dark)`);
-            this.nodeCircle.setAttribute('stroke-width', `0.4`);
+            this.nodeCircle.setAttribute('stroke-width', `4`);
             this.nodeCircle.classList.add('glow');
             let text = createElement('text', {
                 class: 'mystic-star-label',
@@ -530,6 +530,10 @@ class BackgroundStar extends BaseStar {
         }); 
     }
 
+    createLabel() {
+
+    }
+
     shift() {
         // overwriting base method to do nothing
     }
@@ -591,7 +595,7 @@ class ForegroundStar extends BaseStar {
         const labelBg = createElement('circle', {
             cx: '0',
             cy: '0',
-            r: '2',
+            r: '20',
             fill: this.id === 5 ? '#888' : `var(--color${this.id + 1})`,
             parent: labelGroup
         });
@@ -744,11 +748,12 @@ class MysticStar extends BaseStar {
 
 class PermutationComponent extends BaseComponent {
     constructor(data, config, target, extensions = {}) {
+        console.log(config, data)
         super(data, config, target, {
             type: 'permutation-component',
             globals: data.globals,
-            subcomponentLocations: [...Array(6).keys()].map(i => new Location(i, new Coords(config.padding*(i - 2 * data.n/(data.n - 1)), config.yOffset || 0))),
-            cycle: new Permutation(6),
+            subcomponentLocations: [...Array(data.n).keys()].map(i => new Location(i, new Coords(config.padding*(i - (data.n - 1)/2), config.yOffset || 0))),
+            cycle: new Permutation(data.n),
             ...extensions
         });
         if (data.labels === undefined) {
@@ -775,9 +780,9 @@ class PermutationComponent extends BaseComponent {
     createCycleLabel() {
         const label = createElement('text', {
             x: 0,
-            y: 10,
+            y: 100,
             fill: `var(${this.config.color}-dark)`,
-            'font-size': 7,
+            'font-size': 70,
             'text-anchor': 'middle',
             'dominant-baseline': 'central',
             parent: this.layers.labels
@@ -847,7 +852,7 @@ class PermutationNode extends BaseComponent {
         const background = createElement('circle', {
             cx: 0,
             cy: 0,
-            r: 5,
+            r: 50,
             fill: `var(${this.color})`,
             parent: this.group
         });
@@ -855,7 +860,7 @@ class PermutationNode extends BaseComponent {
             x: 0,
             y: 0,
             fill: `var(${this.color}-dark)`,
-            'font-size': 7,
+            'font-size': 70,
             'text-anchor': 'middle',
             'dominant-baseline': 'central',
             parent: this.group
@@ -915,7 +920,7 @@ class Duad extends BaseComponent {
 
     createSubcomponents() {
         const duadBg = createElement('circle', {
-            r: '2',
+            r: '20',
             fill: this.bgColor,
             // stroke: this.strokeColor,
             // 'stroke-width': '0.25',
@@ -958,42 +963,42 @@ class Syntheme extends BaseComponent{
         });
         const synthemeBorder = createElement('rect', {
             class: 'border',
-            x: -14.5,
-            y: -2.5,
-            width: 23,
-            height: 5,
+            x: -145,
+            y: -25,
+            width: 230,
+            height: 50,
             fill: 'none',
-            rx: 2.5,
-            ry: 2.5,
+            rx: 25,
+            ry: 25,
             parent: synthemeElement
         });
         const synthemeBackground = createElement('rect', {
-            x: -14.5,
-            y: -2.5,
-            width: 23,
-            height: 5,
+            x: -145,
+            y: -25,
+            width: 230,
+            height: 50,
             fill: `var(--color${this.id + 1})`,
-            rx: 2.5,
-            ry: 2.5,
+            rx: 25,
+            ry: 25,
             parent: synthemeElement,
             opacity: 0.25
         });
         const synthemeLabel = createElement('g', {
             class: 'syntheme-label',
-            transform: 'translate(-12,0)',
+            transform: 'translate(-120,0)',
             parent: synthemeElement
         });
         createElement('circle', {
             cx: 0,
             cy: 0,
-            r: 2,
+            r: 20,
             fill: `var(--color${this.id + 1}-dark)`,
             parent: synthemeLabel
         });
         const synthemeLabelText = createElement('text', {
             class: 'syntheme-label-text',
             fill: `var(--color${this.id + 1})`,
-            'font-size': '2.5px',
+            'font-size': '25px',
             parent: synthemeLabel
         })
         synthemeLabelText.innerHTML = this.id + 1; 
@@ -1014,7 +1019,7 @@ class Syntheme extends BaseComponent{
             const duadData = {
                 id: this.id,
                 duad: duad,
-                location: new Location(i, new Coords(-6 + 6 * i, 0)),
+                location: new Location(i, new Coords(-60 + 60 * i, 0)),
                 bgColor: `var(--color${this.id + 1})`,
                 textColor: `var(--color${this.id + 1}-dark)`,
                 strokeColor: `var(--color${this.id + 1})`,
@@ -1062,7 +1067,7 @@ class Pentad extends BaseComponent {
                 id: i,
                 duads: syntheme,
                 location: this.data.subcomponentLocations[i],
-                subcomponentLocations: [Array(6).keys()].map(i => new Location(i, new Coords(-6 + 6 * i, 0))),
+                subcomponentLocations: [Array(6).keys()].map(i => new Location(i, new Coords(-60 + 60 * i, 0))),
                 interactionHandler: this.data.interactionHandler,
             }
             synthemes.push(new Syntheme(synthemeData, {}, this.group));
@@ -1086,7 +1091,7 @@ class TriangleComponent extends BaseComponent {
             id: data.id,
             type: 'triangle',
             location: data.location,
-            vertices: [0, 1, 2].map(i => new Coords(Math.cos(Math.PI/2 + i * 2 * Math.PI / 3), Math.sin(-Math.PI/2 + i * 2 * Math.PI / 3)).multiply(config.r)) ,
+            vertices: [0, 1, 2].map(i => new Coords(Math.cos(Math.PI/2 - i * 2 * Math.PI / 3), Math.sin(-Math.PI/2 + i * 2 * Math.PI / 3)).multiply(config.r)) ,
             ...extensions
         });
     }
@@ -1094,7 +1099,7 @@ class TriangleComponent extends BaseComponent {
     createSubcomponents() {
         let subcomponents = {};
         const triangleGroup = createElement('g', {
-            class: 'triangle-group',
+            class: `triangle-group ${this.config.animated ? 'animated' : ''}`,
             parent: this.group
         });
         subcomponents.group = triangleGroup;
@@ -1106,11 +1111,27 @@ class TriangleComponent extends BaseComponent {
             'stroke-width': 0.5,
             parent: triangleGroup
         });
+        if (this.config.showLabels) {
+            const labelsGroup = createElement('g', { class: 'labels', parent: triangleGroup });
+            this.vertices.forEach((v, i) => {
+                const label = createElement('text', {
+                    x: v.x * 0.7,
+                    y: v.y * 0.7,
+                    fill: `var(--color${i + 1}-dark)`,
+                    'font-size': 40,
+                    'text-anchor': 'middle',
+                    'dominant-baseline': 'central',
+                    parent: labelsGroup
+                });
+                label.innerHTML = i + 1;
+            });
+        }
         subcomponents.triangle = triangle;
         return subcomponents;
     }
 
-    morph(oldState, newState, t) {
-        // currently static
+    interpolate(oldState, newState, t) {
+        this.subcomponents.group.setAttribute('transform', `rotate(${lerp(oldState.angle, newState.angle, t)}) scale(${oldState.reflect == newState.reflect ? 1 : oldState.reflect ? -1 + 2 * t : 1 - 2 * t}, 1)`
+        );
     }
 }
