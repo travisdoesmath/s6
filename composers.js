@@ -199,21 +199,35 @@ class BaseStarComposer extends BaseComposer {
     }
 }
 
+
 class StarComposer extends BaseStarComposer {
     constructor(data, config, target, extensions = {}) {
-        let starCoords = {
-            'top': new Coords(Math.sin(10 * Math.PI / 5), -Math.cos(10 * Math.PI / 5)),
-            'top right': new Coords(Math.sin(2 * Math.PI / 5), -Math.cos(2 * Math.PI / 5)),
-            'bottom right': new Coords(Math.sin(4 * Math.PI / 5), -Math.cos(4 * Math.PI / 5)),
-            'bottom left': new Coords(Math.sin(6 * Math.PI / 5), -Math.cos(6 * Math.PI / 5)),
-            'top left': new Coords(Math.sin(8 * Math.PI / 5), -Math.cos(8 * Math.PI / 5)),
-            'center': new Coords(0, 0),
-        }
+        let starCoords = [
+            new Location('top', new Coords(Math.sin(10 * Math.PI / 5), -Math.cos(10 * Math.PI / 5))),
+            new Location('top right', new Coords(Math.sin(2 * Math.PI / 5), -Math.cos(2 * Math.PI / 5))),
+            new Location('bottom right', new Coords(Math.sin(4 * Math.PI / 5), -Math.cos(4 * Math.PI / 5))),
+            new Location('bottom left', new Coords(Math.sin(6 * Math.PI / 5), -Math.cos(6 * Math.PI / 5))),
+            new Location('top left', new Coords(Math.sin(8 * Math.PI / 5), -Math.cos(8 * Math.PI / 5))),
+            new Location('center', new Coords(0, 0)),
 
-        let componentLocations = Object.entries(starCoords)
-            .map(([label, coords]) => new Location(label, coords.multiply(config.R)));
-        let subcomponentLocations = Object.entries(starCoords)
-            .map(([label, coords]) => new Location(label, coords.multiply(config.r)));
+        ]
+
+        let componentLocations;
+        if (config.configuration === 'rectangle') {
+            componentLocations = [  
+                new Location('top left', new Coords(-250, -125)),
+                new Location('top center', new Coords(0, -125)),
+                new Location('top right', new Coords(250, -125)),
+                new Location('bottom left', new Coords(-250, 125)),
+                new Location('bottom center', new Coords(0, 125)),
+                new Location('bottom right', new Coords(250, 125)),
+            ]
+        }
+        if (config.configuration === 'star') {
+            componentLocations = starCoords
+            .map(location => location.multiply(config.R))
+        }
+        let subcomponentLocations = starCoords.map(location => new Location(location.label, location.coords.multiply(config.r)));
 
         extensions = {
             starCoords: starCoords,
@@ -230,7 +244,10 @@ class StarComposer extends BaseStarComposer {
 
     createComponents() {
         const components = [];
-        components.push(this.createBackground());
+        if (this.config.showBackground) {
+            components.push(this.createBackground());
+        }
+        
         this.stars = this.createStars();
         components.push(...this.stars);
         return components;
@@ -253,7 +270,8 @@ class StarComposer extends BaseStarComposer {
         const backgroundConfig = {
             showCycle: false,
             showLabel: false,
-            useArcs: true
+            useArcs: true,
+            showCenterLines: true,
         }
         this.background = new BackgroundStar(backgroundData, backgroundConfig, this.target);
         return this.background;
@@ -278,9 +296,13 @@ class StarComposer extends BaseStarComposer {
             }
             const configData = {
                 showCycle: this.config.showCycle,
-                useArcs: true,
+                showLabels: this.config.showLabels,
+                useArcs: this.config.useArcs,
+                showCenterLines: this.config.showCenterLines,
                 nodeR: this.config.nodeR,
-                nodePadding: this.config.nodePadding
+                nodePadding: this.config.nodePadding,
+                nodeType: this.config.nodeType,
+                colorScheme: this.config.colorScheme,
             }
             const newStar = new ForegroundStar(pentadData, configData, this.target);
             stars.push(newStar);
@@ -289,109 +311,14 @@ class StarComposer extends BaseStarComposer {
     }
     
     morph(oldState, newState, t) {
-        this.background.morph(oldState, newState, t);
+        if (this.config.showBackground) {
+            this.background.morph(oldState, newState, t);
+        }
         this.stars.forEach(star => {
             star.morph(oldState, newState, t);
         });
     }
 
-}
-
-class MysticStarComposer extends BaseStarComposer {
-    constructor(data, config, target, extensions = {}) {
-        let starCoords = [
-            new Location('top', new Coords(Math.sin(10 * Math.PI / 5), -Math.cos(10 * Math.PI / 5))),
-            new Location('top right', new Coords(Math.sin(2 * Math.PI / 5), -Math.cos(2 * Math.PI / 5))),
-            new Location('bottom right', new Coords(Math.sin(4 * Math.PI / 5), -Math.cos(4 * Math.PI / 5))),
-            new Location('bottom left', new Coords(Math.sin(6 * Math.PI / 5), -Math.cos(6 * Math.PI / 5))),
-            new Location('top left', new Coords(Math.sin(8 * Math.PI / 5), -Math.cos(8 * Math.PI / 5))),
-            new Location('center', new Coords(0, 0)),
-
-        ]
-        let componentLocations;
-        if (config.configuration === 'rectangle') {
-            componentLocations = [  
-                new Location('top left', new Coords(-250, -125)),
-                new Location('top center', new Coords(0, -125)),
-                new Location('top right', new Coords(250, -125)),
-                new Location('bottom left', new Coords(-250, 125)),
-                new Location('bottom center', new Coords(0, 125)),
-                new Location('bottom right', new Coords(250, 125)),
-            ]
-        }
-        if (config.configuration === 'star') {
-            componentLocations = starCoords
-            .map(location => location.multiply(config.R))
-        }
-
-        let subcomponentLocations = starCoords.map(location => new Location(location.label, location.coords.multiply(config.r)));
-
-        extensions = {
-            componentLocations: componentLocations,
-            subcomponentLocations: subcomponentLocations,
-            currentPhi: new Permutation(6),
-            currentPsi: new Permutation(6),
-            selectedNodeIndices: [],
-            ...extensions
-        }        
-
-        super(data, config, target, {
-            phi: new Permutation(6),
-            psi: new Permutation(6),
-            ...extensions
-        });
-        this.globals.selectedNodeIndices = [];
-    }
-
-    createComponents() {
-        const components = [];
-        this.stars = this.createStars();
-        components.push(...this.stars);
-        return components;
-    }
-
-    createStars() {
-        let stars = [];
-        this.data.pentadData.forEach(star => {
-            const starGroup = createElement('g', {
-                class: 'star',
-                'data-id': star.id,
-            })
-
-            const pentadData = {
-                id: star.id,
-                location: this.componentLocations[star.id],
-                synthemes: star.synthemes,
-                fiveCycle: star['5-cycle'],
-                R: this.config.r,
-                r: this.config.r,
-                nodeR: this.config.nodeR,
-                nodePadding: this.config.nodePadding,
-                composer: this,
-                starCoords: this.starCoords,
-                subcomponentLocations: this.subcomponentLocations,
-                interactionHandler: this.interactionHandler
-            }
-            const configData = {
-                showCycle: this.config.showCycle,
-                useLines: true,
-                nodeR: this.config.nodeR,
-                nodePadding: this.config.nodePadding,
-                showLabels: this.config.labels === undefined ? true : this.config.labels
-            }
-            const newStar = new MysticStar(pentadData, configData, this.target);
-            stars.push(newStar);
-        });
-        return stars;
-
-    }
-
-    morph(oldState, newState, t) {
-        this.stars.forEach(star => {
-            star.morph(oldState, newState, t);
-        });
-    }
-   
 }
 
 class PermutationComposer extends BaseComposer{
@@ -692,7 +619,6 @@ class TriangleComposer extends BaseComposer {
             globals: globals,
             ...extensions
         });
-        console.log(this);
     }
     
     createComponents() {
@@ -798,7 +724,6 @@ class TrianglePermutationComposer extends BaseComposer {
     interpolate(t) {
         let oldState = this.operationStates[this.mapping[this.currentPhi.cycleNotation]];
         let newState = this.operationStates[this.mapping[this.swap.compose(this.currentPhi).cycleNotation]];
-        console.log(oldState, newState, t);
         this.components[0].interpolate(oldState, newState, t);
         this.components[1].interpolate(t);
     }

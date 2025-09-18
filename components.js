@@ -115,7 +115,11 @@ class Arc extends BaseComponent {
         }
 
         let pathString = `M ${arcStartPoint.x} ${arcStartPoint.y} `
-        pathString +=    `Q ${arcControlPoint.x} ${arcControlPoint.y} ${arcEndPoint.x} ${arcEndPoint.y}`;
+        if (this.config.useArcs) {
+            pathString += `Q ${arcControlPoint.x} ${arcControlPoint.y}`
+        } 
+        pathString += ` ${arcEndPoint.x} ${arcEndPoint.y}`
+        
         return pathString
     }    
 }
@@ -224,20 +228,27 @@ class StarNode extends BaseComponent {
         });
         // subcomponents.push(this.nodeCircle);
 
+        let colorIdx;
+        if (this.config.colorScheme === 'in-cycle') {
+            colorIdx = 1;
+        } else if (this.config.colorScheme === 'syntheme') {
+            colorIdx = +this.id.split('-')[2] + 1;
+        }
+
         if (this.label) {
             const labelGroup = createElement('g', {
                 class: 'label',
                 parent: this.group
             });
-            this.nodeCircle.setAttribute('fill', `var(--color1)`);
-            this.nodeCircle.setAttribute('stroke', `var(--color1-dark)`);
+            this.nodeCircle.setAttribute('fill', `var(--color${colorIdx})`);
+            this.nodeCircle.setAttribute('stroke', `var(--color${colorIdx}-dark)`);
             this.nodeCircle.setAttribute('stroke-width', `4`);
             this.nodeCircle.classList.add('glow');
             let text = createElement('text', {
                 class: 'mystic-star-label',
                 parent: labelGroup,
-                fill: `var(--color1-dark)`,
-                opacity: 0.5    
+                fill: `var(--color${colorIdx}-dark)`,
+                opacity: 0.5
             });
             if (this.config.showLabels) { text.innerHTML = this.label; }
             subcomponents.push({labelGroup: labelGroup, text: text});
@@ -248,7 +259,7 @@ class StarNode extends BaseComponent {
                 class: 'syntheme',
                 parent: this.group
             });
-            this.nodeCircle.setAttribute('fill', `var(--color${+this.id.split('-')[2] + 1}-dark)`);
+            this.nodeCircle.setAttribute('fill', `var(--color${colorIdx}-dark)`);
             this.syntheme.forEach(duad => {
                 const duadGroup = createElement('g', {
                     class: 'duad',
@@ -256,7 +267,9 @@ class StarNode extends BaseComponent {
                     parent: synthemeGroup
                 });
                 let [left, right] = clockwiseForm(duad).split('');
-                let locations = Object.entries(this.data.starCoords).map(([key, value]) => new Location(key, value.multiply(this.data.r - this.data.padding)));
+                // console.log(this)
+                // let locations = this.data.starCoords.map(([key, value]) => new Location(key, value.multiply(this.data.r - this.data.padding)));
+                let locations = this.data.starCoords.map(location => location.multiply(this.data.r - this.data.padding));
                 const { arcStart, arcMiddle, arcEnd } = getArcData(locations, left, right);
                 const arcData = {
                     id: duad,
@@ -266,20 +279,22 @@ class StarNode extends BaseComponent {
                     arcStart: arcStart,
                     arcMiddle: arcMiddle,
                     arcEnd: arcEnd,
+                    
                     colorIndex: +this.id.split('-')[2] + 1
                 }
                 const arcConfig = {
                     hasOutline: false,
+                    useArcs: true,
                     classPrefix: 'node-'
                 }
                 const arc = new Arc(arcData, arcConfig, duadGroup);            
                 this.arcs.push(arc);
 
-                const starCoords = Object.values(this.data.starCoords);
+                // const starCoords = Object.values(this.data.starCoords);
                 const i = +this.id.split('-')[2];
                 const circle1 = createElement('circle', {
-                    cx: `${(this.data.r - this.data.padding) * starCoords[left].x}`,
-                    cy: `${(this.data.r - this.data.padding) * starCoords[left].y}`,
+                    cx: locations[left].coords.x,
+                    cy: locations[left].coords.y,
                     r: `${this.data.r/10}`,
                     fill: `var(--color${i + 1}-light)`,
                     stroke: 'none',
@@ -287,8 +302,8 @@ class StarNode extends BaseComponent {
                 });
 
                 const circle2 = createElement('circle', {
-                    cx: `${(this.data.r - this.data.padding) * starCoords[right].x}`,
-                    cy: `${(this.data.r - this.data.padding) * starCoords[right].y}`,
+                    cx: locations[right].coords.x,
+                    cy: locations[right].coords.y,
                     r: `${this.data.r/10}`,
                     fill: `var(--color${i + 1}-light)`,
                     stroke: 'none',
@@ -389,12 +404,13 @@ class BaseStar extends BaseComponent{
             });
         })
 
-        if (this.config.useArcs) {
-            this.synthemes.forEach((syntheme, i) => {
-                syntheme.forEach(duad => {
-                    let [left, right] = clockwiseForm(duad).split('');
-                    [left, right] = [+left, +right]
-                    
+        
+        this.synthemes.forEach((syntheme, i) => {
+            syntheme.forEach(duad => {
+                let [left, right] = clockwiseForm(duad).split('');
+                [left, right] = [+left, +right]
+                if (this.config.showCenterLines || left !== 5 && right !== 5) {
+                
                     let locations = this.data.subcomponentLocations;
                     const { arcStart, arcMiddle, arcEnd } = getArcData(locations, left, right);
                     let inCycle = false;
@@ -413,12 +429,13 @@ class BaseStar extends BaseComponent{
                         arcStart: arcStart,
                         arcMiddle: arcMiddle,
                         arcEnd: arcEnd,
-                        colorIndex: i + 1,
+                        colorIndex: this.config.colorScheme === 'in-cycle' ? (inCycle ? 1 : 2) : (i + 1),
                         inCycle: inCycle
                     }
                     const arcConfig = {
                         showCycle: true,
                         hasOutline: true,
+                        useArcs: this.config.useArcs
                     }
                     const duadGroup = this.group.querySelector(`.duad[data-id="${duad}"]`);
 
@@ -426,47 +443,48 @@ class BaseStar extends BaseComponent{
 
                     });
                     subcomponents.edges.push(arc);
-                })
+                }
             })
-        }
+        })
+        
 
-        if (this.config.useLines) {
-            this.synthemes.forEach((syntheme, i) => {
-                syntheme.forEach(duad => {
-                    let [left, right] = clockwiseForm(duad).split('');
-                    [left, right] = [+left, +right]
-                    if (left !== 5 && right !== 5) {
-                        let startCoords = this.data.subcomponentLocations[left];
-                        let endCoords = this.data.subcomponentLocations[right];
-                        let starCycle = this.data.fiveCycle.map((v, i, arr) => {
-                            let d = [v, arr[(i+1) % arr.length]].join('');
-                            return clockwiseForm(d);
-                        })
-                        let inCycle  = starCycle.includes(duad);
-                        const lineData = {
-                            id: duad,
-                            duad: duad,
-                            r: this.R,
-                            star: this,
-                            x1: startCoords.coords.x,
-                            y1: startCoords.coords.y,
-                            x2: endCoords.coords.x,
-                            y2: endCoords.coords.y,
-                            colorIndex: inCycle ? 1 : 2,
-                            inCycle: inCycle
-                        }
-                        const lineConfig = {
-                            showCycle: true,
-                            hasOutline: true,
-                        }
-                        const duadGroup = this.group.querySelector(`.duad[data-id="${duad}"]`);
+        // if (this.config.useLines) {
+        //     this.synthemes.forEach((syntheme, i) => {
+        //         syntheme.forEach(duad => {
+        //             let [left, right] = clockwiseForm(duad).split('');
+        //             [left, right] = [+left, +right]
+        //             if (left !== 5 && right !== 5) {
+        //                 let startCoords = this.data.subcomponentLocations[left];
+        //                 let endCoords = this.data.subcomponentLocations[right];
+        //                 let starCycle = this.data.fiveCycle.map((v, i, arr) => {
+        //                     let d = [v, arr[(i+1) % arr.length]].join('');
+        //                     return clockwiseForm(d);
+        //                 })
+        //                 let inCycle  = starCycle.includes(duad);
+        //                 const lineData = {
+        //                     id: duad,
+        //                     duad: duad,
+        //                     r: this.R,
+        //                     star: this,
+        //                     x1: startCoords.coords.x,
+        //                     y1: startCoords.coords.y,
+        //                     x2: endCoords.coords.x,
+        //                     y2: endCoords.coords.y,
+        //                     colorIndex: inCycle ? 1 : 2,
+        //                     inCycle: inCycle
+        //                 }
+        //                 const lineConfig = {
+        //                     showCycle: true,
+        //                     hasOutline: true,
+        //                 }
+        //                 const duadGroup = this.group.querySelector(`.duad[data-id="${duad}"]`);
 
-                        const line = new Line(lineData, lineConfig, duadGroup, {});
-                        subcomponents.edges.push(line);
-                    }
-                })
-            })
-        }
+        //                 const line = new Line(lineData, lineConfig, duadGroup, {});
+        //                 subcomponents.edges.push(line);
+        //             }
+        //         })
+        //     })
+        // }
         return subcomponents;
     }
                     
@@ -502,21 +520,6 @@ class BaseStar extends BaseComponent{
                 const oldArcData = getArcData(oldState.componentLocations, left, right, oldState.phi);
                 const newArcData = getArcData(newState.componentLocations, left, right, newState.phi);
                 edge.morph(oldArcData, newArcData, t);
-            }
-            if (this.config.useLines) {
-                const oldLineData = {
-                    x1: oldState.subcomponentLocations[left].coords.x,
-                    y1: oldState.subcomponentLocations[left].coords.y,
-                    x2: oldState.subcomponentLocations[right].coords.x,
-                    y2: oldState.subcomponentLocations[right].coords.y
-                };
-                const newLineData = {
-                    x1: newState.subcomponentLocations[left].coords.x,
-                    y1: newState.subcomponentLocations[left].coords.y,
-                    x2: newState.subcomponentLocations[right].coords.x,
-                    y2: newState.subcomponentLocations[right].coords.y
-                };
-                edge.morph(oldLineData, newLineData, t);
             }
         });
     }
@@ -587,24 +590,24 @@ class ForegroundStar extends BaseStar {
     }
 
     createLabel() {
-        const labelGroup = createElement('g', {
-            id: this.id,
-            class: 'label',
-            parent: this.layers.labels
-        });
-        const labelBg = createElement('circle', {
-            cx: '0',
-            cy: '0',
-            r: '20',
-            fill: this.id === 5 ? '#888' : `var(--color${this.id + 1})`,
-            parent: labelGroup
-        });
-        let text = createElement('text', {
-            class: 'star-label',
-            parent: labelGroup,
-            fill: this.id === 5 ? '#666' : `var(--color${this.id + 1}-dark)`,
-            opacity: 0.5    
-        });
+        // const labelGroup = createElement('g', {
+        //     id: this.id,
+        //     class: 'label',
+        //     parent: this.layers.labels
+        // });
+        // const labelBg = createElement('circle', {
+        //     cx: '0',
+        //     cy: '0',
+        //     r: '20',
+        //     fill: this.id === 5 ? '#888' : `var(--color${this.id + 1})`,
+        //     parent: labelGroup
+        // });
+        // let text = createElement('text', {
+        //     class: 'star-label',
+        //     parent: labelGroup,
+        //     fill: this.id === 5 ? '#666' : `var(--color${this.id + 1}-dark)`,
+        //     opacity: 0.5    
+        // });
         // text.innerHTML = ['A','B','C','D','E','F'][this.id];
     }
 
@@ -621,13 +624,12 @@ class ForegroundStar extends BaseStar {
     }
     
     createNodes() {
-        const starLocations = this.data.subcomponentLocations.filter(loc => loc.label !== 'center');
-        let nodes = [];
-        starLocations.forEach((location, i) => {
+        let nodes = [];    
+        this.data.subcomponentLocations.filter(x => x.label !== 'center').forEach((location, i) => {
             const nodeData = {
-                id: `node-${this.id}-${i}`,
+                id: `node-${this.id}-${i}`,  
                 class: `node-${i}`,
-                syntheme: this.synthemes[i],
+                location: location,
                 R: this.data.r,
                 r: this.data.nodeR,
                 padding: this.data.nodePadding,
@@ -635,120 +637,29 @@ class ForegroundStar extends BaseStar {
                 starCoords: this.data.starCoords,
                 subcomponentLocations: this.data.subcomponentLocations,
                 group: this.layers.nodes,
-                location: location,
                 interactionHandler: this.data.interactionHandler.bind(this.data.composer)
             }
+            if (this.config.nodeType === 'label') {
+                nodeData.label = i + 1;
+            }
+            if (this.config.nodeType === 'syntheme') {
+                nodeData.syntheme = this.synthemes[i];
+            }
             const nodeConfig = {
-
+                showLabels: this.config.showLabels,
+                colorScheme: this.config.colorScheme,
             }
             const node = new StarNode(nodeData, nodeConfig, this.layers.nodes);
 
             nodes.push(node);
+        });
 
-
-        })
         return nodes;
-    }
-}
-
-class MysticStar extends BaseStar {
-    constructor(data,config, target, extensions = {}) {
-        super(data, config, target, {
-            type: 'mystic-star',
-            position: data.position,
-            R: data.R,
-            r: data.r,
-            nodeR: data.nodeR,
-            ...extensions
-        });
-        this.subcomponents.nodes = this.createNodes();
-    }
-    extendBase() {
-        const linesGroup = createElement('g', { class: 'lines', parent: this.group });
-        const centerLinesGroup = createElement('g', { class: 'center-lines', parent: linesGroup });
-        const mainLinesGroup = createElement('g', { class: 'main-lines', parent: linesGroup });
-        const foregroundLinesGroup = createElement('g', { class: 'foreground-lines', parent: linesGroup });
-        const labelsGroup = createElement('g', { class: 'labels', parent: this.group });
-        const backgroundGroup = createElement('g', { class: 'background', parent: this.group });
-        const nodesGroup = createElement('g', { class: 'nodes', parent: this.group });
-
-        this.layers = {
-            background: backgroundGroup,
-            lines: {center: centerLinesGroup, main: mainLinesGroup, foreground: foregroundLinesGroup},
-            labels: labelsGroup,
-            nodes: nodesGroup
-        };
-    }
-
-    createLabel() {
-        if (!this.config.showLabels) {return};
-        const labelGroup = createElement('g', {
-            id: this.id,
-            class: 'label',
-            parent: this.group
-        });
-        const labelBg = createElement('circle', {
-            cx: '0',
-            cy: '0',
-            r: '2',
-            fill: 'none',
-            parent: labelGroup
-        });
-        let text = createElement('text', {
-            class: 'mystic-star-label',
-            parent: labelGroup,
-            fill: `var(--color${2}-light)`,
-            opacity: 0.5    
-        });
-        text.innerHTML = ['A','B','C','D','E','F'][this.id];
-
-    }
-
-    createNodes() {
-        let nodes = [];
-        this.data.subcomponentLocations.forEach((location, i) => {
-            if (i !== 5) {
-                const nodeData = {
-                    id: `node-${this.id}-${i}`,
-                    label: i + 1,   
-                    class: `node-${i}`,
-                    location: location,
-                    R: this.data.r,
-                    r: this.data.nodeR,
-                    padding: this.data.nodePadding,
-                    star: this,
-                    starCoords: this.data.starCoords,
-                    subcomponentLocations: this.data.subcomponentLocations,
-                    
-                    
-                    interactionHandler: this.data.interactionHandler.bind(this.data.composer)
-                }
-                const nodeConfig = {
-                    showLabels: this.config.showLabels,
-                }
-                const node = new StarNode(nodeData, nodeConfig, this.layers.nodes);
-
-                nodes.push(node);
-
-            }
-        })
-        return nodes;
-    }
-    
-    morph(oldState, newState, t) {
-        super.morph(oldState, newState, t);
-        this.subcomponents.nodes.forEach(node => {
-            node.morph(oldState, newState, t);
-            let oldLocation = oldState.subcomponentLocations[node.id.split('-')[2]];
-            let newLocation = newState.subcomponentLocations[node.id.split('-')[2]];
-            node.shift(oldLocation, newLocation, t)
-        });
     }
 }
 
 class PermutationComponent extends BaseComponent {
     constructor(data, config, target, extensions = {}) {
-        console.log(config, data)
         super(data, config, target, {
             type: 'permutation-component',
             globals: data.globals,

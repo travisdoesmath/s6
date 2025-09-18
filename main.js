@@ -70,29 +70,13 @@ const composerData = {
 
 }
 
-const composerConfig =  {
-    showCycle: true,
-    r: 100,
-    R: 350,
-    nodeR: 30,
-    nodePadding: 12.5
-}
-
-const mysticComposerConfig =  {
-    showCycle: true,
-    r: 100,
-    nodeR: 20,
-    configuration: 'rectangle'
-}
-
-const mysticComposerConfig2 =  {
-    showCycle: true,
-    R: 350,
-    r: 100,
-    nodeR: 15,
-    configuration: 'star',
-    labels: false
-
+let starCoords = {
+    'center': new Coords(0, 0),
+    'top': new Coords(Math.sin(10 * Math.PI / 5), -Math.cos(10 * Math.PI / 5)),
+    'top right': new Coords(Math.sin(2 * Math.PI / 5), -Math.cos(2 * Math.PI / 5)),
+    'bottom right': new Coords(Math.sin(4 * Math.PI / 5), -Math.cos(4 * Math.PI / 5)),
+    'bottom left': new Coords(Math.sin(6 * Math.PI / 5), -Math.cos(6 * Math.PI / 5)),
+    'top left': new Coords(Math.sin(8 * Math.PI / 5), -Math.cos(8 * Math.PI / 5))
 }
 
 const linkedPermutationComposerConfig =  {
@@ -100,19 +84,83 @@ const linkedPermutationComposerConfig =  {
     psi: new Permutation(6, labels=['A', 'B', 'C', 'D', 'E', 'F'])
 }
 
-let starCoords = {
-            'center': new Coords(0, 0),
-            'top': new Coords(Math.sin(10 * Math.PI / 5), -Math.cos(10 * Math.PI / 5)),
-            'top right': new Coords(Math.sin(2 * Math.PI / 5), -Math.cos(2 * Math.PI / 5)),
-            'bottom right': new Coords(Math.sin(4 * Math.PI / 5), -Math.cos(4 * Math.PI / 5)),
-            'bottom left': new Coords(Math.sin(6 * Math.PI / 5), -Math.cos(6 * Math.PI / 5)),
-            'top left': new Coords(Math.sin(8 * Math.PI / 5), -Math.cos(8 * Math.PI / 5))
-        }
+const mysticRectangleConfig =  {
+    showCycle: true,
+    r: 100,
+    nodeR: 20,
+    useArcs: false,
+    showBackground: false,
+    configuration: 'rectangle',
+    showLabels: true,
+    showCenterLines: false,
+    colorScheme: 'in-cycle',
+    nodeType: 'label',
+}
+
+const mysticStarFormationConfig =  {
+    showCycle: true,
+    R: 350,
+    r: 100,
+    nodeR: 17.5,
+    useArcs: false,
+    showBackground: false,
+    configuration: 'star',
+    showLabels: false,
+    showCenterLines: false,
+    colorScheme: 'in-cycle',
+    nodeType: 'label',
+}
+
+const hybridComposerConfig =  {
+    showCycle: true,
+    r: 100,
+    R: 350,
+    nodeR: 17.5,
+    nodePadding: 12.5,
+    useArcs: false,
+    showBackground: false,
+    configuration: 'star',
+    showCenterLines: true,
+    colorScheme: 'syntheme',
+    nodeType: 'label',
+    showLabels: false,
+}
+
+const synthemeNodesComposerConfig =  {
+    showCycle: true,
+    r: 100,
+    R: 350,
+    nodeR: 30,
+    nodePadding: 12.5,
+    useArcs: true,
+    configuration: 'star',
+    showCenterLines: true,
+    showBackground: true,
+    nodeType: 'syntheme',
+    highlightSteps: true,
+}
+
+const finalComposerConfig =  {
+    showCycle: true,
+    r: 100,
+    R: 350,
+    nodeR: 30,
+    nodePadding: 12.5,
+    useArcs: true,
+    configuration: 'star',
+    showCenterLines: true,
+    showBackground: true,
+    nodeType: 'syntheme',
+    showLabels: true,
+}
+
 
 const permutationComposer = new PermutationComposer({}, {n: 6}, document.getElementById('permutations'));
 const triangleComposer = new TriangleComposer({}, {r: 80}, document.getElementById('triangles'));
 const trianglePermutationComposer = new TrianglePermutationComposer({}, {r: 160, n: 3}, document.getElementById('triangle-s3'));
 const linkedPermutationComposer = new LinkedPermutationComposer({}, linkedPermutationComposerConfig, document.getElementById('linked-permutations'));const pentadComposer = new PentadComposer(composerData, {}, document.getElementById('pentads'));
-const mysticComposer = new MysticStarComposer(composerData, mysticComposerConfig, document.getElementById('mystic'));
-const mysticComposer2 = new MysticStarComposer(composerData, mysticComposerConfig2, document.getElementById('mystic2')); 
-const composer = new StarComposer(composerData, composerConfig, document.getElementById('main'));
+const mysticRectangleConfigurationComposer = new StarComposer(composerData, mysticRectangleConfig, document.getElementById('mystic'));
+const mysticStarConfigurationComposer = new StarComposer(composerData, mysticStarFormationConfig, document.getElementById('mystic2')); 
+const mysticSynthemeComposer = new StarComposer(composerData, hybridComposerConfig, document.getElementById('mystics-and-synthemes'));
+const synthemeNodesComposer = new StarComposer(composerData, synthemeNodesComposerConfig, document.getElementById('syntheme-nodes'));
+const finalComposer = new StarComposer(composerData, finalComposerConfig, document.getElementById('final'));
