@@ -9,30 +9,249 @@
 <body>
     <div class="column">
         <h1>The Weird Symmetry of Shuffling Six Items</h1>
-        <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Facere mollitia placeat consequatur alias, aperiam nisi corrupti necessitatibus porro ratione deleniti autem. Vero veniam accusantium, atque qui voluptates voluptatum iure quidem.</p>
+        <p>
+            When mathematicians consider shuffling items, there's something strangely unique about shuffling <em>precisely six items</em>. 
+            In fact, mathematicians refer to it as "exceptional" or "exotic". 
+        </p>
+        <h2>Permutations</h2>
+        <p>
+            First, let's talk about shuffling. In the world of math, we call any rearrangement of items a <em>permutation</em>. 
+            Below is an interactive diagram where you can click on any two numbers to swap them. Note that any possible arrangement 
+            can be achieved by a series of swaps (which are formerly called "transpositions"). 
+        </p>
         <figure>
             <svg id="permutations" viewBox="-50 -25 100 50">
             </svg>
             <figcaption>Permutations (click on any two numbers to swap them)</figcaption>
         </figure>
+        <p>
+            In the figure above, we're also using a compact notation called "cycle notation" to describe the permutation. Transpositions
+            are cycles that look like (1 2), which means that 1 and 2 switch places. A cycle like (1 2 3) means that 1 goes to where 2 was, 
+            2 goes to where 3 was, and 3 goes to where 1 was. We can get to the cycle (1 2 3) by performing the swap (1 2) followed by (2 3).
+            A permutation can have disjoint cycles too, like (1 2)(3 4), which means that 1 and 2 swap places and 3 and 4 swap places.
+            Note, while the figure is animating, the cycle notation will take on the longer form like (1 2)(2 3), and then when it finishes,
+            it will simplify to the fully reduced form (1 2 3).            
+        </p>
+
+        <h2>Group Theory</h2>
+        <p>
+            Permutations behave in a way that mathematicians abstract into a concept called a <em>group</em>. If I ask you a concrete algebra
+            problem like, "2 * (5 + x) = 8" and ask you to solve for x, you're taking advantage of a lot of abstract qualities, like the fact
+            that addition and multiplication are associative, that multiplication distributes over addition, that there are numbers that 
+            "do nothing" for a given operation (like 0 for addition), and that every number has an "undo" operation that gets it back
+            to the "do nothing" number (like if I give you the number 5, you can add -5 to get back to 0). 
+        </p>
+        <p>
+            Group theory comes from a field of math called "abstract algebra", which is all about defining and understanding all of those
+            abstract qualities outside of a concrete example. A group is one of the simplest abstract algebraic structures, and it has 
+            just a few rules:
+            <ul>
+                <li>There's a set of elements with an associative operation (like addition or multiplication),</li>
+                <li>There's an identity element (the "do nothing" number), </li>
+                <li>Every element has an inverse (an "undo" operation), and</li>
+                <li>You can't get something outside of the set by applying the operation.</li>
+            </ul>
+        </p>
+        <p>
+            Group theory is the natural mathematical language of symmetry. Think of bilateral symmetry as a group with two permutations:
+            <ul>
+                <ol>1: Do nothing.</ol>
+                <ol>2: Flip left and right.</ol>
+            </ul>
+            More generally, "symmetry" means all the ways that you can manipulate something and have it look the same as when you started.
+            For example, a rubik's cube can be mixed up in a huge number of ways, but each arrangement is still a "rubik's cube". Rotating
+            a face of the cube "permutes" the position of the cubies.
+        </p>
+        <figure>
+            <svg id="triangle" viewBox="-50 -25 100 50">
+            </svg>
+            <figcaption>TODO: Symmetries of a triangle as a group</figcaption>
+        </figure>
+        <p>
+            With permutations, the elements are the different items being arranged, and the operation is performing one permutation after 
+            another. The identity element is to make no changes, every permutation can be undone, and there's no way to perform a series of
+            permutations and end up with something that isn't a permutation. So permutations form a group! In fact, for any finite group,
+            it can be considered as a subgroup of permutations.
+        </p>
+        <h2>Groups as Other Groups, Groups as Parts of Other Groups</h2>
+        <p>
+            Groups show up all over the place, and sometimes two different situations have the "same" group. For example, all of the ways
+            to flip and rotate a triangle acts the same as all of the ways to permute three items. To show two groups are the same, we
+            need to find a one-to-one correspondence between the elements of the two groups that preserves the group rules. So, if the 
+            correspondence maps "2" to "B", then it must also map the inverse of "2" to the inverse of "B", and it must map "2 * 3" to 
+            "B * C". This is called an isomorphism. We can also find a group inside of another group. Think of permuting four objects: if 
+            you just ignore one item, then it's like there's a copy of the 3-object permutation group inside of the 4-object permutation group. 
+            This is called a subgroup.
+        </p>
+        <figure>
+            <svg id="s3" viewBox="-50 -25 100 50">
+            </svg>
+            <figcaption>TODO: S_3 as symmetries of triangle</figcaption>
+        </figure>
+
+        <p>
+            When we consider all of the ways to permute n items, we call that "the symmetric group on n items", and we write it as S_n.
+            Every symmetric group has subgroups of all the smaller symmetric groups. Like our example above, S_4 contains S_3, which contains
+            S_2 (which is the same as the bilateral symmetry group).
+        </p>
+        <h2>Groups as Themselves?</h2>
+        <p>
+            We can also consider all the ways that a group can be mapped to itself. For symmetric groups, think of this as relabeling.
+            The permutation group on the set {1, 2, 3, 4} is the same as the permutation group on the set {A, B, C, D}, and there's a 
+            natural way to map between them (A = 1, B = 2, C = 3, D = 4), but nothing says we have to keep the same labels. Maybe you think 
+            A, B, C, and D should be 3, 1, 4, 2. This is just as valid, because it's just changing the labels. Both are called "automorphisms",
+            because they're isomorphisms from the group to itself. 
+        </p>
+        <h2>The Exceptional Symmetry of S_6</h2>
+        <p>
+            Now we get to the weird part. For almost every symmetric group, the only automorphisms are "relabelings". In other words, any map
+            from the group to itself that preserves the group structure is just a relabeling of the items. But there is exactly one exception:
+            S_6, the permutation group on six items, has an automorphism that is not a relabeling. This is called an "outer automorphism", 
+            and because it is the exception to the rule, it's called the "exceptional outer automorphism".
+        </p>
+        <p>
+            The following diagram has two rows of 6 items, the permutations between them are linked by the outer automorphism of S_6. 
+            Click on any two items in either row to see how they affect the other row.
+        </p>
         <figure>
             <svg id="linked-permutations" viewBox="-50 -25 100 50">
             </svg>
             <figcaption>Linked Permutations</figcaption>
         </figure>
-        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatem assumenda voluptatum sequi neque inventore quidem a quisquam officia consectetur? Est, illum magni ut harum blanditiis laudantium velit incidunt nulla. Delectus.</p>
+        <h2>Finding the Execeptional Automorphism</h2>
+        <p>
+            The key to finding the exceptional outer automorphism of S_6 is to embed S_5 into S_6 in a special way. We already know that
+            S_5 has a "natural" embedding into S_6, which we can think of as fixing one item and permuting the other five. But there's 
+            another way to embed S_5 into S_6 that acts "transitively" on all six items. This means that if you start with any item, you 
+            can get to any other item by applying some embedded permutation. This is the key to the exceptional outer automorphism of S_6.
+            Now, we talk about "the" exceptional outer automorphism of S_6, but when you want to write it out explicitly, there are actually 720
+            ways to do it. The outer automorphism isn't just a relabeling, but you can relabel the outer automorphism to get "another" outer 
+            automorphism. 
+        </p>
+        <p>
+            Otto Hölder showed one way to construct the transitive embedding of S_5 into S_6 (and therefore the exceptional outer 
+            automorphism) using "pentads, "synthemes" and "duads". 
+        </p>
+        <p>
+            A "duad" is just a pair of items, like {1, 2}. There are 15 possible duads: 
+            <div class="table-3-col">
+                <div>1 2</div>
+                <div>1 3</div>
+                <div>1 4</div>
+                <div>1 5</div>
+                <div>1 6</div>
+
+                <div>2 3</div>
+                <div>2 4</div>
+                <div>2 5</div>
+                <div>2 6</div>
+                <div>3 4</div>
+
+                <div>3 5</div>
+                <div>3 6</div>
+                <div>4 5</div>
+                <div>4 6</div>
+                <div>5 6</div>
+            </div>
+        </p>
+        <p>
+            A "syntheme" is a set of three duads that account for all six items (like {1, 2}, {3, 4}, and {5, 6}). There are also 15 possible 
+            synthemes, (and for a lovely exploration of the duality between them, check out <a href="https://math.ucr.edu/home/baez/six.html">John Baez's 
+            thoughts on the number 6</a>):
+            <div class="table-3-col">
+                <div>1 2 / 3 4 / 5 6</div>
+                <div>1 2 / 3 5 / 4 6</div>
+                <div>1 2 / 3 6 / 4 5</div>
+
+                <div>1 3 / 2 4 / 5 6</div>
+                <div>1 3 / 2 5 / 4 6</div>
+                <div>1 3 / 2 6 / 4 5</div>
+
+                <div>1 4 / 2 3 / 5 6</div>
+                <div>1 4 / 2 5 / 3 6</div>
+                <div>1 4 / 2 6 / 3 5</div>
+
+                <div>1 5 / 2 3 / 4 6</div>
+                <div>1 5 / 2 4 / 3 6</div>
+                <div>1 5 / 2 6 / 3 4</div>
+
+                <div>1 6 / 2 3 / 4 5</div>
+                <div>1 6 / 2 4 / 3 5</div>
+                <div>1 6 / 2 5 / 3 4</div>
+            </div>
+        </p>
+        <p>
+            Finally, a "pentad" is a set of five synthemes that together contain all 15 possible duads. There are exactly six pentads. 
+            The fact that there are six pentads with five synthemes gives us the embedding of S_5 into S_6. In the following figure, 
+            each pentad sorts the synthemes by the duad that fixes the number 6. This gives a natural correspondence to label the synthemes
+            1 through 5.
+        </p>
+        <p>
+            Click on any two synthemes to see how the transposition from S_5 maps to an action permuting the six pentads. Note that every 
+            transposition acts on all six pentads, so this is a transitive embedding of S_5 into S_6.
+        </p>
         <figure>
             <svg id="pentads" viewBox="-50 -25 100 75">
             </svg>
             <figcaption>Pentads</figcaption>
         </figure>
-        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt ipsa dolorem mollitia minus quibusdam cupiditate reiciendis debitis consectetur corporis eius illum dignissimos excepturi deserunt quasi sequi maxime fugit, non in?</p>
+        <p>
+            Specifically, what's happening here is that the permutation from S_5 is being applied as a relabeling to the numbers in the synthemes. 
+            From these pentads, you can work out where a permutation of S_5 will send each of the six pentads by seeing which pentad it matches 
+            after the relabeling. 
+        </p>
+        <p>
+            But, frankly, I don't find this very satisfying at all, and I think we can do better.
+        </p>
+        <h2>Mystic Pentagons</h2>
+        <p>
+            In the paper "A Description of the Outer Automorphism of S_6, and the Invariants of Six Points in Projective Space" by Howard, 
+            Millson, Snowden, and Vakil, they describe a more visual approach using "mystic pentagons".
+        </p>
+        <p>
+            Before we get to pentagons, lets talk cycles again. How many ways can you cycle through 5 elements?
+        </p>
+        <p>
+            If we just go in order, you can start at 1, go to 2, then 3, 4, 5, and cycle back to 1. We're going to consider this the same as
+            starting at 2, going to 3, then 4, 5, 1, and back to 2. In cycle notation, (1 2 3 4 5) is the same as (2 3 4 5 1), so we start with
+            the smallest element in each cycle. So all 5-cycles will start with 1. We have 4 choices for the next element, then 3 choices 
+            for the next, then 2 choices, and finally only 1 choice for the last element. This gives us 4! = 4 * 3 * 2 * 1 = 24 possible 5-cycles. 
+        </p>
+        <p>
+            However, for the mystic pentagons, we're also going to ignore direction. So (1 2 3 4 5) is the same as (1 5 4 3 2). 
+            Now there are only 12 distinct 5-cycles. Finally, each 5-cycle has a unique complementary 5-cycle that doesn't share any edges.
+        </p>
+        <p>
+            For example, (1 2 3 4 5) uses the edges 1-2, 2-3, 3-4, 4-5, and 5-1. Starting at 1, our choices are either 1-3 or 1-4. Let's pick 1-3.
+            Then from 3, our only choice is 3-5, then 5-2, 2-4, and finally 4-1 (or 1-4). This gives us the complementary cycle (1 3 5 2 4), which
+            recall we're also associating the reverse cycle (1 4 2 5 3) with. 
+        </p>
+        <p>
+            This gives us our "mystic pentagons". There are six ways to pair up complementary 5-cycles, and we can visualize them as colorings
+            on the edges of a complete graph on five vertices (that's just a fancy way of saying "draw all the lines between five points"). Now, 
+            keep in mind, the specific colors of the pentagon don't matter, it's just that each edge is either one or the other. 
+        </p>
+        <p>
+            If we permute the vertices of the pentagon, then we will need to permute the six mystic pentagons to get back to the original
+            layout. This gives us our transitive embedding of S_5 into S_6.
+        </p>
+        <p>
+            Click on any two vertices to see how the transposition from S_5 maps to an action permuting the six mystic pentagons. Note that every 
+            transposition acts on all six pentads, so this is a transitive embedding of S_5 into S_6.
+        </p>
         <figure>
             <svg id="mystic" viewBox="-50 -25 100 50">
             </svg>
             <figcaption>Mystic Pentagons</figcaption>
         </figure>
-        <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Voluptates rem ut non odio commodi illum magnam quisquam, architecto dolor maiores praesentium tenetur? Dolor perferendis perspiciatis sunt aperiam, aut sit dolores!  </p>
+        <p>
+            This is better, but there's still something that bugs me. Which vertex should be 1? Which mystic pentagon should be first? One's 
+            choice here is essentially an arbitrary labeling, and after staring at the mystic pentagons for a while, I think there's a more
+            natural visualization. 
+        </p>
+        <p>
+            There's one mystic pentagon that has 5-fold symmetry, and the rest only have bilateral symmetry. This suggests to me that we
+            can make an arrangement five pentagons around one central pentagon. This is visualized in the following figure.
         <figure>
             <svg id="mystic2" viewBox="-50 -50 100 100">
             </svg>
