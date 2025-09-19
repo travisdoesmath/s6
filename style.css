@@ -376,7 +376,7 @@ figcaption {
     text-anchor: middle;
     font-size: 40px;
     dominant-baseline: central;
-    transform: translate(0,-15px);
+    transform: translate(0,-150px);
     stroke: none;
     fill: #333;
 }

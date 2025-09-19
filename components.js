@@ -1027,6 +1027,7 @@ class Pentad extends BaseComponent {
         let subcomponents = {}
         subcomponents.label = createElement('text', {
             class: 'pentad-label',
+            transform: 'translate(0, -500)',
             parent: this.group,
         })
         subcomponents.label.innerHTML = ['A','B','C','D','E','F'][this.id];

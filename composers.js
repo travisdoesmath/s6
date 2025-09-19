@@ -214,14 +214,26 @@ class StarComposer extends BaseStarComposer {
 
         let componentLocations;
         if (config.configuration === 'rectangle') {
-            componentLocations = [  
-                new Location('top left', new Coords(-250, -125)),
-                new Location('top center', new Coords(0, -125)),
-                new Location('top right', new Coords(250, -125)),
-                new Location('bottom left', new Coords(-250, 125)),
-                new Location('bottom center', new Coords(0, 125)),
-                new Location('bottom right', new Coords(250, 125)),
-            ]
+            console.log(aspectRatio);
+            if (aspectRatio > 1) {
+                componentLocations = [  
+                    new Location('top left', new Coords(-250, -125)),
+                    new Location('top center', new Coords(0, -125)),
+                    new Location('top right', new Coords(250, -125)),
+                    new Location('bottom left', new Coords(-250, 125)),
+                    new Location('bottom center', new Coords(0, 125)),
+                    new Location('bottom right', new Coords(250, 125)),
+                ]
+            } else {
+                componentLocations = [  
+                    new Location('top left', new Coords(-125, -250)),
+                    new Location('top right', new Coords(125, -250)),
+                    new Location('center left', new Coords(-125, 0)),
+                    new Location('center right', new Coords(125, 0)),
+                    new Location('bottom left', new Coords(-125, 250)),
+                    new Location('bottom right', new Coords(125, 250)),
+                ]
+            }
         }
         if (config.configuration === 'star') {
             componentLocations = starCoords
@@ -520,6 +532,26 @@ class LinkedPermutationComposer extends BaseComposer {
 
 class PentadComposer extends BaseComposer {
     constructor(data, config, target, extendsions = {}) {
+        let componentLocations;
+        if (aspectRatio > 1) {
+            componentLocations = [  
+                new Location('top left', new Coords(-300, -50)),
+                new Location('top center', new Coords(0, -50)),
+                new Location('top right', new Coords(300, -50)),
+                new Location('bottom left', new Coords(-300, 300)),
+                new Location('bottom center', new Coords(0, 300)),
+                new Location('bottom right', new Coords(300, 300)),
+            ]
+        } else {
+            componentLocations = [  
+                new Location('top left', new Coords(-50, -325)),
+                new Location('top right', new Coords(300, -325)),
+                new Location('center left', new Coords(-50, 0)),
+                new Location('center right', new Coords(300, 0)),
+                new Location('bottom left', new Coords(-50, 325)),
+                new Location('bottom right', new Coords(300, 325)),
+            ]
+        }
         let pentadLocations = [
             new Location('top left', new Coords(-300, -50)),
             new Location('top center', new Coords(0, -50)),
@@ -553,7 +585,7 @@ class PentadComposer extends BaseComposer {
 
         };
         super(data, config, target, {
-            componentLocations: pentadLocations,
+            componentLocations: componentLocations,
             subcomponentLocations: [...Array(6).keys()].map(i => new Location(i, new Coords(0, -100 + 50 * i))),
             currentPhi: new Permutation(6),
             currentPsi: new Permutation(6),

@@ -1,3 +1,16 @@
+let aspectRatio = window.innerWidth / window.innerHeight;
+if (aspectRatio < 1) {
+    document.body.style.flexDirection = 'column';
+    document.getElementById('mystic').setAttribute('viewBox', '-275 -400 550 800');
+    document.getElementById('pentads').setAttribute('viewBox', '-250 -500 750 1000');
+} else {
+    document.body.style.flexDirection = 'row';
+    document.getElementById('mystic').setAttribute('viewBox', '-500 -250 1000 500');
+    document.getElementById('pentads').setAttribute('viewBox', '-500 -250 1000 750');
+}
+
+
+
 const composerData = {
     pentadData: [
         {
@@ -162,7 +175,8 @@ const finalComposerConfig =  {
 const permutationComposer = new PermutationComposer({}, {n: 6}, document.getElementById('permutations'));
 const triangleComposer = new TriangleComposer({}, {r: 80}, document.getElementById('triangles'));
 const trianglePermutationComposer = new TrianglePermutationComposer({}, {r: 160, n: 3}, document.getElementById('triangle-s3'));
-const linkedPermutationComposer = new LinkedPermutationComposer({}, linkedPermutationComposerConfig, document.getElementById('linked-permutations'));const pentadComposer = new PentadComposer(composerData, {}, document.getElementById('pentads'));
+const linkedPermutationComposer = new LinkedPermutationComposer({}, linkedPermutationComposerConfig, document.getElementById('linked-permutations'));
+const pentadComposer = new PentadComposer(composerData, {}, document.getElementById('pentads'));
 const mysticRectangleConfigurationComposer = new StarComposer(composerData, mysticRectangleConfig, document.getElementById('mystic'));
 const mysticStarConfigurationComposer = new StarComposer(composerData, mysticStarFormationConfig, document.getElementById('mystic2')); 
 const mysticSynthemeComposer = new StarComposer(composerData, hybridComposerConfig, document.getElementById('mystics-and-synthemes'));
