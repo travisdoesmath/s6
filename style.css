@@ -475,14 +475,14 @@ svg {
     animation: triangle-reflectRotate240 ease-in-out 2s infinite;
 }
 
-.coffee {
-    background: #5F7FFF;
-    padding: .5rem;
-    border-radius:5px;
-    color: white;
-    text-decoration: none;
-}
-
 highlight {
     color: var(--color5-light);
+}
+
+.coffee {  
+    margin-top: 2rem;
+    display: flex; 
+    justify-content: flex-end; 
+    align-items: center; 
+    gap: 20px;
 }
