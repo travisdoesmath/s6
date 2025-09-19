@@ -154,7 +154,8 @@ const finalComposerConfig =  {
     showBackground: true,
     nodeType: 'syntheme',
     showLabels: true,
-    labelType: 'multicolor'
+    labelType: 'multicolor',
+    showCenterNode: true,
 }
 
 

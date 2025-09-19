@@ -210,7 +210,6 @@ class StarNode extends BaseComponent {
             ...extensions
         });
         this.group.classList.add(data.class);
-
     }
 
     createSubcomponents() {
@@ -218,6 +217,7 @@ class StarNode extends BaseComponent {
         let duads = [];
         let arcs = [];
         this.arcs = [];
+        this.circles = [];
         let interactionHandler = this.data.interactionHandler.bind(this.data.composer);
         this.group.addEventListener('click', (event) => interactionHandler(event, this));
         this.nodeCircle = createElement('circle', {
@@ -235,7 +235,7 @@ class StarNode extends BaseComponent {
             colorIdx = +this.id.split('-')[2] + 1;
         }
 
-        if (this.label) {
+        if (this.config.nodeType === 'label') {
             const labelGroup = createElement('g', {
                 class: 'label',
                 parent: this.group
@@ -254,12 +254,16 @@ class StarNode extends BaseComponent {
             subcomponents.push({labelGroup: labelGroup, text: text});
         }
         
-        if (this.syntheme) {
+        if (this.config.nodeType === 'syntheme') {
             const synthemeGroup = createElement('g', {
                 class: 'syntheme',
                 parent: this.group
             });
             this.nodeCircle.setAttribute('fill', `var(--color${colorIdx}-dark)`);
+            if (this.syntheme === undefined) {
+                this.syntheme = ['05', '15', '25', '35', '45'];
+            }
+
             this.syntheme.forEach(duad => {
                 const duadGroup = createElement('g', {
                     class: 'duad',
@@ -267,8 +271,7 @@ class StarNode extends BaseComponent {
                     parent: synthemeGroup
                 });
                 let [left, right] = clockwiseForm(duad).split('');
-                // console.log(this)
-                // let locations = this.data.starCoords.map(([key, value]) => new Location(key, value.multiply(this.data.r - this.data.padding)));
+                let colorIdx = right == '5' ? +left + 1 : +this.id.split('-')[2] + 1;
                 let locations = this.data.starCoords.map(location => location.multiply(this.data.r - this.data.padding));
                 const { arcStart, arcMiddle, arcEnd } = getArcData(locations, left, right);
                 const arcData = {
@@ -279,8 +282,7 @@ class StarNode extends BaseComponent {
                     arcStart: arcStart,
                     arcMiddle: arcMiddle,
                     arcEnd: arcEnd,
-                    
-                    colorIndex: +this.id.split('-')[2] + 1
+                    colorIndex: colorIdx,
                 }
                 const arcConfig = {
                     hasOutline: false,
@@ -291,31 +293,47 @@ class StarNode extends BaseComponent {
                 this.arcs.push(arc);
 
                 // const starCoords = Object.values(this.data.starCoords);
-                const i = +this.id.split('-')[2];
-                const circle1 = createElement('circle', {
-                    cx: locations[left].coords.x,
-                    cy: locations[left].coords.y,
-                    r: `${this.data.r/10}`,
-                    fill: `var(--color${i + 1}-light)`,
-                    stroke: 'none',
-                    parent: duadGroup
-                });
 
-                const circle2 = createElement('circle', {
-                    cx: locations[right].coords.x,
-                    cy: locations[right].coords.y,
-                    r: `${this.data.r/10}`,
-                    fill: `var(--color${i + 1}-light)`,
-                    stroke: 'none',
-                    parent: duadGroup
-                });
+                if (this.location.label !== 'center') {
+                    const circle1 = createElement('circle', {
+                        cx: locations[left].coords.x,
+                        cy: locations[left].coords.y,
+                        r: `${this.data.r/10}`,
+                        fill: `var(--color${colorIdx}-light)`,
+                        stroke: 'none',
+                        parent: duadGroup
+                    });
+
+                    const circle2 = createElement('circle', {
+                        cx: locations[right].coords.x,
+                        cy: locations[right].coords.y,
+                        r: `${this.data.r/10}`,
+                        fill: `var(--color${colorIdx}-light)`,
+                        stroke: 'none',
+                        parent: duadGroup
+                    });
+
+                } else {
+                    const circle1 = createElement('circle', {
+                        cx: locations[left].coords.x,
+                        cy: locations[left].coords.y,
+                        r: `${this.data.r/10}`,
+                        fill: `var(--color${colorIdx}-light)`,
+                        stroke: 'none',
+                        parent: duadGroup
+                    });
+                    this.circles.push(circle1);
+
+                }
+
                 duads.push(duadGroup);
             });
         }
         return {
             group: this.group,
             arcs: arcs,
-            duads: duads
+            duads: duads,
+            circles: this.circles
         }
     }
 
@@ -327,6 +345,13 @@ class StarNode extends BaseComponent {
             let oldArcData = getArcData(oldLocations, left, right, oldState.psi);
             let newArcData = getArcData(newLocations, left, right, newState.psi);
             arc.morph(oldArcData, newArcData, t);
+        });
+        this.circles.forEach(circle => {
+            let i = circle.parentNode.getAttribute('data-id').split('')[0];
+            let oldLocations = oldState.subcomponentLocations.map(loc => loc.multiply((this.data.r - this.data.padding)/this.data.R));
+            let newLocations = newState.subcomponentLocations.map(loc => loc.multiply((this.data.r - this.data.padding)/this.data.R));
+            circle.setAttribute('cx', lerp(oldLocations[i].coords.x, newLocations[i].coords.x, t));
+            circle.setAttribute('cy', lerp(oldLocations[i].coords.y, newLocations[i].coords.y, t));
         });
     }
 
@@ -587,19 +612,19 @@ class ForegroundStar extends BaseStar {
             let newLocation = newState.subcomponentLocations[node.id.split('-')[2]];
             node.shift(oldLocation, newLocation, t)
         });
-        if (this.config.labelType === 'multicolor') {
-            this.subcomponents.label.forEach(label => {
-                label.labelBgArcs.forEach(bgArc => {
-                    let i = this.composer.currentPhi.map(bgArc.id);
-                    let j = this.composer.currentPhi.compose(this.composer.swap).map(bgArc.id);
-                    let oldAngle1 = 0.9 * Math.PI + 2*(1+i) * Math.PI / 5
-                    let oldAngle2 = 0.9 * Math.PI + 2*(2+i) * Math.PI / 5
-                    let newAngle1 = 0.9 * Math.PI + 2*(1+j) * Math.PI / 5
-                    let newAngle2 = 0.9 * Math.PI + 2*(2+j) * Math.PI / 5
-                    bgArc.setAttribute('d', `M ${Math.cos(lerp(oldAngle1, newAngle1, t))} ${Math.sin(lerp(oldAngle1, newAngle1, t))} L ${Math.cos(lerp(oldAngle2, newAngle2, t))} ${Math.sin(lerp(oldAngle2, newAngle2, t))} L 0 0`)
-                })
-            })
-        }      
+        // if (this.config.labelType === 'multicolor') {
+        //     this.subcomponents.label.forEach(label => {
+        //         label.labelBgArcs.forEach(bgArc => {
+        //             let i = this.composer.currentPhi.map(bgArc.id);
+        //             let j = this.composer.currentPhi.compose(this.composer.swap).map(bgArc.id);
+        //             let oldAngle1 = 0.9 * Math.PI + 2*(1+i) * Math.PI / 5
+        //             let oldAngle2 = 0.9 * Math.PI + 2*(2+i) * Math.PI / 5
+        //             let newAngle1 = 0.9 * Math.PI + 2*(1+j) * Math.PI / 5
+        //             let newAngle2 = 0.9 * Math.PI + 2*(2+j) * Math.PI / 5
+        //             bgArc.setAttribute('d', `M ${Math.cos(lerp(oldAngle1, newAngle1, t))} ${Math.sin(lerp(oldAngle1, newAngle1, t))} L ${Math.cos(lerp(oldAngle2, newAngle2, t))} ${Math.sin(lerp(oldAngle2, newAngle2, t))} L 0 0`)
+        //         })
+        //     })
+        // }      
     }
 
     createLabel() {
@@ -617,20 +642,20 @@ class ForegroundStar extends BaseStar {
             //     fill: this.id === 5 ? '#888' : `var(--color${this.id + 1})`,
             //     parent: labelGroup
             // });
-            if (this.config.labelType == 'multicolor') {
-                let labelBgArcs = [0, 1, 2, 3, 4].map(i => {
-                    let angle1 = 0.9 * Math.PI + 2*(1+i) * Math.PI / 5
-                    let angle2 = 0.9 * Math.PI + 2*(2+i) * Math.PI / 5
-                    return createElement('path', {
-                        id: i,
-                        d: `M ${Math.cos(angle1)} ${Math.sin(angle1)} L ${Math.cos(angle2)} ${Math.sin(angle2)} L 0 0`,
-                        fill: `var(--color${i+1})`,
-                        transform: `scale(${this.nodeR})`,
-                        parent: labelGroup,
-                    })
-                })
-                labels.push({group: labelGroup, labelBgArcs: labelBgArcs})
-            }
+            // if (this.config.labelType == 'multicolor') {
+            //     let labelBgArcs = [0, 1, 2, 3, 4].map(i => {
+            //         let angle1 = 0.9 * Math.PI + 2*(1+i) * Math.PI / 5
+            //         let angle2 = 0.9 * Math.PI + 2*(2+i) * Math.PI / 5
+            //         return createElement('path', {
+            //             id: i,
+            //             d: `M ${Math.cos(angle1)} ${Math.sin(angle1)} L ${Math.cos(angle2)} ${Math.sin(angle2)} L 0 0`,
+            //             fill: `var(--color${i+1})`,
+            //             transform: `scale(${this.nodeR})`,
+            //             parent: labelGroup,
+            //         })
+            //     })
+            //     labels.push({group: labelGroup, labelBgArcs: labelBgArcs})
+            // }
             if (this.config.labelType == 'letter') {
                 let text = createElement('text', {
                     class: 'star-label',
@@ -661,7 +686,7 @@ class ForegroundStar extends BaseStar {
     
     createNodes() {
         let nodes = [];    
-        this.data.subcomponentLocations.filter(x => x.label !== 'center').forEach((location, i) => {
+        this.data.subcomponentLocations.filter(x => this.config.showCenterNode ? true : x.label !== 'center').forEach((location, i) => {
             const nodeData = {
                 id: `node-${this.id}-${i}`,  
                 class: `node-${i}`,
@@ -684,6 +709,8 @@ class ForegroundStar extends BaseStar {
             const nodeConfig = {
                 showLabels: this.config.showLabels,
                 colorScheme: this.config.colorScheme,
+                showCenterNode: this.config.showCenterNode,
+                nodeType: this.config.nodeType,
             }
             const node = new StarNode(nodeData, nodeConfig, this.layers.nodes);
 
