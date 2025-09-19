@@ -10,6 +10,24 @@
     }
 }
 
+@keyframes colorShift {
+    0% {
+        color: var(--color1);
+    }
+    25% {
+        color: var(--color2);
+    }
+    50% {
+        color: var(--color3);
+    }
+    75% {
+        color: var(--color4);
+    }
+    100% {
+        color: var(--color1);
+    }
+}
+
 @keyframes triangle-lift {
     0% {
         transform: scale(1);
@@ -311,8 +329,10 @@ figure {
     margin:auto;
 }
 
-figure>svg {
+figure> * > svg {
+    display: block;
     margin: auto;
+    max-height: min(90vh, 90vw);
 }
 
 figcaption {
@@ -477,6 +497,18 @@ svg {
 
 highlight {
     color: var(--color5-light);
+}
+
+highlight.animated {
+    animation: colorShift linear 3s infinite;
+}
+
+.thanks {
+    text-align: center;
+    font-size: 2rem;
+    margin-top: 2rem;
+    margin-bottom: -1rem;
+    color: #aaa;
 }
 
 .coffee {  

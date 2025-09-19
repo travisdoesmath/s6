@@ -33,6 +33,16 @@
             In fact, it's so weird, that mathematicians refer to it as "exceptional" or "exotic". This is an interactive post exploring
             this exceptional property, and trying to visualize just what the heck is going on.
         </p>
+        <p>
+            We're going to build up to the following diagram, along with the concepts needed to understand it. While this topic is usually
+            encountered in an advanced undergraduate or graduate math course in abstract algebra, I'm only assuming a moderate familiarity
+            with basic algebra.
+        </p>
+        <figure>
+            <div class="shadowbox">
+                <svg id="demo" viewBox="-500 -500 1000 1000"></svg>
+            </div>
+        </figure>
         <h2>Permutations</h2>
         <p>
             First, let's talk about shuffling. In the world of math, we call any rearrangement of items (or shuffling) a <em>permutation</em>. 
@@ -60,7 +70,7 @@
         <h2>Group Theory</h2>
         <p>
             Permutations behave in a way that mathematicians abstract into a concept called a <em>group</em>. If I ask you a concrete algebra
-            problem like <highlight>2 * (5 + x) = 8</highlight> and ask you to solve for <highlight>x</highlight>, you're taking advantage of a lot of abstract qualities, like the fact
+            problem like <highlight>2(5 + x) = 8</highlight> and ask you to solve for <highlight>x</highlight>, you're taking advantage of a lot of abstract qualities, like the fact
             that addition and multiplication are associative, that multiplication distributes over addition, that there are numbers that 
             "do nothing" for a given operation (like <highlight>0</highlight> for addition), and that every number has an "undo" operation that gets it back
             to the "do nothing" number (like if I give you the number <highlight>5</highlight>, you can add <highlight>-5</highlight> to get back to <highlight>0</highlight>). 
@@ -104,8 +114,8 @@
             to to permute three items acts the same as all of the ways to flip and rotate a triangle. To show two groups are the same, we
             need to find a one-to-one correspondence between the elements of the two groups that preserves the group rules. So, if the
             correspondence maps <highlight>2</highlight> to <highlight>B</highlight>, then it must also map the inverse of
-            <highlight>2</highlight> to the inverse of <highlight>B</highlight>, and it must map <highlight>2 * 3</highlight> to
-            <highlight>B * C</highlight>. This is called an isomorphism. The following diagram shows the isomorphism between the
+            <highlight>2</highlight> to the inverse of <highlight>B</highlight>, and it must map <highlight>2 &times; 3</highlight> to
+            <highlight>B &times; C</highlight>. This is called an isomorphism. The following diagram shows the isomorphism between the
             permutation group on three items and the symmetry group of an equilateral triangle, click on the permutation items to swap 
             them and see how it swaps the labeled corners of the triangle.
         </p>
@@ -117,32 +127,34 @@
         </figure>
         <p>
             A group can also be a part of another group. For example, the symmetries of a triangle are a part of the symmetries of a square,
-            because any symmetry that works for the triangle will also work for the square. This is called a subgroup.
+            because any symmetry that works for the triangle will also work for the square. This is called a <highlight>subgroup</highlight>.
         </p>
         <p>
             When we consider all of the ways to permute n items, we call that <highlight>the symmetric group on n items</highlight>, and we write 
-            it as S<sub>n</sub>. Every symmetric group has subgroups of all the smaller symmetric groups. Like our example above, 
+            it as <highlight>S<sub>n</sub></highlight>. Every symmetric group has subgroups of all the smaller symmetric groups. Like our example above, 
             <highlight>S<sub>4</sub></highlight> contains <highlight>S<sub>3</sub></highlight>, which contains <highlight>S<sub>2</sub></highlight> 
             (which is the same as the bilateral symmetry group).
         </p>
         <h2>Groups as Themselves?</h2>
         <p>
             We can also consider all the ways that a group can be mapped to itself. For symmetric groups, think of this as relabeling.
-            The permutation group on the set {1, 2, 3, 4} is the same as the permutation group on the set {A, B, C, D}, and there's a 
-            natural way to map between them (A = 1, B = 2, C = 3, D = 4), but nothing says we have to keep the same labels. Maybe you think 
-            A, B, C, and D should be 3, 1, 4, 2. This is just as valid, because it's just changing the labels. Both are called "automorphisms",
-            because they're isomorphisms from the group to itself. 
+            The permutation group on the set <highlight>{1, 2, 3, 4}</highlight> is the same as the permutation group on the set 
+            <highlight>{A, B, C, D}</highlight>, and there's a natural way to map between them <highlight>(A = 1, B = 2, C = 3, D = 4)</highlight>, 
+            but nothing says we have to keep the same labels. Maybe you think <highlight>A</highlight>, <highlight>B</highlight>, 
+            <highlight>C</highlight>, and <highlight>D</highlight> should be <highlight>3</highlight>, <highlight>1</highlight>, 
+            <highlight>4</highlight>, <highlight>2</highlight>. This is just as valid, because it's just changing the labels. Both are called 
+            <highlight>automorphisms</highlight>, because they're isomorphisms from the group to itself. 
         </p>
-        <h2>The Exceptional Symmetry of S<sub>6</h2>
+        <h2>The Exceptional Symmetry of S<sub>6</sub></h2>
         <p>
             Now we get to the weird part. For almost every symmetric group, the only automorphisms are "relabelings". In other words, any map
             from the group to itself that preserves the group structure is just a relabeling of the items. But there is exactly one exception:
-            S<sub>6</sub>, the permutation group on six items, has an automorphism that is not a relabeling. This is called an "outer automorphism", 
+            <highlight class="animated">S<sub>6</sub></highlight>, the permutation group on six items, has an automorphism that is not a relabeling. This is called an "outer automorphism",
             and because it is the exception to the rule, it's called the "exceptional outer automorphism".
         </p>
         <p>
-            The following diagram has two rows of 6 items, the permutations between them are linked by the outer automorphism of S<sub>6</sub>. 
-            Click on any two items in either row to see how they affect the other row.
+            The following diagram has two rows of 6 items, the permutations between them are linked by the outer automorphism of 
+            <highlight class="animated">S<sub>6</sub></highlight>. Click on any two items in either row to see how they affect the other row.
         </p>
         <figure>
             <div class="shadowbox">
@@ -150,22 +162,26 @@
             </div>
             <figcaption>Linked Permutations</figcaption>
         </figure>
-        <h2>Finding the Execeptional Automorphism</h2>
+        <h2>Finding the Exceptional Automorphism</h2>
         <p>
-            The key to finding the exceptional outer automorphism of S<sub>6</sub> is to embed S<sub>5</sub> into S<sub>6</sub> in a special way. We already know that
-            S<sub>5</sub> has a "natural" embedding into S<sub>6</sub>, which we can think of as fixing one item and permuting the other five. But there's 
-            another way to embed S<sub>5</sub> into S<sub>6</sub> that acts "transitively" on all six items. This means that if you start with any item, you 
-            can get to any other item by applying some embedded permutation. This is the key to the exceptional outer automorphism of S<sub>6</sub>.
-            Now, we talk about "the" exceptional outer automorphism of S<sub>6</sub>, but when you want to write it out explicitly, there are actually 720
+            The key to finding the exceptional outer automorphism of <highlight>S<sub>6</sub></highlight> is to embed 
+            <highlight>S<sub>5</sub></highlight> into <highlight>S<sub>6</sub></highlight> in a special way. We already know that 
+            <highlight>S<sub>5</sub></highlight> has a "natural" embedding into <highlight>S<sub>6</sub></highlight>, which we can think of 
+            as fixing one item and permuting the other five. But there's another way to embed <highlight>S<sub>5</sub></highlight> into 
+            <highlight>S<sub>6</sub></highlight> that acts "transitively" on all six items. This means that if you start with any item, you
+            can get to any other item by applying some embedded permutation. This is the key to the exceptional outer automorphism of 
+            <highlight>S<sub>6</sub></highlight>. Now, we talk about "the" exceptional outer automorphism of 
+            <highlight>S<sub>6</sub></highlight>, but when you want to write it out explicitly, there are actually <highlight>720</highlight>
             ways to do it. The outer automorphism isn't just a relabeling, but you can relabel the outer automorphism to get "another" outer 
             automorphism. 
         </p>
         <p>
-            Otto Hölder showed one way to construct the transitive embedding of S<sub>5</sub> into S<sub>6</sub> (and therefore the exceptional outer 
-            automorphism) using "pentads, "synthemes" and "duads". 
+            In 1844, James Joseph Sylvester showed one way to construct the transitive embedding of <highlight>S<sub>5</sub></highlight> into 
+            <highlight>S<sub>6</sub></highlight> (and therefore the exceptional outer automorphism) using "<highlight>pentads</highlight>", 
+            "<highlight>synthemes</highlight>" and "<highlight>duads</highlight>". 
         </p>
         <p>
-            A "duad" is just a pair of items, like {1, 2}. There are 15 possible duads: 
+            A <highlight>duad</highlight> is just a pair of items, like <highlight>{1, 2}</highlight>. There are 15 possible duads: 
             <div class="table-3-col" data-id="1">
                 <div>1 2</div>
                 <div>1 3</div>
@@ -187,9 +203,10 @@
             </div>
         </p>
         <p>
-            A "syntheme" is a set of three duads that account for all six items (like {1, 2}, {3, 4}, and {5, 6}). There are also 15 possible 
-            synthemes, (and for a lovely exploration of the duality between them, check out <a href="https://math.ucr.edu/home/baez/six.html">John Baez's 
-            thoughts on the number 6</a>):
+            A <highlight>syntheme</highlight> is a set of three duads that account for all six items (like <highlight>{1, 2}</highlight>, 
+            <highlight>{3, 4}</highlight>, and <highlight>{5, 6}</highlight>). There are also 15 possible 
+            synthemes, and for a lovely exploration of the duality between them, check out John Baez's post 
+            <a href="https://math.ucr.edu/home/baez/six.html">"Some Thoughts on the Number 6"</a>:
             <div class="table-3-col responsive" data-id="4">
                 <div>1 2 / 3 4 / 5 6</div>
                 <div>1 2 / 3 5 / 4 6</div>
@@ -213,14 +230,16 @@
             </div>
         </p>
         <p>
-            Finally, a "pentad" is a set of five synthemes that together contain all 15 possible duads. There are exactly six pentads. 
-            The fact that there are six pentads with five synthemes gives us the embedding of S<sub>5</sub> into S<sub>6</sub>. In the following figure, 
-            each pentad sorts the synthemes by the duad that fixes the number 6. This gives a natural correspondence to label the synthemes
-            1 through 5.
+            Finally, a <highlight>pentad</highlight> is a set of five synthemes that together contain all 15 possible duads. There are exactly six 
+            pentads. The fact that there are <highlight>six</highlight> pentads with <highlight>five</highlight> synthemes gives us the embedding 
+            of <highlight>S<sub>5</sub></highlight> into <highlight>S<sub>6</sub></highlight>. In the following figure, each pentad sorts the 
+            synthemes by the duad that fixes the number <highlight>6</highlight>. This gives a natural correspondence to label the synthemes
+            <highlight>1</highlight> through <highlight>5</highlight>.
         </p>
         <p>
-            Click on any two synthemes to see how the transposition from S<sub>5</sub> maps to an action permuting the six pentads. Note that every 
-            transposition acts on all six pentads, so this is a transitive embedding of S<sub>5</sub> into S<sub>6</sub>.
+            Click on any two synthemes to see how the transposition from <highlight>S<sub>5</sub></highlight> maps to an action permuting the 
+            six pentads. Note that every transposition acts on all six pentads, so this is a transitive embedding of 
+            <highlight>S<sub>5</sub></highlight> into <highlight>S<sub>6</sub></highlight>.
         </p>
         <figure>
             <div class="shadowbox">
@@ -229,48 +248,60 @@
             <figcaption>Pentads</figcaption>
         </figure>
         <p>
-            Specifically, what's happening here is that the permutation from S<sub>5</sub> is being applied as a relabeling to the numbers in the synthemes. 
-            From these pentads, you can work out where a permutation of S<sub>5</sub> will send each of the six pentads by seeing which pentad it matches 
-            after the relabeling. 
+            Specifically, what's happening here is that the permutation from <highlight>S<sub>5</sub></highlight> is being applied as a relabeling 
+            to the numbers in the synthemes. From these pentads, you can work out where a permutation of <highlight>S<sub>5</sub></highlight> will 
+            send each of the six pentads by seeing which pentad it matches after the relabeling. 
         </p>
         <p>
             But, frankly, I don't find this very satisfying at all, and I think we can do better.
         </p>
         <h2>Mystic Pentagons</h2>
         <p>
-            In the paper "A Description of the Outer Automorphism of S<sub>6</sub>, and the Invariants of Six Points in Projective Space" by Howard, 
-            Millson, Snowden, and Vakil, they describe a more visual approach using "mystic pentagons".
+            In the paper "A Description of the Outer Automorphism of S<sub>6</sub>, and the Invariants of Six Points in Projective Space" by 
+            Howard, Millson, Snowden, and Vakil, they describe a more visual approach using "mystic pentagons".
         </p>
         <p>
-            Before we get to pentagons, lets talk cycles again. How many ways can you cycle through 5 elements?
+            Before we get to pentagons, lets talk cycles again. How many ways can you cycle through <highlight>5</highlight> elements?
         </p>
         <p>
-            If we just go in order, you can start at 1, go to 2, then 3, 4, 5, and cycle back to 1. We're going to consider this the same as
-            starting at 2, going to 3, then 4, 5, 1, and back to 2. In cycle notation, (1 2 3 4 5) is the same as (2 3 4 5 1), so we start with
-            the smallest element in each cycle. So all 5-cycles will start with 1. We have 4 choices for the next element, then 3 choices 
-            for the next, then 2 choices, and finally only 1 choice for the last element. This gives us 4! = 4 * 3 * 2 * 1 = 24 possible 5-cycles. 
+            If we just go in order, you can start at <highlight>1</highlight>, go to <highlight>2</highlight>, then <highlight>3</highlight>, 
+            <highlight>4</highlight>, <highlight>5</highlight>, and cycle back to <highlight>1</highlight>. We're going to consider this the same 
+            as starting at <highlight>2</highlight>, going to <highlight>3</highlight>, then <highlight>4</highlight>, <highlight>5</highlight>, 
+            <highlight>1</highlight>, and back to <highlight>2</highlight>. In cycle notation, <highlight>(1 2 3 4 5)</highlight> is the same as 
+            <highlight>(2 3 4 5 1)</highlight>, so we start with the smallest element in each cycle. So all 5-cycles will start with 
+            <highlight>1</highlight>. We have <highlight>4</highlight> choices for the next element, then <highlight>3</highlight> choices for the 
+            next, then <highlight>2</highlight> choices, and finally only <highlight>1</highlight> choice for the last element. This gives us 
+            <highlight>4!</highlight> = <highlight>4</highlight> &times; <highlight>3</highlight> &times; <highlight>2</highlight> &times; <highlight>1</highlight> = <highlight>24</highlight> possible 5-cycles.
         </p>
         <p>
-            However, for the mystic pentagons, we're also going to ignore direction. So (1 2 3 4 5) is the same as (1 5 4 3 2). 
-            Now there are only 12 distinct 5-cycles. Finally, each 5-cycle has a unique complementary 5-cycle that doesn't share any edges.
+            However, for the mystic pentagons, we're also going to ignore direction. So <highlight>(1 2 3 4 5)</highlight> is the same as 
+            <highlight>(1 5 4 3 2)</highlight>. 
+            Now there are only <highlight>12</highlight> distinct 5-cycles. Finally, each 5-cycle has a unique complementary 5-cycle that doesn't 
+            share any edges.
         </p>
         <p>
-            For example, (1 2 3 4 5) uses the edges 1-2, 2-3, 3-4, 4-5, and 5-1. Starting at 1, our choices are either 1-3 or 1-4. Let's pick 1-3.
-            Then from 3, our only choice is 3-5, then 5-2, 2-4, and finally 4-1 (or 1-4). This gives us the complementary cycle (1 3 5 2 4), which
-            recall we're also associating the reverse cycle (1 4 2 5 3) with. 
+            For example, <highlight>(1 2 3 4 5)</highlight> uses the edges <highlight>1-2</highlight>, <highlight>2-3</highlight>, 
+            <highlight>3-4</highlight>, <highlight>4-5</highlight>, and <highlight>5-1</highlight>. Starting at <highlight>1</highlight>, 
+            our choices are either <highlight>1-3</highlight> or <highlight>1-4</highlight>. Let's pick <highlight>1-3</highlight>.
+            Then from <highlight>3</highlight>, our only choice is <highlight>3-5</highlight>, then <highlight>5-2</highlight>, 
+            <highlight>2-4</highlight>, and finally <highlight>4-1</highlight> (or <highlight>1-4</highlight>). This gives us the 
+            complementary cycle <highlight>(1 3 5 2 4)</highlight>, which recall we're also associating the reverse cycle 
+            <highlight>(1 4 2 5 3)</highlight> with. 
         </p>
         <p>
-            This gives us our "mystic pentagons". There are six ways to pair up complementary 5-cycles, and we can visualize them as colorings
-            on the edges of a complete graph on five vertices (that's just a fancy way of saying "draw all the lines between five points"). Now, 
-            keep in mind, the specific colors of the pentagon don't matter, it's just that each edge is either one or the other. 
+            This gives us our <highlight>mystic pentagons</highlight>. There are six ways to pair up complementary 5-cycles, and we can 
+            visualize them as colorings on the edges of a complete graph on five vertices (that's just a fancy way of saying "draw all the 
+            lines between five points"). Now, keep in mind, the specific colors of the pentagon don't matter, it's just that each edge is 
+            either one or the other. 
         </p>
         <p>
             If we permute the vertices of the pentagon, then we will need to permute the six mystic pentagons to get back to the original
-            layout. This gives us our transitive embedding of S<sub>5</sub> into S<sub>6</sub>.
+            layout. This gives us our transitive embedding of <highlight>S<sub>5</sub></highlight> into <highlight>S<sub>6</sub>.</highlight>
         </p>
         <p>
-            Click on any two vertices to see how the transposition from S<sub>5</sub> maps to an action permuting the six mystic pentagons. Note that every 
-            transposition acts on all six pentads, so this is a transitive embedding of S<sub>5</sub> into S<sub>6</sub>.
+            Click on any two vertices to see how the transposition from <highlight>S<sub>5</sub></highlight> maps to an action permuting 
+            the six mystic pentagons. Note that every transposition acts on all six pentads, so this is a transitive embedding of 
+            <highlight>S<sub>5</sub></highlight> into <highlight>S<sub>6</sub>.</highlight>
         </p>
         <figure>
             <div class="shadowbox">
@@ -279,9 +310,10 @@
             <figcaption>Mystic Pentagons</figcaption>
         </figure>
         <p>
-            This is better, but there's still something that bugs me. Which vertex should be 1? Which mystic pentagon should be first? One's 
-            choice here is essentially an arbitrary labeling, and after staring at the mystic pentagons for a while, I think there's a more
-            natural visualization. 
+            This is better, but there's still something that bugs me. Which vertex should be <highlight>1</highlight>? Which mystic 
+            pentagon should be first? 
+            One's choice here is essentially an arbitrary labeling, and after staring at the mystic pentagons for a while, I think there's 
+            a more natural visualization. 
         </p>
         <p>
             There's one mystic pentagon that has 5-fold symmetry, and the rest only have bilateral symmetry. This suggests to me that we
@@ -293,25 +325,25 @@
             <figcaption>Mystic Pentagons in a Star Arrangement</figcaption>
         </figure>
         <p>
-            Now we're getting somewhere. In this visualization, I can get a pretty good sense of which pentagon is going to switch with the center
-            depending on which vertices I swap. As I've played around with it, I can also work through how the other pentagons will move around, 
-            but it's not immediately obvious. I'd also like to incorporate the pentads from earlier.
+            Now we're getting somewhere. In this visualization, I can get a pretty good sense of which pentagon is going to switch with the 
+            center depending on which vertices swap. As I've played around with it, I can also work through how the other pentagons will 
+            move around, but it's not immediately obvious. I'd also like to incorporate the pentads from earlier.
         </p>
         <figure>
             <div class="shadowbox">
                 <svg id="mystics-and-synthemes" viewBox="-500 -500 1000 1000"></svg>
             </div>
-            <figcaption>Interactive S<sub>5</sub> -> S<sub>6</sub> Figure</figcaption>
+            <figcaption>Mystic Pentagons with Synthemes</figcaption>
         </figure>
         <p>
             Okay, that's a lot of visual information to take in. But we actually have a much better picture of where each pentagon is going 
             to go when we swap two vertices. The pentagon in the center is our key. Here are the steps:
             <ol>
-                <li>Pick a pair of vertices in the center pentagon.</li>
-                <li>Look at the color of the edge between them.</li>
-                <li>Now look at the two pentagons in the same relative locations as the selected vertices</li>
-                <li>The color of the edge in step 2 tells us which syntheme matches between the two pentagons</li>
-                <li>That syntheme shows us where the pentagons will swap when we swap the vertices</li>
+                <li data-id="1">Pick a pair of vertices in the center pentagon.</li>
+                <li data-id="2">Look at the color of the edge between them.</li>
+                <li data-id="3">Now look at the two pentagons in the same relative locations as the selected vertices</li>
+                <li data-id="4">The color of the edge in step 2 tells us which syntheme matches between the two pentagons</li>
+                <li data-id="5">That syntheme shows us where the pentagons will swap when we swap the vertices</li>
             </ol>
         </p>
         <p>
@@ -322,19 +354,23 @@
             <div class="shadowbox">
                 <svg id="syntheme-nodes" viewBox="-500 -500 1000 1000"></svg>
             </div>
-            <figcaption>Interactive S<sub>5</sub> -> S<sub>6</sub> Figure</figcaption>
+            <figcaption>Mystic Pentagons with Synthemes, Redux</figcaption>
         </figure>
         <p>Finally, to play with the full exotic automorphism, we add a node in the center</p>
         <figure>
             <div class="shadowbox">
                 <svg id="final" viewBox="-500 -500 1000 1000"></svg>
             </div>
-            <figcaption>Interactive S<sub>5</sub> -> S<sub>6</sub> Figure</figcaption>
+            <figcaption>Full Outer Automorphism Visualizer</figcaption>
         </figure>
+        <p class="thanks"><highlight class="animated">Thank you!</highlight></p> 
+
         <div class="coffee">
-            <div style="text-align: right;">Thank you! If you've made it this far and enjoyed this, please consider supporting me by buying a coffee! ☕️</div>
+            <div style="text-align: right;">
+                <p>If you've made it this far and enjoyed this mathematical exploration, please consider supporting me by sharing this or buying a coffee! ☕️</p>
+                </div>
             <div>
-                <a href="https://www.buymeacoffee.com/travisdoesmath"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee ☕️&emoji=&slug=travisdoesmath&button_colour=5F7FFF&font_colour=ffffff&font_family=Cookie&outline_colour=000000&coffee_colour=FFDD00" /></a>
+                <a href="https://www.buymeacoffee.com/travisdoesmath"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&slug=travisdoesmath&button_colour=5F7FFF&font_colour=ffffff&font_family=Cookie&outline_colour=000000&coffee_colour=FFDD00" /></a>
             </div>
         </div>
 </body>

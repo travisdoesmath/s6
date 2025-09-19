@@ -21,7 +21,7 @@ class BaseComposer {
 
     }
 
-    interpolate(t, multiStage=false) {
+    interpolate(t, multiStage=true) {
         let origin = new Location('center', new Coords(0, 0));
         const oldState = {
             componentLocations: [...new Array(this.componentLocations.length).keys()].map(i => this.componentLocations[this.currentPsi.map(i)]),
@@ -41,11 +41,13 @@ class BaseComposer {
             psi: this.currentPsi.compose(this.psiOfSwap)
         }
         if (multiStage) {
-            if (t < 0.5) {
-                this.morph(oldState, newState, t);
-            } else {
+            if (t < 0.45) {
+                let eased_t = easeInOutCubic(t/0.45);
+                this.morph(oldState, newState, eased_t);
+            } else if (t > 0.55) {
+                let eased_t = easeInOutCubic(t/0.45 - 0.55/0.45);
                 this.components.forEach(component => {
-                    component.shift(oldState.componentLocations[component.id], newState.componentLocations[component.id], t);
+                    component.shift(oldState.componentLocations[component.id], newState.componentLocations[component.id], eased_t);
                 });
             }
         } else {
@@ -63,6 +65,9 @@ class BaseComposer {
     update() {
         this.updateComponents();
         this.updateState();
+        if (this.config.demoMode) {
+            setTimeout(() => this.demo(), 1000);
+        }
     }
 
     updateComponents() {
@@ -88,10 +93,11 @@ class BaseComposer {
             this.animStart = t;
         }
         const elapsed = t - this.animStart;
-        const shift = Math.min(elapsed / 1200, 1);
+        const shift = Math.min(elapsed / 2400, 1);
         
         if (shift < 1) {
-            let t = easeInOutCubic(shift);
+            // let t = easeInOutCubic(shift);
+            let t = shift
             this.interpolate(t);
             requestAnimationFrame(this.animate.bind(this));
         } else {
@@ -150,6 +156,9 @@ class BaseStarComposer extends BaseComposer {
     }
 
     interactionHandler(event, that) {
+        if (this.config.demoMode) {
+            return;
+        }
         // let nodeIdx = this.currentPhi.inverse(that.group.getAttribute('id').split('-')[2]);
         let nodeIdx = that.group.getAttribute('id').split('-')[2];
         let nodes = this.target.querySelectorAll(`.node-${nodeIdx}`);
@@ -173,7 +182,7 @@ class BaseStarComposer extends BaseComposer {
             requestAnimationFrame(this.animate.bind(this));
             
         } else {
-            document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
+            // document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
         }            
     }
 
@@ -187,11 +196,11 @@ class BaseStarComposer extends BaseComposer {
     updateStars() {
         this.globals.selectedNodeIndices = [];
 
-        document.querySelectorAll('.node.selected').forEach(node => {
+        this.target.querySelectorAll('.node.selected').forEach(node => {
             node.classList.toggle('selected');
             node.classList.toggle('glow');
         });
-        document.querySelectorAll('.highlight').forEach(highlight => {
+        this.target.querySelectorAll('.highlight').forEach(highlight => {
             highlight.classList.toggle('highlight');
         });
         // this.componentLocations = this.componentLocations.map((loc, i) => this.componentLocations[this.psiOfSwap.map(i)]);
@@ -214,7 +223,6 @@ class StarComposer extends BaseStarComposer {
 
         let componentLocations;
         if (config.configuration === 'rectangle') {
-            console.log(aspectRatio);
             if (aspectRatio > 1) {
                 componentLocations = [  
                     new Location('top left', new Coords(-250, -125)),
@@ -252,6 +260,9 @@ class StarComposer extends BaseStarComposer {
         }
         super(data, config, target, extensions);
         this.globals.selectedNodeIndices = [];
+        if (this.config.demoMode) {
+            this.demo();
+        }
     }
 
     createComponents() {
@@ -333,6 +344,20 @@ class StarComposer extends BaseStarComposer {
         });
     }
 
+    demo() {
+        this.globals.selectedNodeIndices = [0, 1, 2, 3, 4, 5].sort(() => Math.random() - 0.5).slice(0, 2);
+        let [left, right] = this.globals.selectedNodeIndices;
+
+        let duad = clockwiseForm(this.globals.selectedNodeIndices.map(x => this.currentPhi.map(x)).join(''));
+        this.target.querySelectorAll(`.node-${left}`).forEach(n => n.classList.add('selected'));
+        this.target.querySelectorAll(`.node-${right}`).forEach(n => n.classList.add('selected'));
+        
+        this.swap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]});
+        this.psiOfSwap = new Permutation(this.globals.psi[duad]);
+
+        setTimeout(() => requestAnimationFrame(this.animate.bind(this)), 500);
+    }
+
 }
 
 class PermutationComposer extends BaseComposer{
@@ -406,7 +431,7 @@ class PermutationComposer extends BaseComposer{
 
             requestAnimationFrame(this.animate.bind(this));
         } else {
-            document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
+            this.target.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
         }            
     }
 
@@ -415,6 +440,23 @@ class PermutationComposer extends BaseComposer{
         this.components.forEach(component => component.update())
         this.globals.selectedNodeIndices = [];
         this.target.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+    }
+
+    animate(t) {
+        if (this.animStart === undefined) {
+            this.animStart = t;
+        }
+        const elapsed = t - this.animStart;
+        const shift = Math.min(elapsed / 1200, 1);
+        
+        if (shift < 1) {
+            let t = easeInOutCubic(shift);
+            this.interpolate(t);
+            requestAnimationFrame(this.animate.bind(this));
+        } else {
+            this.animStart = undefined;
+            this.update();
+        }
     }
 }
 
@@ -526,8 +568,26 @@ class LinkedPermutationComposer extends BaseComposer {
         this.components[1].update(false);
         this.globals.selectedNodeIndices = [];
         this.globals.selectedOutNodeIndices = [];
-        document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+        this.target.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
     }
+    
+    animate(t) {
+        if (this.animStart === undefined) {
+            this.animStart = t;
+        }
+        const elapsed = t - this.animStart;
+        const shift = Math.min(elapsed / 1200, 1);
+        
+        if (shift < 1) {
+            let t = easeInOutCubic(shift);
+            this.interpolate(t);
+            requestAnimationFrame(this.animate.bind(this));
+        } else {
+            this.animStart = undefined;
+            this.update();
+        }
+    }
+
 }
 
 class PentadComposer extends BaseComposer {
@@ -632,7 +692,7 @@ class PentadComposer extends BaseComposer {
             requestAnimationFrame(this.animate.bind(this));
             
         } else {
-            document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
+            // document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
         }            
     }
 
@@ -641,7 +701,7 @@ class PentadComposer extends BaseComposer {
         this.components[1].update(this.currentPsi);
         this.globals.selectedNodeIndices = [];
         this.globals.selectedOutNodeIndices = [];
-        document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+        this.target.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
     }  
     
 }
@@ -751,7 +811,7 @@ class TrianglePermutationComposer extends BaseComposer {
 
             requestAnimationFrame(this.animate.bind(this));
         } else {
-            document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
+            // document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
         }            
     }
     
@@ -768,4 +828,21 @@ class TrianglePermutationComposer extends BaseComposer {
         this.globals.selectedNodeIndices = [];
         this.target.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
     }
+    animate(t) {
+        if (this.animStart === undefined) {
+            this.animStart = t;
+        }
+        const elapsed = t - this.animStart;
+        const shift = Math.min(elapsed / 1200, 1);
+        
+        if (shift < 1) {
+            let t = easeInOutCubic(shift);
+            this.interpolate(t);
+            requestAnimationFrame(this.animate.bind(this));
+        } else {
+            this.animStart = undefined;
+            this.update();
+        }
+    }
+
 }

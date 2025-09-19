@@ -5,7 +5,7 @@ if (aspectRatio < 1) {
     document.getElementById('pentads').setAttribute('viewBox', '-250 -500 750 1000');
 } else {
     document.body.style.flexDirection = 'row';
-    document.getElementById('mystic').setAttribute('viewBox', '-500 -250 1000 500');
+    document.getElementById('mystic').setAttribute('viewBox', '-500 -275 1000 550');
     document.getElementById('pentads').setAttribute('viewBox', '-500 -250 1000 750');
 }
 
@@ -97,6 +97,24 @@ const linkedPermutationComposerConfig =  {
     psi: new Permutation(6, labels=['A', 'B', 'C', 'D', 'E', 'F'])
 }
 
+
+const demoComposerConfig =  {
+    showCycle: true,
+    r: 100,
+    R: 350,
+    nodeR: 30,
+    nodePadding: 12.5,
+    useArcs: true,
+    configuration: 'star',
+    showCenterLines: true,
+    showBackground: true,
+    nodeType: 'syntheme',
+    showLabels: true,
+    labelType: 'multicolor',
+    showCenterNode: true,
+    demoMode: true
+}
+
 const mysticRectangleConfig =  {
     showCycle: true,
     r: 100,
@@ -171,7 +189,7 @@ const finalComposerConfig =  {
     showCenterNode: true,
 }
 
-
+const demoComposer = new StarComposer(composerData, demoComposerConfig, document.getElementById('demo'));
 const permutationComposer = new PermutationComposer({}, {n: 6}, document.getElementById('permutations'));
 const triangleComposer = new TriangleComposer({}, {r: 80}, document.getElementById('triangles'));
 const trianglePermutationComposer = new TrianglePermutationComposer({}, {r: 160, n: 3}, document.getElementById('triangle-s3'));

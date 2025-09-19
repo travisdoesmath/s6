@@ -562,8 +562,24 @@ class BackgroundStar extends BaseStar {
 
     }
 
-    shift() {
+    morph() {
         // overwriting base method to do nothing
+    }
+
+    shift(oldLocation, newLocation, t, linear=true) {
+        const oldLocations = [...new Array(this.composer.componentLocations.length).keys()].map(i => this.composer.componentLocations[this.composer.currentPsi.map(i)]);
+        const newLocations = [...new Array(this.composer.componentLocations.length).keys()].map(i => this.composer.componentLocations[this.composer.psiOfSwap.map(this.composer.currentPsi.map(i))]);
+        const oldPhi = this.composer.currentPhi;
+        const newPhi = this.composer.currentPhi.compose(this.composer.swap);
+
+        this.subcomponents.edges.forEach(edge => {
+            let [left, right] = edge.data.duad.split('').map(x => +x);
+            if (this.config.useArcs) {
+                const oldArcData = getArcData(oldLocations, left, right, oldPhi);
+                const newArcData = getArcData(newLocations, left, right, newPhi);
+                edge.morph(oldArcData, newArcData, t);
+            }
+        });
     }
 }
 
