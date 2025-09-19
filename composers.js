@@ -303,6 +303,7 @@ class StarComposer extends BaseStarComposer {
                 nodePadding: this.config.nodePadding,
                 nodeType: this.config.nodeType,
                 colorScheme: this.config.colorScheme,
+                labelType: this.config.labelType
             }
             const newStar = new ForegroundStar(pentadData, configData, this.target);
             stars.push(newStar);

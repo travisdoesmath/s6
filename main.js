@@ -92,6 +92,7 @@ const mysticRectangleConfig =  {
     showBackground: false,
     configuration: 'rectangle',
     showLabels: true,
+    labelType: 'letter',
     showCenterLines: false,
     colorScheme: 'in-cycle',
     nodeType: 'label',
@@ -138,6 +139,7 @@ const synthemeNodesComposerConfig =  {
     showBackground: true,
     nodeType: 'syntheme',
     highlightSteps: true,
+    showLabels: false,
 }
 
 const finalComposerConfig =  {
@@ -152,6 +154,7 @@ const finalComposerConfig =  {
     showBackground: true,
     nodeType: 'syntheme',
     showLabels: true,
+    labelType: 'multicolor'
 }
 
 

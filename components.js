@@ -587,28 +587,64 @@ class ForegroundStar extends BaseStar {
             let newLocation = newState.subcomponentLocations[node.id.split('-')[2]];
             node.shift(oldLocation, newLocation, t)
         });
+        if (this.config.labelType === 'multicolor') {
+            this.subcomponents.label.forEach(label => {
+                label.labelBgArcs.forEach(bgArc => {
+                    let i = this.composer.currentPhi.map(bgArc.id);
+                    let j = this.composer.currentPhi.compose(this.composer.swap).map(bgArc.id);
+                    let oldAngle1 = 0.9 * Math.PI + 2*(1+i) * Math.PI / 5
+                    let oldAngle2 = 0.9 * Math.PI + 2*(2+i) * Math.PI / 5
+                    let newAngle1 = 0.9 * Math.PI + 2*(1+j) * Math.PI / 5
+                    let newAngle2 = 0.9 * Math.PI + 2*(2+j) * Math.PI / 5
+                    bgArc.setAttribute('d', `M ${Math.cos(lerp(oldAngle1, newAngle1, t))} ${Math.sin(lerp(oldAngle1, newAngle1, t))} L ${Math.cos(lerp(oldAngle2, newAngle2, t))} ${Math.sin(lerp(oldAngle2, newAngle2, t))} L 0 0`)
+                })
+            })
+        }      
     }
 
     createLabel() {
-        // const labelGroup = createElement('g', {
-        //     id: this.id,
-        //     class: 'label',
-        //     parent: this.layers.labels
-        // });
-        // const labelBg = createElement('circle', {
-        //     cx: '0',
-        //     cy: '0',
-        //     r: '20',
-        //     fill: this.id === 5 ? '#888' : `var(--color${this.id + 1})`,
-        //     parent: labelGroup
-        // });
-        // let text = createElement('text', {
-        //     class: 'star-label',
-        //     parent: labelGroup,
-        //     fill: this.id === 5 ? '#666' : `var(--color${this.id + 1}-dark)`,
-        //     opacity: 0.5    
-        // });
-        // text.innerHTML = ['A','B','C','D','E','F'][this.id];
+        let labels = []
+        if (this.config.showLabels) {
+            const labelGroup = createElement('g', {
+                id: this.id,
+                class: 'label',
+                parent: this.layers.labels
+            });
+            // const labelBg = createElement('circle', {
+            //     cx: '0',
+            //     cy: '0',
+            //     r: this.config.nodeR,
+            //     fill: this.id === 5 ? '#888' : `var(--color${this.id + 1})`,
+            //     parent: labelGroup
+            // });
+            if (this.config.labelType == 'multicolor') {
+                let labelBgArcs = [0, 1, 2, 3, 4].map(i => {
+                    let angle1 = 0.9 * Math.PI + 2*(1+i) * Math.PI / 5
+                    let angle2 = 0.9 * Math.PI + 2*(2+i) * Math.PI / 5
+                    return createElement('path', {
+                        id: i,
+                        d: `M ${Math.cos(angle1)} ${Math.sin(angle1)} L ${Math.cos(angle2)} ${Math.sin(angle2)} L 0 0`,
+                        fill: `var(--color${i+1})`,
+                        transform: `scale(${this.nodeR})`,
+                        parent: labelGroup,
+                    })
+                })
+                labels.push({group: labelGroup, labelBgArcs: labelBgArcs})
+            }
+            if (this.config.labelType == 'letter') {
+                let text = createElement('text', {
+                    class: 'star-label',
+                    parent: labelGroup,
+                    //fill: this.id === 5 ? '#666' : `var(--color${this.id + 1}-dark)`,
+                    fill: '#888',
+                    opacity: 0.5    
+                });
+                text.innerHTML = ['A','B','C','D','E','F'][this.id];
+                labels.push({group: labelGroup, text: text})            
+            }
+            
+        }
+        return labels
     }
 
     createBackground() {

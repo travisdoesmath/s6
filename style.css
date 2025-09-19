@@ -358,7 +358,7 @@ figcaption {
 
 .star-label {
     text-anchor: middle;
-    font-size: 50px;
+    font-size: 35px;
     dominant-baseline: central;
     cursor: pointer;
     stroke: none;
@@ -430,13 +430,22 @@ svg {
 }
 
 .table-3-col {
-    display: grid; 
-    grid-template-columns: repeat(3, 1fr); 
+    display: grid;         
+    grid-template-columns: 1fr 1fr 1fr;
     font-size: 2rem; 
     margin: auto; 
     max-width: 80%;
     gap: 1rem;
 }
+
+.table-3-col.responsive{
+    @media screen and (max-aspect-ratio: 1/1) {
+        grid-template-columns: 1fr 1fr;
+        font-size: 1.3rem;   
+    }
+
+}
+
 
 .table-3-col>div {
     text-align: center;
