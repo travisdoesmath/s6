@@ -26,8 +26,6 @@ class BaseComposer {
         const oldState = {
             componentLocations: [...new Array(this.componentLocations.length).keys()].map(i => this.componentLocations[this.currentPsi.map(i)]),
             subcomponentLocations: [...new Array(this.subcomponentLocations.length).keys()].map(i => this.subcomponentLocations[this.currentPhi.map(i)]),
-            // componentLocations: this.componentLocations,
-            // subcomponentLocations: this.subcomponentLocations,
             psi: this.psi,
             phi: this.phi
         }
@@ -159,7 +157,6 @@ class BaseStarComposer extends BaseComposer {
         if (this.config.demoMode) {
             return;
         }
-        // let nodeIdx = this.currentPhi.inverse(that.group.getAttribute('id').split('-')[2]);
         let nodeIdx = that.group.getAttribute('id').split('-')[2];
         let nodes = this.target.querySelectorAll(`.node-${nodeIdx}`);
         if (this.globals.selectedNodeIndices.includes(nodeIdx) || this.globals.selectedNodeIndices.length < 2)
@@ -179,11 +176,48 @@ class BaseStarComposer extends BaseComposer {
             this.swap = new Permutation({[duad[0]]: +duad[1], [duad[1]]: +duad[0]});
             this.psiOfSwap = new Permutation(this.globals.psi[duad]);
 
-            requestAnimationFrame(this.animate.bind(this));
-            
+            if (this.config.highlightSteps) {
+                let duadToNodeMap = {
+                    '01': 3,
+                    '12': 4,
+                    '23': 0,
+                    '34': 1,
+                    '40': 2,
+                    '02': 1,
+                    '13': 2,
+                    '24': 3,
+                    '30': 4,
+                    '41': 0,
+
+                    '05': 0,
+                    '15': 1,
+                    '25': 2,
+                    '52': 2,
+                    '35': 3,
+                    '45': 4,
+                }
+                // let [a, b] = this.globals.selectedNodeIndices.map(x => this.currentPhi.map(+x));
+                let [a, b] = this.globals.selectedNodeIndices;
+                let ab = clockwiseForm(this.globals.selectedNodeIndices.join(''));
+                let duad = clockwiseForm(this.globals.selectedNodeIndices.map(x => this.currentPsi.inverse(this.currentPhi.map(x))).join(''));
+                
+                let centerPentagram = this.target.getElementById(this.currentPsi.inverse(5));
+                centerPentagram.querySelector(`g.duad[data-id="${ab}"] .outline`).classList.add('highlight'); 
+                this.background.target.querySelector(`g.duad[data-id="${duad}"] .outline`).classList.add('highlight'); 
+                this.target.querySelector(`#node-${duad[0]}-${duadToNodeMap[duad]}`).classList.add('highlight');
+                this.target.querySelector(`#node-${duad[1]}-${duadToNodeMap[duad]}`).classList.add('highlight');
+
+                setTimeout(() => {
+                    this.target.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
+                    requestAnimationFrame(this.animate.bind(this));
+                }, 3000);
+            } else {
+                requestAnimationFrame(this.animate.bind(this));
+            }
+
         } else {
-            // document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
-        }            
+            this.target.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
+        }
     }
 
     updateComponents() {
@@ -278,7 +312,7 @@ class StarComposer extends BaseStarComposer {
 
     createBackground() {
         const backgroundData = {
-            id: 0,
+            id: '0-bg',
             synthemes: [
                 ['05', '41', '23'],
                 ['15', '02', '34'],

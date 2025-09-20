@@ -189,6 +189,7 @@ const finalComposerConfig =  {
     showCenterNode: true,
 }
 
+
 const demoComposer = new StarComposer(composerData, demoComposerConfig, document.getElementById('demo'));
 const permutationComposer = new PermutationComposer({}, {n: 6}, document.getElementById('permutations'));
 const triangleComposer = new TriangleComposer({}, {r: 80}, document.getElementById('triangles'));

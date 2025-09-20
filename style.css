@@ -118,12 +118,12 @@
     }
 }
 
-@keyframes pulse1 {
+@keyframes pulse {
     0% {
         filter: drop-shadow(0 0 0px #f0e442);
     }
     10% {
-        filter: drop-shadow(0 0 1px #f0e442);
+        filter: drop-shadow(0 0 10px #f0e442);
     }
     20%, 100% {
         filter: drop-shadow(0 0 0px #f0e442);
@@ -358,16 +358,16 @@ figcaption {
     filter: drop-shadow(0 0 5px #fff);
 }
 
-.outline.highlight {
-    animation: pulse1 ease-in-out 4s infinite;
+.foreground-star .outline.highlight {
+    animation: pulse ease-in-out 4s infinite;
 }
 
-#background-layer>.outline.highlight {
-    animation: 4s pulse1 ease-in-out 1s infinite;
+.background-star .outline.highlight {
+    animation: 4s pulse ease-in-out 1s infinite;
 }
 
 .node.highlight {
-    animation: 4s pulse1 ease-in-out 2s infinite;
+    animation: 4s pulse ease-in-out 2s infinite;
 }
 
 .center {

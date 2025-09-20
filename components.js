@@ -799,7 +799,7 @@ class PermutationComponent extends BaseComponent {
     }
 
     interpolate(t, swap=this.composer.swap) {
-        this.subcomponents.cycleLabel.innerHTML = this.cycle.cycleNotation + swap.cycleNotation;
+        this.subcomponents.cycleLabel.innerHTML = swap.cycleNotation + this.cycle.cycleNotation;
         this.subcomponents.nodes.forEach(node => {
             let oldLocation = this.subcomponentLocations[this.cycle.map(node.id)];
             let newLocation = this.subcomponentLocations[swap.compose(this.cycle).map(node.id)];

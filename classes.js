@@ -93,7 +93,7 @@ class Permutation {
     }
 
     inverse(value) {
-        value = String(value);
+        // value = String(value);
         return Object.keys(this.permutation).find(key => this.permutation[key] === value) || value;
     }
 
